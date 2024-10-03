@@ -26,7 +26,7 @@
         }
 
         .welcome-image {
-            background: url('../static/login_pics/login_screen.png');
+            background: url('../assets/login_screen.png');
 
 
             background-size: cover;
@@ -47,33 +47,31 @@
             <div class="col-md-6 login-section">
                 <div class="login-box">
                     <h1 class="text-center">Get Started Now!</h1>
-                    <p>Enter your Credentials to access your account</p>
                     <br>
-                    <form>
                         <div class="form-group login-button">
-                            <label for="email">Email address(.edu only)</label>
+                            <label for="email">Email address (.edu only)</label>
                             <input type="email" class="form-control" id="email" placeholder="Enter your email">
-                            <div class="form-group login-button">
-                                <label for="university">Choose University</label>
-                                <select>
-                                    <option value="option0">None</option>
-                                    <option value="option1">University of Texas Rio Grande Valley - Edingburg</option>
-                                    <option value="option2">University of Texas Rio Grande Valley - Brownsville</option>
-
-                                </select>
+                        </div> <!-- Correctly closing the div here -->
+                        <br><br>
+                        <div class="form-group login-button">
+                            <label for="university">Choose University</label>
+                            <select class="form-select">
+                                <option value="option0">None</option>
+                                <option value="option1">University of Texas Rio Grande Valley - Edinburg</option>
+                                <option value="option2">University of Texas Rio Grande Valley - Brownsville</option>
+                            </select>
+                        </div>
+                    
+                        <br><br>
+                        <button type="submit" class="btn btn-primary w-100 login-button">Sign Up</button>
+                    
+                        <div class="row p-2">
+                            <div class="text-center">
+                                <p>Have an account?
+                                    <a href="#" class="nav-link d-inline p-0">Sign In</a>
+                                </p>
                             </div>
-                            <br><br>
-                            <button type="submit" class="btn btn-primary btn-block login-button">Sign Up</button>
-                            <div class="row p-2">
-                                <div class="text-center">
-                                    <p>Have an account?
-                                        <a href="#" class="nav-link d-inline p-0">Sign In</a>
-                                    </p>
-                                </div>
-                            </div>
-
-
-
+                        </div>
                     </form>
                 </div>
             </div>
