@@ -62,11 +62,6 @@
             gap: 20px; /* Space between the dropdowns */
         }
 
-        input[type="checkbox"] {
-
-            accent-color: green;
-        }
-
 
     </style>
 </head>
@@ -140,14 +135,15 @@
             </div>
 
             <div class="container-fluid">
-                <h4>Upload Image</h4>
-                <button type="button">Select...</button>
-            </div>
-
-            <div class="container-fluid">
                 <div class="row">
                     <div class="col-md-4">
                         <div class="row">
+
+                            <div class="container-fluid">
+                                <h4>Upload Image</h4>
+                                <button type="button">Select...</button>
+                            </div>
+
                             <div class="col-md-6">
                                 <h4>Campus</h4>
                                 <select id="campusSelect" class="form-select form-select-sm">
@@ -241,19 +237,19 @@
                         <h4>Keywords</h4>
                         <input type="text" id="keywords" name="keywords" class="form-control"/>
 
-                        <div class="row mt-3">
+                        <div class="row mt-3 align-items-center">
                             <div class="col-md-6">
                                 <h4>Available #</h4>
                                 <input type="number" id="available" name="available" class="form-control"/>
                             </div>
-                            <div class="col-md-6">
-                                <div class="form-check">
+                            <div class="col-md-6 d-flex justify-content-center">
+                                <div class="form-check d-flex align-items-center">
                                     <input type="checkbox" id="availability" name="availability" value="availability" class="form-check-input">
-                                    <label for="availability" class="form-check-label">Available</label>
+                                    <label for="availability" class="form-check-label ms-2">Available</label>
                                 </div>
                             </div>
                         </div>
-
+                        
                         <div class="text-center mt-3">
                             <button type="button" class="btn" style="background-color: #CB4900; color: white; width: 150px;">Save</button>
                         </div>
