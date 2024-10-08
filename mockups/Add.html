@@ -62,6 +62,21 @@
             gap: 20px; /* Space between the dropdowns */
         }
 
+        .cal_button {
+            border: none;
+            width: 10px;
+            height: 10px;
+            background: white;
+            padding-top: 8px;
+            padding-left: 30px;
+        }
+
+        .availability {
+            font-size: 18px;
+            padding-top: 35px;
+            padding-left: 30px;
+        }
+
 
     </style>
 </head>
@@ -200,7 +215,7 @@
                         <h4>Application</h4>
                         <textarea id="application" name="application" class="form-control" rows="4" style="resize: none;"></textarea>
 
-                        <h4>Link to manual</h4>
+                        <h4>Link to Manual</h4>
                         <input type="text" id="manual_link" name="manual_link" class="form-control"/>
                     </div>
 
@@ -239,20 +254,25 @@
 
                         <div class="row mt-3 align-items-center">
                             <div class="col-md-6">
-                                <h4>Available #</h4>
+                                <h4>Number Available</h4>
                                 <input type="number" id="available" name="available" class="form-control"/>
                             </div>
-                            <div class="col-md-6 d-flex justify-content-center">
-                                <div class="form-check d-flex align-items-center">
-                                    <input type="checkbox" id="availability" name="availability" value="availability" class="form-check-input">
+                            <div class="col-md-6 d-flex align-items-center justify-content-start">
+                                <div class="form-check availability">
+                                    <input type="checkbox" name="availability" value="availability" class="form-check-input">
                                     <label for="availability" class="form-check-label ms-2">Available</label>
                                 </div>
+                                <button onclick="myFunction()" class="cal_button">
+                                    <img src="/assets/Vector.png" style="width: 20px; height: 20px;" />
+                                </button>
                             </div>
                         </div>
                         
                         <div class="text-center mt-3">
                             <button type="button" class="btn" style="background-color: #CB4900; color: white; width: 150px;">Save</button>
                         </div>
+
+
                     </div>
                 </div>
             </div>
