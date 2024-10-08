@@ -1,1 +1,1 @@
-# Senior-Project-2024
+# Equipment Scheduler
