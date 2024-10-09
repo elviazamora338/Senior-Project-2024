@@ -28,13 +28,9 @@
             }
             .welcome-image {
                 background: url('../assets/login_screen.png');
-
-
                 background-size: cover;
                 height: 100%;
                 background-position: center -50px;
-
-
             }
 
         </style>
@@ -46,24 +42,17 @@
     <div class = "row h-100">
         <!-- This will be the left side of screen for login -->
         <div class = "col-md-6 login-section">
-            <div class = "login-box">
-                <h1 class = "text-center">Welcome Back!</h1>    
-                <p>Enter your Credentials to access your account</p>
+            <div class = "login-auth">
+                <h1 class = "text-center">Verify Your Identity</h1>    
+                <p>Check your email for a one-time code</p>
                 <br>
                 <form>
-                    <div class = "form-group login-button">
-                        <label for ="email">Email address(.edu only)</label>
-                        <input type="email" class ="form-control" id = "email" placeholder = "Enter you email" > 
+                    <div class = "form-group login-auth">
+                        <label for ="code">Enter your code</label>
+                        <input type="code" class ="form-control" id = "code" placeholder = "Code" > 
                     </div>
                     <br><br>
-                    <button type="submit" class="btn btn-primary btn-block login-button">Login</button>
-                    <div class = "row p-2">
-                        <div class = "text-center">
-                            <p>Don't have an account?
-                            <a href="#" class="nav-link d-inline p-0">Sign Up</a>
-                            </p>
-                        </div>
-                    </div>
+                    <button type="submit" class="btn btn-primary btn-block login-auth">Continue</button>
                 </form> 
             </div>
         </div>
