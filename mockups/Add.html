@@ -76,6 +76,26 @@
             padding-top: 35px;
             padding-left: 30px;
         }
+        .uploadImage{
+            display: flex;
+            /* Stack items vertically */
+            flex-direction: column; 
+            /* Center horizontally */
+            align-items: center; 
+            /* Center vertically if needed */
+            justify-content: center; 
+            /* Adjust height as necessary */
+            height: 300px;
+            /* Add padding as needed */ 
+            /* padding: 10px;  */
+            font-size: 150px;
+            /* Background color for visibility */
+            background-color: #f0f0f0; 
+            border-radius: 1rem;
+        }
+        .uploadImage i {
+            margin-bottom: 0.5rem; /* Adjust this value to bring the icon closer to the text */
+        }
 
 
     </style>
@@ -156,9 +176,11 @@
                         <div class="col-md-4">
                             <div class="row">
 
-                                <div class="container-fluid">
-                                    <h4>Upload Image</h4>
-                                    <button type="button">Select...</button>
+                                <div class="container-fluid uploadImage">
+                                    <!-- <h4 class = link >Upload Image</h4> -->
+                                    <i class="bi bi-cloud-arrow-up"></i>
+                                    <a class = "link .text-primary" style="font-size: x-large ">Upload Image</a>
+                                    <!-- <button type="button">Select...</button> -->
                                 </div>
 
                                 <div class="col-md-6">
@@ -205,6 +227,7 @@
 
                             <h4>Person in Charge</h4>
                             <input type="text" id="person_in_charge" name="person_in_charge" class="form-control"/>
+                            <br>
                         </div>
 
                         <div class="col-md-4">
