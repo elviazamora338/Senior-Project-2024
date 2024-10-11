@@ -25,7 +25,7 @@
          /*custom styles for the image container */
          .img-container {
             position: relative;
-            width: 1160px;
+            width: 1190px;
             height: 250px;
             overflow: hidden;
             border-radius: 15px;
@@ -127,6 +127,8 @@
                 </li>
             </ul>
         </div>
+
+
         <!-- Main content area -->
 
         <!-- 'container-fluid' is a full-width responsive container -->
@@ -162,56 +164,59 @@
                 </div>
                     
             </div>
-            <!-- have content in here -->
-             <!-- Image container with fixed size and rounded corners -->
-             <div class="container-fluid">
-                <div class="card-body">
-                    <div class="img-container">
-                        <img src="https://www.utrgv.edu/newsroom/2019/05/images/utrgv-sign.jpg" alt="My Image">
-                        <div class="text-overlay">
-                            <!-- Text overlay inside the image container -->
-                            <h1>Equipment Scheduler</h1>
-                            <br>
-                        </div>
-                        <!-- Button container -->
-                        <div class="button-container">
-                            <!-- 'btn btn-light' adds light-colored button styling -->
-                            <!-- 'btn-custom' is the CSS I added -->
-                            <button class="btn btn-light btn-custom">
-                                <i class="bi bi-calendar4-event"></i> Add to my itinerary
-                            </button>
-                            <button class="btn btn-light btn-custom">
-                                <i class="bi bi-person-walking"></i> 12 min from current location
-                            </button>
+           
+
+            <div class="container" style="width: 80%; margin-left: 15%;">
+                 <!-- have content in here -->
+                <!-- Image container with fixed size and rounded corners -->
+                <div class="container-fluid">
+                    <div class="card-body">
+                        <div class="img-container">
+                            <img src="https://www.utrgv.edu/newsroom/2019/05/images/utrgv-sign.jpg" alt="My Image">
+                            <div class="text-overlay">
+                                <!-- Text overlay inside the image container -->
+                                <h1>Equipment Scheduler</h1>
+                                <br>
+                            </div>
+                            <!-- Button container -->
+                            <div class="button-container">
+                                <!-- 'btn btn-light' adds light-colored button styling -->
+                                <!-- 'btn-custom' is the CSS I added -->
+                                <button class="btn btn-light btn-custom">
+                                    <i class="bi bi-calendar4-event"></i> Add to my itinerary
+                                </button>
+                                <button class="btn btn-light btn-custom">
+                                    <i class="bi bi-person-walking"></i> 12 min from current location
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
 
-    <!-- Buttons for scheduling, history, and bookmarks -->
+        <!-- Buttons for scheduling, history, and bookmarks -->
 
-          <!-- 'text-center' centers the text horizontally -->
-           <div class="col text-center">
-                <!-- Button group creates a set of buttons that appear next to each other -->
-                <div class="btn-group">
-                    <button type="button" class="bi bi-check-lg btn btn-secondary text-dark btn btn-outline-dark buttons-right"> Scheduled</button>
-                    <button type="button" class="bi bi-box btn  bg-light text-dark border-secondary"> History</button>
-                    <button type="button" class=" bi bi-bookmark-fill btn  bg-light text-dark border-secondary buttons-left"> Bookmarks</button>
+                <!-- 'text-center' centers the text horizontally -->
+                <div class="col text-center">
+                    <!-- Button group creates a set of buttons that appear next to each other -->
+                    <div class="btn-group">
+                        <button type="button" class="bi bi-check-lg btn btn-secondary text-dark btn btn-outline-dark buttons-right"> Scheduled</button>
+                        <button type="button" class="bi bi-box btn  bg-light text-dark border-secondary"> History</button>
+                        <button type="button" class=" bi bi-bookmark-fill btn  bg-light text-dark border-secondary buttons-left"> Bookmarks</button>
+                    </div>
                 </div>
-            </div>
-            <br>
-         <!-- Cancel button and table for items -->
-            <div class="container">
-                <!-- 'd-flex justify-content-end' aligns the button to the right -->
-                <div class = "d-flex justify-content-end mb-3">
-                    <!-- 'text-dark' makes the text dark -->
-                    <!-- 'border-secondary' adds a gray border -->
-                    <button type = "button" class = "text-dark border-secondary" style="width: 80px; height: 30px; color:gray">Cancel
-                    </button>
-                 </div>
-            </div>
+                <br>
+                <!-- Cancel button and table for items -->
+                <div class="container">
+                    <!-- 'd-flex justify-content-end' aligns the button to the right -->
+                    <div class = "d-flex justify-content-end mb-3">
+                        <!-- 'text-dark' makes the text dark -->
+                        <!-- 'border-secondary' adds a gray border -->
+                        <button type = "button" class = "text-dark border-secondary" style="width: 80px; height: 30px; color:gray">Cancel
+                        </button>
+                        </div>
+                </div>
 
-            <div class="container" style="width: 80%; margin-left: 15%;">
+                <!-- Table starts here -->
                 <div class="row" >
                     <div class="col">
                         <div style="max-height: 500px; overflow-y: auto;">
