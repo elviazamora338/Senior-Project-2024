@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css"" rel="stylesheet">
+    <link rel="stylesheet" href="./styles.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <title>Set Equipment Availability</title>
+</head>
+<style>
+    /* styles.css */
+.container {
+    max-width: 1000px;  /* Adjust the max width to fit your preference */
+    margin: 0 auto;    /* Centers the container */
+    padding: 20px;
+}
+
+</style>
+
+<body>
+    <!-- Main wrapper for the calendar application -->
+    <div class="container">
+        <h2 class="mt-5">Set Equipment Availability</h2>
+        <p class="text-danger">*By default, every weekday is set to 'available' from 8am-8pm. This page is to set-up UNAVAILABILITY</p>
+    
+        <!-- Form Section -->
+        <div class="row">
+          <div class="mt-4 col-md-7 card d-flex justify-content-between p-2">
+                <table class ="table justify-content-between">
+                    <thead class = p-6>
+                        <tr>
+                            <th>Period</th>
+                            <th>Date(s)</th>
+                            <th>Time(s) Unavailable</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+
+                        <!-- For Week -->
+                        <tr>
+                            <td>
+                                <select id="period" class="form-select">
+                                    <option>Day</option>
+                                    <option>Week</option>
+                                    <option>Month</option>
+                                </select>
+                            </td>
+                            <td>
+                                
+                                <input type="date" id="startDate" class="form-control">
+                                <label for="endDate" class="form-label p-2">To</label>
+                                <input type="date" id="endDate" class="form-control">
+                            </td>
+                            <td class = "row ">
+                                <div class = "col-6 p-2">
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="checkbox" value="8am-10am">
+                                        <label class="form-check-label">8 AM - 10 AM</label>
+                                    </div>
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="checkbox" value="8am-10am">
+                                        <label class="form-check-label">8 AM - 10 AM</label>
+                                    </div>
+                                </div>
+                                <div class = "col-6 p-1">
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="checkbox" value="8am-10am">
+                                        <label class="form-check-label">8 AM - 10 AM</label>
+                                    </div>
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="checkbox" value="8am-10am">
+                                        <label class="form-check-label">8 AM - 10 AM</label>
+                                    </div>
+                                </div>
+                               
+                            </td>
+                        </tr>
+                        <!-- For Day -->
+                        <tr>
+                            <td>
+                                <select id="period" class="form-select">
+                                    <option>Day</option>
+                                    <option>Week</option>
+                                    <option>Month</option>
+                                </select>
+                            </td>
+                            <td>
+                                <input type="date" id="startDate" class="form-control">
+                            </td>
+                            <td class = "row">
+                                <div class = "col-6 p-1">
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="checkbox" value="8am-10am">
+                                        <label class="form-check-label">8 AM - 10 AM</label>
+                                    </div>
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="checkbox" value="8am-10am">
+                                        <label class="form-check-label">8 AM - 10 AM</label>
+                                    </div>
+                                </div>
+                                <div class = "col-6 p-1">
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="checkbox" value="8am-10am">
+                                        <label class="form-check-label">8 AM - 10 AM</label>
+                                    </div>
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="checkbox" value="8am-10am">
+                                        <label class="form-check-label">8 AM - 10 AM</label>
+                                    </div>
+                                </div>
+                               
+                            </td>
+                        </tr>
+                        <!-- For Month -->
+                        <tr>
+                            <td>
+                                <select id="period" class="form-select">
+                                    <option>Day</option>
+                                    <option>Week</option>
+                                    <option>Month</option>
+                                </select>
+                            </td>
+                            <td>
+                                <input type="date" id="startDate" class="form-control">
+                            </td>
+                            <td class = "row">
+                                <div class = "col-sm-5 p-0">
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="checkbox" value="8am-10am">
+                                        <label class="form-check-label" style="font-size: 14px;">8 AM - 10 AM</label>
+                                    </div>
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="checkbox" value="8am-10am">
+                                      <label class="form-check-label" style="font-size: 14px;">8 AM - 10 AM</label>
+                                    </div>
+                                </div>
+                                <div class = "col-sm-5 p-0">
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="checkbox" value="8am-10am">
+                                        <label class="form-check-label" style="font-size: 14px;">8 AM - 10 AM</label>
+                                    </div>
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="checkbox" value="8am-10am">
+                                        <label class="form-check-label" style="font-size: 14px;">8 AM - 10 AM</label>
+                                    </div>
+                                </div>
+                                <div class = "justify-content-end d-flex col-sm-2 p-0" style="width:fit-content">
+                                    <button class = "btn bg-danger">-</button>
+                                </div>
+                               
+                            </td>
+                        </tr>
+                        
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Calendar section -->
+            <div class=" mt-4 col-md-5">
+                        <div class="text-center mb-4 d-flex justify-content-between align-items-center">
+                            <h3 id="monthAndYear" class = "mb-0"></h3>
+                            <div class="d-flex">
+                                <button class="btn btn-warning bi bi-chevron-left" style="margin-right: 20px" id="previous" onclick="previous()"></button>
+                                <button class="btn btn-warning bi bi-chevron-right" id="next" onclick="next()"></button>
+                            </div>
+                        </div>
+
+                        <!-- Calendar table -->
+                        <table class="table table-bordered text-center" id="calendar">
+                            <thead id="thead-month"></thead>
+                            <tbody id="calendar-body"></tbody>
+                        </table>
+
+                        <!-- Jump to month and year -->
+                        <div class="d-flex justify-content-center mt-4">
+                            <label for="month" class="me-2">Jump To:</label>
+                            <select id="month" class="form-select me-2" onchange="jump()">
+                                <!-- Options go here -->
+                            </select>
+                            <select id="year" class="form-select" onchange="jump()"></select>
+                        </div>
+             <!-- Calendar end -->
+            </div>
+        <!-- Row -->
+        </div> 
+    <!-- Container -->
+    </div>
+
+    <script src="./script.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>
