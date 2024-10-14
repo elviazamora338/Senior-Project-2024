@@ -16,6 +16,10 @@
     margin: 0 auto;    /* Centers the container */
     padding: 20px;
 }
+.month
+{
+    
+}
 
 </style>
 
@@ -34,6 +38,7 @@
                             <th>Period</th>
                             <th>Date(s)</th>
                             <th>Time(s) Unavailable</th>
+                            <th> </th>
                         </tr>
                     </thead>
                     <tbody>
@@ -41,47 +46,58 @@
                         <!-- For Week -->
                         <tr>
                             <td>
-                                <select id="period" class="form-select">
+                                <select id="period" class="form-select" style="width: fit-content;">
                                     <option>Day</option>
-                                    <option>Week</option>
+                                    <option selected>Week</option>
                                     <option>Month</option>
                                 </select>
                             </td>
                             <td>
-                                
-                                <input type="date" id="startDate" class="form-control">
-                                <label for="endDate" class="form-label p-2">To</label>
-                                <input type="date" id="endDate" class="form-control">
+                                <div class = col-12>
+                                    <input type="date" id="startDate" class="form-control">
+                                    <label for="endDate" class="form-label">To</label>
+                                    <input type="date" id="endDate" class="form-control">
+                                </div>
+                               
                             </td>
-                            <td class = "row ">
-                                <div class = "col-6 p-2">
+
+
+                            <!-- p-4 for selection of month -->
+                            <td class = "row d-flex justify-content-center p-8 mt-4">
+                                <div class = "col-6  p-1" style="width: fit-content;">
                                     <div class="form-check form-check-inline">
                                         <input class="form-check-input" type="checkbox" value="8am-10am">
-                                        <label class="form-check-label">8 AM - 10 AM</label>
+                                        <label class="form-check-label" style="font-size: 14px;">8M-10AM</label>
                                     </div>
                                     <div class="form-check form-check-inline">
                                         <input class="form-check-input" type="checkbox" value="8am-10am">
-                                        <label class="form-check-label">8 AM - 10 AM</label>
+                                        <label class="form-check-label" style="font-size: 14px;">8AM-10AM</label>
                                     </div>
                                 </div>
-                                <div class = "col-6 p-1">
+                                <div class = "col-6 p-1 mb-4" style="width: fit-content;">
                                     <div class="form-check form-check-inline">
                                         <input class="form-check-input" type="checkbox" value="8am-10am">
-                                        <label class="form-check-label">8 AM - 10 AM</label>
+                                        <label class="form-check-label" style="font-size: 14px;">8M-10AM</label>
                                     </div>
                                     <div class="form-check form-check-inline">
                                         <input class="form-check-input" type="checkbox" value="8am-10am">
-                                        <label class="form-check-label">8 AM - 10 AM</label>
+                                        <label class="form-check-label" style="font-size: 14px;">8AM-10AM</label>
                                     </div>
                                 </div>
                                
+                            </td>
+
+                            <td>
+                                <div class = "justify-content-end d-flex p-0" style="width:fit-content">
+                                    <button class = "btn bg-danger">-</button>
+                                </div>
                             </td>
                         </tr>
                         <!-- For Day -->
                         <tr>
                             <td>
-                                <select id="period" class="form-select">
-                                    <option>Day</option>
+                                <select id="period" class="form-select" style="width: fit-content;">
+                                    <option selecte>Day</option>
                                     <option>Week</option>
                                     <option>Month</option>
                                 </select>
@@ -90,69 +106,75 @@
                                 <input type="date" id="startDate" class="form-control">
                             </td>
                             <td class = "row">
-                                <div class = "col-6 p-1">
+                                <div class = "col-6  p-1" style="width: fit-content;">
                                     <div class="form-check form-check-inline">
                                         <input class="form-check-input" type="checkbox" value="8am-10am">
-                                        <label class="form-check-label">8 AM - 10 AM</label>
+                                        <label class="form-check-label" style="font-size: 14px;">8M-10AM</label>
                                     </div>
                                     <div class="form-check form-check-inline">
                                         <input class="form-check-input" type="checkbox" value="8am-10am">
-                                        <label class="form-check-label">8 AM - 10 AM</label>
+                                        <label class="form-check-label" style="font-size: 14px;">8AM-10AM</label>
                                     </div>
                                 </div>
-                                <div class = "col-6 p-1">
+                                <div class = "col-6  p-1" style="width: fit-content;">
                                     <div class="form-check form-check-inline">
                                         <input class="form-check-input" type="checkbox" value="8am-10am">
-                                        <label class="form-check-label">8 AM - 10 AM</label>
+                                        <label class="form-check-label" style="font-size: 14px;">8M-10AM</label>
                                     </div>
                                     <div class="form-check form-check-inline">
                                         <input class="form-check-input" type="checkbox" value="8am-10am">
-                                        <label class="form-check-label">8 AM - 10 AM</label>
+                                        <label class="form-check-label" style="font-size: 14px;">8AM-10AM</label>
                                     </div>
                                 </div>
                                
+                            </td>
+                            <td>
+                                <div class = "justify-content-end d-flex p-0" style="width:fit-content">
+                                    <button class = "btn bg-danger">-</button>
+                                </div>
                             </td>
                         </tr>
                         <!-- For Month -->
                         <tr>
                             <td>
-                                <select id="period" class="form-select">
+                                <select id="period" class="form-select" style="width: fit-content;">
                                     <option>Day</option>
-                                    <option>Week</option>
-                                    <option>Month</option>
+                                    <option >Week</option>
+                                    <option selected>Month</option>
                                 </select>
                             </td>
                             <td>
                                 <input type="date" id="startDate" class="form-control">
                             </td>
                             <td class = "row">
-                                <div class = "col-sm-5 p-0">
+                                <div class = "col-6  p-1" style="width: fit-content;">
                                     <div class="form-check form-check-inline">
                                         <input class="form-check-input" type="checkbox" value="8am-10am">
-                                        <label class="form-check-label" style="font-size: 14px;">8 AM - 10 AM</label>
+                                        <label class="form-check-label" style="font-size: 14px;">8M-10AM</label>
                                     </div>
                                     <div class="form-check form-check-inline">
                                         <input class="form-check-input" type="checkbox" value="8am-10am">
-                                      <label class="form-check-label" style="font-size: 14px;">8 AM - 10 AM</label>
-                                    </div>
-                                </div>
-                                <div class = "col-sm-5 p-0">
-                                    <div class="form-check form-check-inline">
-                                        <input class="form-check-input" type="checkbox" value="8am-10am">
-                                        <label class="form-check-label" style="font-size: 14px;">8 AM - 10 AM</label>
-                                    </div>
-                                    <div class="form-check form-check-inline">
-                                        <input class="form-check-input" type="checkbox" value="8am-10am">
-                                        <label class="form-check-label" style="font-size: 14px;">8 AM - 10 AM</label>
+                                        <label class="form-check-label" style="font-size: 14px;">8AM-10AM</label>
                                     </div>
                                 </div>
-                                <div class = "justify-content-end d-flex col-sm-2 p-0" style="width:fit-content">
+                                <div class = "col-6  p-1" style="width: fit-content;">
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="checkbox" value="8am-10am">
+                                        <label class="form-check-label" style="font-size: 14px;">8M-10AM</label>
+                                    </div>
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="checkbox" value="8am-10am">
+                                        <label class="form-check-label" style="font-size: 14px;">8AM-10AM</label>
+                                    </div>
+                                </div>
+                            </td>
+                            <!-- Button section -->
+                            <td>
+                                <div class = "justify-content-end d-flex p-0" style="width:fit-content">
                                     <button class = "btn bg-danger">-</button>
                                 </div>
-                               
                             </td>
                         </tr>
-                        
                     </tbody>
                 </table>
             </div>
