@@ -14,83 +14,64 @@
             color: white;
             border-radius: 0
         }
-
         .sidebar {
-            width: 150px;
-            height: 100vh;
-            background-color: #343a40;
-            position: fixed;
-            top: 0;
-            left: 0;
-        }
+        /* Full height */
+        height: 100vh; 
+        /* Background color for sidebar */
+        background-color: #343a40; 
+    }
+     /*custom styles for the image container */
+     .img-container {
+        position: relative;
+        width: 1190px;
+        height: 250px;
+        overflow: hidden;
+        border-radius: 15px;
+        /* center the container horizontally */
+        margin:  auto;
+        margin-right: 40;
+    }
+    /* For the UTRGV image */
+    .img-container img {
+        width: 100%;
+        height: 100%;
+        /* the image covers the container without stretching */
+        object-position: 10% 55%;
+        object-fit: cover; 
+    }
+    /* Text overlay styles */
+    .text-overlay {
+        position: absolute;
+        bottom: 0;
+        width: 100%;
+        /* Semi-transparent background */
+        background-color: rgba(0, 0, 0, 0.5); 
+        color: white;
+        padding: 5px;
+        text-align: start;
+        font-size: 45px;
+        border-bottom-left-radius: 15px;
+        border-bottom-right-radius: 15px;
+    }
+    /* Button container */
+    .button-container {
+        position: absolute;
+        bottom: 20px;
+        left: 30px;
+    }
 
-        .container-fluid {
-            margin-left: 150px;
-            padding: 20px;
-            overflow: auto;
-        }
-
-        /*custom styles for the image container */
-        .img-container {
-            position: relative;
-            width: 1090px;
-            height: 230px;
-            overflow: hidden;
-            border-radius: 15px;
-            /* center the container horizontally */
-            margin: 0 auto;
-        }
-
-        /* For the UTRGV image */
-        .img-container img {
-            width: 100%;
-            height: 100%;
-            /* the image covers the container without stretching */
-            object-position: 10% 55%;
-            object-fit: cover;
-        }
-
-        /* Text overlay styles */
-        .text-overlay {
-            position: absolute;
-            bottom: 0;
-            width: 100%;
-            /* Semi-transparent background */
-            background-color: rgba(0, 0, 0, 0.5);
-            color: white;
-            padding: 5px;
-            text-align: start;
-            font-size: 45px;
-            border-bottom-left-radius: 15px;
-            border-bottom-right-radius: 15px;
-        }
-
-        /* Button container */
-        .button-container {
-            position: absolute;
-            bottom: 20px;
-            left: 30px;
-        }
-
-        .btn-custom {
-            margin-right: 10px;
-        }
-
-        .flex-container {
-            display: flex;
-            gap: 20px;
-        }
-
-        /* For pill container navigation bar */
-        .buttons-right {
-            border-top-left-radius: 80em;
-            border-bottom-left-radius: 80em;
-        }
-
-        .buttons-left {
-            border-top-right-radius: 80em;
-            border-bottom-right-radius: 80em;
-        }
+    .btn-custom {
+        margin-right: 10px;
+    }
+    /* For pill container navigation bar */
+    .buttons-right{
+        border-top-left-radius: 80em;
+        border-bottom-left-radius: 80em;
+    }
+    .buttons-left{
+        border-top-right-radius: 80em;
+        border-bottom-right-radius: 80em;
+    }
     </style>
 </head>
 
@@ -149,7 +130,8 @@
         <!-- Main content area -->
         <!-- 'container-fluid' is a full-width responsive container -->
         <!-- 'p-0' removers all padding inside the container -->
-        <div class="container-fluid p-0">
+         <!-- style="position: fixed; top: 0; left: 0; overflow-y: auto; margin-left: 1px" -->
+        <div class="container-fluid p-0" >
             <!-- 'card' is a Bootstrap class to create a card (a bordered box) -->
             <!-- 'mb-0' sets zero margin on the bottom of the card -->
             <div class="card card-custom mb-0">
@@ -207,76 +189,83 @@
                         </div>
                     </div>
                 </div>
-            </div>
+            
             <!-- Buttons for scheduling, history, and bookmarks -->
             <!-- 'text-center' centers the text horizontally -->
-            <div class="container-fluid">
-                <!-- 'd-flex justify-content-end' aligns the button to the right -->
-                <div class="d-flex justify-content-end mb-3">
-                    <!-- 'text-dark' makes the text dark -->
-                    <!-- 'border-secondary' adds a gray border -->
-                    <!-- Search Bar -->
-                    <div class="input-group" style="width: 300px; margin-right: 10px;">
-                        <input type="text" class="form-control" placeholder="Search" aria-label="Search"
-                            id="search-input">
-                        <button class="btn btn-outline-secondary" type="button" id="search-button">
-                            <i class="bi bi-search"></i>
+                <div class="container">
+                    <!-- 'd-flex justify-content-end' aligns the button to the right -->
+                    <div class="d-flex justify-content-end mb-3">
+                        <!-- 'text-dark' makes the text dark -->
+                        <!-- 'border-secondary' adds a gray border -->
+                        <!-- Search Bar -->
+                        <div class="input-group" style="width: 300px; margin-right: 10px;">
+                            <input type="text" class="form-control" placeholder="Search" aria-label="Search"
+                                id="search-input">
+                            <button class="btn btn-outline-secondary" type="button" id="search-button">
+                                <i class="bi bi-search"></i>
+                            </button>
+                        </div>
+                        <!-- Filter -->
+                        <button type="button" class="btn btn-outline-secondary">
+                            <i class="bi bi-funnel-fill"></i> Filter
                         </button>
                     </div>
-                    <!-- Filter -->
-                    <button type="button" class="btn btn-outline-secondary">
-                        <i class="bi bi-funnel-fill"></i> Filter
-                    </button>
                 </div>
-                <br>
+                <!-- <br> -->
                 <!-- A responsive table -->
-                <table class="row">
+                 
+                <div class="row" >
                     <div class="col">
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <!-- Table header -->
-                                    <th>Image</th>
-                                    <th>Item</th>
-                                    <th>Description</th>
-                                    <th>Time</th>
-                                    <th></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <!-- Loop through lab_devices -->
-                                {% for device in lab_devices %}
-                                <tr>
-                                    <!-- Image Section -->
-                                    <td>
-                                        {% if device.image_path %}
-                                        <img src="{{ url_for('static', filename='equipment_photos/' ~ device.image_path) }}"
-                                            alt="{{ device.device_name }}" style="width: 120px; height: auto;" />
-                                        {% else %}
-                                        <i class="bi bi-image" style="font-size: 120px;"></i>
-                                        {% endif %}
-                                    </td>
+                        <div style="max-height: 500px; overflow-y: auto;">
+                            <!-- A responsive table -->
+                            <table class="table">
+                                <thead style="position: sticky; top: 0; background-color:#CB4900 ; z-index: 1;">
+                                    <tr>
+                                        <!-- Table header -->
+                                        <th>Image</th>
+                                        <th>Item</th>
+                                        <th>Description</th>
+                                        <th>Time</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Loop through lab_devices -->
+                                    {% for device in lab_devices %}
+                                    <tr>
+                                        <!-- Image Section -->
+                                        <td>
+                                            {% if device.image_path %}
+                                            <img src="{{ url_for('static', filename='equipment_photos/' ~ device.image_path) }}"
+                                                alt="{{ device.device_name }}" style="width: 120px; height: auto;" />
+                                            {% else %}
+                                            <i class="bi bi-image" style="font-size: 120px;"></i>
+                                            {% endif %}
+                                        </td>
 
-                                    <!-- Device Info Section -->
-                                    <td> {{device.device_name}} </td>
+                                        <!-- Device Info Section -->
+                                        <td> {{device.device_name}} </td>
 
-                                    <!-- Description Section -->
-                                    <td>
-                                        <strong>Model Info: </strong> {{device.description }}
-                                        <span class="bi bi-dot"></span>
-                                        <br>
-                                        <strong>Person In Charge:</strong> {{device.person_in_charge}}
-                                        <span class="bi bi-dot"></span>
-                                        <br>
-                                        <strong>Building:</strong> {{device.building}}
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
+                                        <!-- Description Section -->
+                                        <td>
+                                            <strong>Model Info: </strong> {{device.description }}
+                                            <span class="bi bi-dot"></span>
+                                            <br>
+                                            <strong>Person In Charge:</strong> {{device.person_in_charge}}
+                                            <span class="bi bi-dot"></span>
+                                            <br>
+                                            <strong>Building:</strong> {{device.building}}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
+                </div>
             </div>
         </div>
+    </div>
 
         <script>
             // Get references to the search input and table rows
