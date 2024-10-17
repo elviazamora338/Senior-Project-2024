@@ -198,8 +198,8 @@
                 <div class="col text-center">
                     <!-- Button group creates a set of buttons that appear next to each other -->
                     <div class="btn-group">
-                        <button type="button" class="bi bi-clock btn btn-secondary text-dark btn btn-outline-dark buttons-right"> Requests</button>
-                        <button type="button" class=" bi bi-clipboard-fill btn  bg-light text-dark border-secondary buttons-left"> Inventory</button>
+                        <button type="button" class="bi bi-clock btn text-dark btn-outline-dark buttons-right"> Requests</button>
+                        <button type="button" class=" bi bi-clipboard-fill btn text-dark btn-secondary border-secondary buttons-left"> Inventory</button>
                     </div>
                 </div>
                 <br>
@@ -213,34 +213,40 @@
                                 <thead style="position: sticky; top: 0; background-color:#CB4900 ; z-index: 1;">
                                     <tr>
                                         <!-- Table header -->
-                                        <th>Name</th>
-                                        <th>Email</th>
-                                        <th>Device/Equipment</th>
-                                        <th>Status</th>
+                                        <th>Image</th>
+                                        <th>Device</th>
+                                        <th>Description</th>
+                                        <th>Number Available</th>
                                         <th>Action</th>
-                                        <th></th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <tr>
-                                        <td>Jane Doe</td>
-                                        <td>jane.doe@utrgv.edu</td>
-                                        <td>Equipment Name</td>
-                                        <td>Approved</td>
-                                        <td></td>
-                                    </tr>
-                                    <tr>
-                                        <td>John Doe</td>
-                                        <td>john.doe@utrgv.edu</td>
-                                        <td>Equipment Name</td>
-                                        <td>Pending Approval</td>
+                                         <!-- 'bi bi-image' shows an image icon -->
+                                        <!-- 'font-size: 120px;' sets the icon size -->
+                                        <td class="bi bi-image" style="font-size: 120px;"></td>
+                                        <td>ITEM 1</td>
+                                        <td>Description of equipment</td>
+                                        <td>2</td>
                                         <td>
                                             <div>
-                                                <button type="button" class="bi bi-x btn btn-danger"></button>
-                                                <button type="button" class="bi bi-check2 btn btn-success"></button>
+                                                <button type="button" class="btn btn-secondary">Edit</button>
                                             </div>
                                         </td>
                                     </tr>
+                                    <tr>
+                                        <!-- 'bi bi-image' shows an image icon -->
+                                       <!-- 'font-size: 120px;' sets the icon size -->
+                                       <td class="bi bi-image" style="font-size: 120px;"></td>
+                                       <td>ITEM 2</td>
+                                       <td>Description of equipment</td>
+                                       <td>1</td>
+                                       <td>
+                                           <div>
+                                               <button type="button" class="btn btn-secondary">Edit</button>
+                                           </div>
+                                       </td>
+                                   </tr>
                                     <!-- end of table -->
                                     
                                 </tbody>
