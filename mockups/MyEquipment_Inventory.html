@@ -198,7 +198,9 @@
                 <div class="col text-center">
                     <!-- Button group creates a set of buttons that appear next to each other -->
                     <div class="btn-group">
-                        <button type="button" class="bi bi-clock btn text-dark btn-outline-dark buttons-right"> Requests</button>
+                        <a href="{{url_for('requests')}}">
+                            <button type="button" class="bi bi-clock btn text-dark btn-outline-dark buttons-right"> Requests</button>
+                        </a>
                         <button type="button" class=" bi bi-clipboard-fill btn text-dark btn-secondary border-secondary buttons-left"> Inventory</button>
                     </div>
                 </div>
