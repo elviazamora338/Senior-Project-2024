@@ -46,6 +46,14 @@ def authenticate():
 def add():
     return render_template('Add.html')
 
+@app.route('/inventory')
+def inventory():
+    return render_template('MyEquipment_Inventory.html')
+
+@app.route('/requests')
+def requests():
+    return render_template('MyEquipment_Requests.html')
+
 if __name__ == '__main__':
     app.run(debug=True, port=5001)
     
