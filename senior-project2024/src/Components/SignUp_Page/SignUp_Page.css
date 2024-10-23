@@ -16,9 +16,9 @@
   }
   
   .welcome-image {
-    /* background: url('/static/login_pics/login_screen.png'); */
+    background: url('../../static/login_pics/login_screen.png');
     background-size: cover;
-    height: 100%;
+    height: 100vh;
     background-position: center -50px;
   }
   
