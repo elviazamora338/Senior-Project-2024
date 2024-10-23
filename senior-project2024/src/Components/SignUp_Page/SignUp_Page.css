@@ -1,0 +1,24 @@
+.login-section {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+  }
+  
+  .login-box {
+    max-width: 400px;
+    padding: 2rem;
+  }
+  
+  .login-button {
+    width: 350px;
+    height: 35px;
+  }
+  
+  .welcome-image {
+    /* background: url('/static/login_pics/login_screen.png'); */
+    background-size: cover;
+    height: 100%;
+    background-position: center -50px;
+  }
+  
