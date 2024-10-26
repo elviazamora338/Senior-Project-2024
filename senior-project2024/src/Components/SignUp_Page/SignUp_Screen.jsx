@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import './SignUp_Page.css'; // Assuming you have a CSS file for custom styling
 
 const SignUp_Screen = () => {
@@ -27,7 +28,7 @@ const SignUp_Screen = () => {
             <button type="submit" className="btn btn-primary w-100 login-button">Sign Up</button>
             <div className="row p-2">
               <div className="text-center">
-                <p>Have an account? <a href="#" className="nav-link d-inline p-0">Sign In</a></p>
+                <p>Have an account? <Link to="/login" className="nav-link d-inline p-0">Sign In</Link></p>
               </div>
             </div>
           </div>
