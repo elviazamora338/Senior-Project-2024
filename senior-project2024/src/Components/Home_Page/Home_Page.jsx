@@ -1,7 +1,7 @@
 // Import React and necessary hooks
 import React from 'react';
 import './Home_Page.css'
-import banner from '/Users/anagarcia/Desktop/Projects/Senior-Project-2024/senior-project2024/src/Assets/uni_banner/utrgv_banner.jpg'; // Import image from source
+import banner from '/Users/anagarcia/Desktop/Projects/Senior-Project-2024/senior-project2024/src/static/uni_banner/utrgv_banner.jpg'; // Import image from source
 import 'bootstrap/dist/css/bootstrap.min.css';
 import "bootstrap-icons/font/bootstrap-icons.css";
 

@@ -3,7 +3,7 @@ import { useState } from 'react';
 import Add_Screen from './Components/Add_Page/Add_Screen';
 import All_Screen from './Components/Add_Page/Add_Screen';
 import Calendar_Screen from './Components/Calendar_Page/Calendar_Screen';
-import Home_Screen from './Components/Home_Page/Home_Screen';
+import Home_Page from './Components/Home_Page/Home_Page';
 import Login_Screen from './Components/Login_Page/Login_Screen';
 import LoginAuth_Screen from './Components/LoginAuth_Page/LoginAuth_Screen';
 import SignUp_Screen from './Components/SignUp_Page/SignUp_Screen';
@@ -18,7 +18,7 @@ function App() {
       <div className='app'>
                <Routes>
                <Route path="/signup" element={<SignUp_Screen/>} />
-               <Route path="/home" element={<Home_Screen />} />
+               <Route path="/home" element={<Home_Page />} />
                 <Route path="/login" element={<Login_Screen />} />
                 {/* <Route path="/logout" element={<LogOut />} /> */}
                 {/* <Route path="/forgot" element={<ForgotPasswordPage />} /> */}
