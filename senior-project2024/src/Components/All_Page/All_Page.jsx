@@ -1,12 +1,12 @@
 // Import React and necessary hooks
 import React from 'react';
 import { Link } from 'react-router-dom';
-import './Home_Page.css'
+import './All_Page.css'
 import banner from '/Users/anagarcia/Desktop/Projects/Senior-Project-2024/senior-project2024/src/static/uni_banner/utrgv_banner.jpg'; // Import image from source
 import 'bootstrap/dist/css/bootstrap.min.css';
 import "bootstrap-icons/font/bootstrap-icons.css";
 
-const HomePage = () => {
+const All_Page = () => {
     return (
         <div className="d-flex">
             {/* Sidebar */}
@@ -57,7 +57,7 @@ const HomePage = () => {
                             <div className="col-sm-8"></div>
                             <div className="col-sm-4">
                                 <div className="d-flex justify-content-end text-over text-white">
-                                    <i classname>Change University</i>
+                                    <i className>Change University</i>
                                     <i className="text-black bi bi-paperclip mx-2"></i>
                                     <i className="text-black bi bi-calendar4-event mx-2"></i>
                                     <i className="text-black bi-three-dots-vertical mx-2"></i>
@@ -86,17 +86,30 @@ const HomePage = () => {
                     </div>
                 </div>
 
-                {/* Equipment Showcase */}
-                <div className="col text-center mt-3">
-                    <div className="btn-group">
-                        <button type="button" className="bi bi-check-lg btn btn-secondary text-dark btn btn-outline-dark buttons-right"> Scheduled
-                        </button>
-                        <button type="button" className="bi bi-box btn bg-light text-dark border-secondary"> History
-                        </button>
-                        <button type="button" className="bi bi-bookmark-fill btn bg-light text-dark border-secondary buttons-left"> Bookmarks
+                {/* Search Equipment Bar */}
+                <div className="container">
+                    <div className="d-flex justify-content-end mb-3">
+                        {/* Search Bar */}
+                        <div className="input-group">
+                            <input
+                                type="text"
+                                className="form-control"
+                                placeholder="Search"
+                                aria-label="Search"
+                                id="search-input"
+                            />
+                            <button className="btn btn-outline-secondary" type="button" id="search-button">
+                                <i className="bi bi-search"></i>
+                            </button>
+                        </div>
+                        {/* Filter */}
+                        <button type="button" className="btn btn-outline-secondary filter">
+                            <i className="bi bi-funnel-fill"></i> Filter
                         </button>
                     </div>
                 </div>
+
+
                 {/* Table and Cancel Button */}
                 <div className="container mt-4">
                     <div className="row">
@@ -109,8 +122,7 @@ const HomePage = () => {
                                             <th>Item</th>
                                             <th>Description</th>
                                             <th>Time</th>
-                                            <th>
-                                                <button type="button" className="rounded-pill text-white cancel-button border-secondary">Cancel</button>
+                                            <th><></>
                                             </th>
                                         </tr>
                                     </thead>
@@ -147,5 +159,5 @@ const HomePage = () => {
     );
 };
 
-export default HomePage;
+export default All_Page;
 
