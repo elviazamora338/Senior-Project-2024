@@ -2,7 +2,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import './Requests_Page.css'
-import banner from '/Users/anagarcia/Desktop/Projects/Senior-Project-2024/senior-project2024/src/static/uni_banner/utrgv_banner.jpg'; // Import image from source
+import banner from '../../static/uni_banner/utrgv_banner.jpg';  // Import image from source
 import 'bootstrap/dist/css/bootstrap.min.css';
 import "bootstrap-icons/font/bootstrap-icons.css";
 
