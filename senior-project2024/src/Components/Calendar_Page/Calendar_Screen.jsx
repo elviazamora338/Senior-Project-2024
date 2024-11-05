@@ -270,6 +270,7 @@ function Calendar_Screen () {
                     </tbody>
                 </table>
             </div>
+            
             {/* <!-- Calendar section --> */}
           
                 <GenerateCalender/>
