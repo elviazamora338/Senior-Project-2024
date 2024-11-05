@@ -1,12 +1,12 @@
 // Import React and necessary hooks
 import React from 'react';
 import { Link } from 'react-router-dom';
-import './Home_Page.css'
+import './Inventory_Page.css'
 import banner from '../../static/uni_banner/utrgv_banner.jpg'; // Import image from source
 import 'bootstrap/dist/css/bootstrap.min.css';
 import "bootstrap-icons/font/bootstrap-icons.css";
 
-const HomePage = () => {
+const InventoryPage = () => {
     return (
         <div className="d-flex">
             {/* Sidebar */}
@@ -86,17 +86,18 @@ const HomePage = () => {
                     </div>
                 </div>
 
-                {/* Equipment Showcase */}
-                <div className="col text-center mt-3">
+                {/* Requests and Inventory Buttons */}
+                <div className="col text-center m-3">
                     <div className="btn-group">
-                        <button type="button" className="bi bi-check-lg btn btn-secondary text-dark btn btn-outline-dark buttons-right"> Scheduled
-                        </button>
-                        <button type="button" className="bi bi-box btn bg-light text-dark border-secondary"> History
-                        </button>
-                        <button type="button" className="bi bi-bookmark-fill btn bg-light text-dark border-secondary buttons-left"> Bookmarks
-                        </button>
+                        <Link to="/requests">
+                            <button type="button" className="bi bi-clock btn-outline-dark text-dark btn buttons-right"> Requests</button>
+                        </Link>
+                        <Link to="/inventory">
+                            <button type="button" className="bi bi-clipboard-fill btn btn-secondary btn text-dark border-secondary buttons-left"> Inventory</button>
+                        </Link>
                     </div>
                 </div>
+
                 {/* Table and Cancel Button */}
                 <div className="container mt-4">
                     <div className="row">
@@ -106,12 +107,10 @@ const HomePage = () => {
                                     <thead classname="thead-bg">
                                         <tr>
                                             <th>Image</th>
-                                            <th>Item</th>
+                                            <th>Device/Equipment</th>
                                             <th>Description</th>
-                                            <th>Time</th>
-                                            <th>
-                                                <button type="button" className="rounded-pill text-white cancel-button border-secondary">Cancel</button>
-                                            </th>
+                                            <th>Number Available</th>
+                                            <th>Action</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -131,9 +130,9 @@ const HomePage = () => {
                                                     Building
                                                 </div>
                                             </td>
-                                            <td>Data @ Time</td>
+                                            <td>2</td>
                                             <td className="checkbox-cell">
-                                                <input className="checkbox" type="checkbox" value="" id="flexCheckDefault" />
+                                                <button type="button" className="btn btn-secondary">Edit</button>
                                             </td>
                                         </tr>
                                     </tbody>
@@ -147,5 +146,5 @@ const HomePage = () => {
     );
 };
 
-export default HomePage;
+export default InventoryPage;
 

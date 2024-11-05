@@ -2,7 +2,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import './All_Page.css'
-import banner from '/Users/anagarcia/Desktop/Projects/Senior-Project-2024/senior-project2024/src/static/uni_banner/utrgv_banner.jpg'; // Import image from source
+import banner from '../../static/uni_banner/utrgv_banner.jpg'; // Import image from source
 import 'bootstrap/dist/css/bootstrap.min.css';
 import "bootstrap-icons/font/bootstrap-icons.css";
 
@@ -38,7 +38,7 @@ const All_Page = () => {
                         </Link>
                     </li>
                     <li className="nav-item nav-icon">
-                        <Link to="/inventory" className="nav-link text-white">
+                        <Link to="/requests" className="nav-link text-white">
                             <div className="nav-icon">
                                 <i className="bi bi-box"></i>
                             </div>
@@ -144,8 +144,11 @@ const All_Page = () => {
                                                 </div>
                                             </td>
                                             <td>Time Data</td>
-                                            <td className="checkbox-cell">
-                                                <input className="form-check-input" type="checkbox" value="" id="flexCheckDefault" />
+                                            <td className="bookmark-cell">
+                                                <div className="bookmark">
+                                                    <input type="checkbox" id="bookmark1"></input>
+                                                    <label for="bookmark1"></label>
+                                                </div>
                                             </td>
                                         </tr>
                                     </tbody>

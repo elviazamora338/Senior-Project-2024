@@ -1,12 +1,12 @@
 // Import React and necessary hooks
 import React from 'react';
 import { Link } from 'react-router-dom';
-import './Home_Page.css'
-import banner from '../../static/uni_banner/utrgv_banner.jpg'; // Import image from source
+import './Requests_Page.css'
+import banner from '../../static/uni_banner/utrgv_banner.jpg';  // Import image from source
 import 'bootstrap/dist/css/bootstrap.min.css';
 import "bootstrap-icons/font/bootstrap-icons.css";
 
-const HomePage = () => {
+const RequestsPage = () => {
     return (
         <div className="d-flex">
             {/* Sidebar */}
@@ -86,66 +86,73 @@ const HomePage = () => {
                     </div>
                 </div>
 
-                {/* Equipment Showcase */}
-                <div className="col text-center mt-3">
+                {/* Requests and Inventory Buttons */}
+                <div className="col text-center m-3">
                     <div className="btn-group">
-                        <button type="button" className="bi bi-check-lg btn btn-secondary text-dark btn btn-outline-dark buttons-right"> Scheduled
-                        </button>
-                        <button type="button" className="bi bi-box btn bg-light text-dark border-secondary"> History
-                        </button>
-                        <button type="button" className="bi bi-bookmark-fill btn bg-light text-dark border-secondary buttons-left"> Bookmarks
-                        </button>
+                        <Link to="/requests">
+                            <button type="button" className="bi bi-clock btn btn-secondary text-dark btn buttons-right"> Requests</button>
+                        </Link>
+                        <Link to="/inventory">
+                            <button type="button" className="bi bi-clipboard-fill btn btn-outline-dark text-dark border-secondary buttons-left"> Inventory</button>
+                        </Link>
                     </div>
                 </div>
-                {/* Table and Cancel Button */}
+
+                {/* Table begins here */}
                 <div className="container mt-4">
-                    <div className="row">
+                    <div className="row" >
                         <div className="col">
-                            <div className="table-height">
+                            <div className="requests">
                                 <table className="table">
-                                    <thead classname="thead-bg">
+                                    <thead>
                                         <tr>
-                                            <th>Image</th>
-                                            <th>Item</th>
-                                            <th>Description</th>
-                                            <th>Time</th>
-                                            <th>
-                                                <button type="button" className="rounded-pill text-white cancel-button border-secondary">Cancel</button>
-                                            </th>
+                                            <th>Name</th>
+                                            <th>Email</th>
+                                            <th>Device/Equipment</th>
+                                            <th>Status</th>
+                                            <th>Action</th>
+                                            <th></th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         <tr>
+                                            <td>Jane Doe</td>
+                                            <td>jane.doe@utrgv.edu</td>
+                                            <td>Equipment Name</td>
+                                            <td>Approved</td>
                                             <td>
                                                 <div>
-                                                    <i className="bi bi-image item-image me-2"></i>
+                                                <button type="button" className="btn btn-secondary btn-sm">View</button>
                                                 </div>
-                                            </td>
-                                            <td>ITEM 1</td>
-                                            <td>
-                                                <div>
-                                                    Model Info
-                                                    <span className="bi bi-dot"></span>
-                                                    <span className="bi bi-clock"></span>
-                                                    <span className="bi bi-dot"></span>
-                                                    Building
-                                                </div>
-                                            </td>
-                                            <td>Data @ Time</td>
-                                            <td className="checkbox-cell">
-                                                <input className="checkbox" type="checkbox" value="" id="flexCheckDefault" />
                                             </td>
                                         </tr>
+                                        <tr>
+                                            <td>John Doe</td>
+                                            <td>john.doe@utrgv.edu</td>
+                                            <td>Equipment Name</td>
+                                            <td>Pending Approval</td>
+                                            <td>
+                                                <div>
+                                                    <button type="button" className="bi bi-x btn btn-danger btn-sm me-2"></button>
+                                                    <button type="button" className="bi bi-check2 btn btn-success btn-sm me-2"></button>
+                                                    <button type="button" className="btn btn-secondary btn-sm">View</button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        {/* end of table */}
+                                        
                                     </tbody>
                                 </table>
                             </div>
                         </div>
                     </div>
                 </div>
+
+                
             </div>
         </div>
     );
 };
 
-export default HomePage;
+export default RequestsPage;
 

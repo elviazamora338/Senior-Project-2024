@@ -8,7 +8,8 @@ import Login_Screen from './Components/Login_Page/Login_Screen';
 import LoginAuth_Screen from './Components/LoginAuth_Page/LoginAuth_Screen';
 import SignUp_Screen from './Components/SignUp_Page/SignUp_Screen';
 import All_Page from './Components/All_Page/All_Page.jsx';
-
+import RequestsPage from './Components/MyEquip_Page/Requests_Page.jsx';
+import InventoryPage from './Components/MyEquip_Page/Inventory_Page.jsx'
 
 import './App.css';
 
@@ -22,6 +23,8 @@ function App() {
                <Route path="/loginauth" element={<><LoginAuth_Screen /></>} />
                <Route path="/login" element={<><Login_Screen /></>} />
                <Route path="/all" element={<><All_Page /></>} />
+               <Route path="/requests" element={<><RequestsPage /></>} />
+               <Route path="/inventory" element={<><InventoryPage /></>} />
                 {/* <Route path="/logout" element={<LogOut />} /> */}
                 {/* <Route path="/forgot" element={<ForgotPasswordPage />} /> */}
 {/*               
