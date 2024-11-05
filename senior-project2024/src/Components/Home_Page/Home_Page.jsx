@@ -89,12 +89,17 @@ const HomePage = () => {
                 {/* Equipment Showcase */}
                 <div className="col text-center mt-3">
                     <div className="btn-group">
-                        <button type="button" className="bi bi-check-lg btn btn-secondary text-dark btn btn-outline-dark buttons-right"> Scheduled
-                        </button>
-                        <button type="button" className="bi bi-box btn bg-light text-dark border-secondary"> History
-                        </button>
-                        <button type="button" className="bi bi-bookmark-fill btn bg-light text-dark border-secondary buttons-left"> Bookmarks
-                        </button>
+                        <Link to="/home">
+                            <button type="button" className="bi bi-check-lg btn btn-secondary text-dark btn btn-outline-dark buttons-right"> Scheduled</button>
+                        </Link>
+
+                        <Link to="/history">
+                            <button type="button" className="bi bi-box btn bg-light text-dark border-secondary"> History</button>
+                        </Link>
+
+                        <Link to="/bookmarks">
+                            <button type="button" className="bi bi-bookmark-fill btn bg-light text-dark border-secondary buttons-left"> Bookmarks</button>
+                        </Link>
                     </div>
                 </div>
                 {/* Table and Cancel Button */}
