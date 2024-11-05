@@ -92,16 +92,15 @@ const HomePage = () => {
                         <Link to="/home">
                             <button type="button" className="bi bi-check-lg btn btn-secondary text-dark btn buttons-right"> Scheduled</button>
                         </Link>
-
                         <Link to="/history">
-                            <button type="button" className="bi bi-box btn text-dark border-secondary btn-outline-dark"> History</button>
+                            <button type="button" className="bi bi-box btn text-dark border-secondary btn-outline-dark middle-button"> History</button>
                         </Link>
-
                         <Link to="/bookmarks">
                             <button type="button" className="bi bi-bookmark-fill btn text-dark border-secondary buttons-left btn-outline-dark"> Bookmarks</button>
                         </Link>
                     </div>
                 </div>
+
                 {/* Table and Cancel Button */}
                 <div className="container mt-4">
                     <div className="row">

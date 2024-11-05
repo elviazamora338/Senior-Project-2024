@@ -92,16 +92,15 @@ const HistoryPage = () => {
                         <Link to="/home">
                             <button type="button" className="bi bi-check-lg text-dark btn btn-outline-dark buttons-right border-secondary"> Scheduled</button>
                         </Link>
-
                         <Link to="/history">
-                            <button type="button" className="bi bi-box btn  text-dark btn btn-secondary "> History</button>
+                            <button type="button" className="bi bi-box btn  text-dark btn btn-secondary middle-button"> History</button>
                         </Link>
-
                         <Link to="/bookmarks">
                             <button type="button" className="bi bi-bookmark-fill btn btn-outline-dark text-dark border-secondary buttons-left"> Bookmarks</button>
                         </Link>
                     </div>
                 </div>
+
                 {/* Table and Cancel Button */}
                 <div className="container mt-4">
                     <div className="row">
@@ -133,7 +132,7 @@ const HistoryPage = () => {
                                                     Building
                                                 </div>
                                             </td>
-                                            <td>Data @ Time</td>
+                                            <td>Last Booked Date</td>
                                         </tr>
                                     </tbody>
                                 </table>
