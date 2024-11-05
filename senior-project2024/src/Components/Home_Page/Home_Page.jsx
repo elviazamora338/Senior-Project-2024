@@ -90,15 +90,15 @@ const HomePage = () => {
                 <div className="col text-center mt-3">
                     <div className="btn-group">
                         <Link to="/home">
-                            <button type="button" className="bi bi-check-lg btn btn-secondary text-dark btn btn-outline-dark buttons-right"> Scheduled</button>
+                            <button type="button" className="bi bi-check-lg btn btn-secondary text-dark btn buttons-right"> Scheduled</button>
                         </Link>
 
                         <Link to="/history">
-                            <button type="button" className="bi bi-box btn bg-light text-dark border-secondary"> History</button>
+                            <button type="button" className="bi bi-box btn text-dark border-secondary btn-outline-dark"> History</button>
                         </Link>
 
                         <Link to="/bookmarks">
-                            <button type="button" className="bi bi-bookmark-fill btn bg-light text-dark border-secondary buttons-left"> Bookmarks</button>
+                            <button type="button" className="bi bi-bookmark-fill btn text-dark border-secondary buttons-left btn-outline-dark"> Bookmarks</button>
                         </Link>
                     </div>
                 </div>
