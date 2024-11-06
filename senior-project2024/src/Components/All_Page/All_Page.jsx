@@ -68,7 +68,7 @@ const All_Page = () => {
                         </Link>
                     </li>
                     <li className="nav-item nav-icon">
-                        <Link to="/requests" className="nav-link text-white">
+                        <Link to="/inventory" className="nav-link text-white">
                             <div className="nav-icon">
                                 <i className="bi bi-box"></i>
                             </div>
@@ -203,6 +203,7 @@ const All_Page = () => {
                                         </tbody>
                                     </table>
                                 </div>
+
                             </div>
                         </div>
                     </div>
