@@ -300,6 +300,17 @@ function GenerateCalender({ unavailableDates }) {
                     ))}
                 </select>
             </div>
+            <div class='my-legend'>
+                <div class='legend-title'>Availability Legend</div>
+                    <div class='legend-scale'>
+                        <ul class='legend-labels'>
+                            <li><span style={{ backgroundColor: 'orange'}} ></span>Unavailable</li>
+                            <li><span style={{ backgroundColor: 'white'}} ></span>Available</li>
+                            
+                            {/* <li><span style='background:#FFFFB3;'></span>Two</li> */}
+                        </ul>
+                </div>
+            </div>
         </div>
     );
 };
@@ -330,9 +341,16 @@ function Calendar_Screen() {
 
     return (
         <div className="container">
-            <h2>Set Equipment Availability</h2>
+            <div className='row'>
+                <div className = "col-7 text-start mt-4">
+                <h2 >Set Equipment Availability</h2>
+                <p className="text-danger" style={{ fontSize: '18px' }}>
+                        *By default, every weekday is set to 'available' from 8am-8pm. This page is to set up UNAVAILABILITY.
+                </p>
+                </div>
+            </div>
             <div className="row">
-                <div className="col-md-7">
+                <div className=" card col-md-7">
                     <table className="table">
                         <thead>
                             <tr>
@@ -362,7 +380,9 @@ function Calendar_Screen() {
                     <GenerateCalender unavailableDates={flattenedUnavailableDates} />
                 </div>
             </div>
-        </div>
+
+            
+            </div>
     );
 }
 
