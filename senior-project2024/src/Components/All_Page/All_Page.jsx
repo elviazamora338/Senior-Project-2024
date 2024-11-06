@@ -1,12 +1,42 @@
-// Import React and necessary hooks
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import './All_Page.css'
-import banner from '/Users/anagarcia/Desktop/Projects/Senior-Project-2024/senior-project2024/src/static/uni_banner/utrgv_banner.jpg'; // Import image from source
+import './All_Page.css';
+import banner from '../../static/uni_banner/utrgv_banner.jpg';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import "bootstrap-icons/font/bootstrap-icons.css";
+import axios from 'axios'; 
 
 const All_Page = () => {
+    const [labDevices, setLabDevices] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const [bookmarkedItems, setBookmarkedItems] = useState({}); // Use an object for bookmarking by device id
+
+    const handleBookmarkClick = (id) => {
+        setBookmarkedItems((prev) => ({
+            ...prev,
+            [id]: !prev[id], // Toggle bookmark for the specific device id
+        }));
+    }; 
+
+    useEffect(() => {
+        const fetchLabDevices = async () => {
+            try {
+                const response = await axios.get('http://localhost:5001/all');
+                setLabDevices(response.data);
+            } catch (error) {
+                console.error('Error fetching lab devices:', error);
+                setError('Failed to fetch lab devices');
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchLabDevices();
+    }, []);
+
+    if (loading) return <p>Loading...</p>;
+    if (error) return <p>{error}</p>;
+
     return (
         <div className="d-flex">
             {/* Sidebar */}
@@ -57,7 +87,7 @@ const All_Page = () => {
                             <div className="col-sm-8"></div>
                             <div className="col-sm-4">
                                 <div className="d-flex justify-content-end text-over text-white">
-                                    <i className>Change University</i>
+                                    <i classname>Change University</i>
                                     <i className="text-black bi bi-paperclip mx-2"></i>
                                     <i className="text-black bi bi-calendar4-event mx-2"></i>
                                     <i className="text-black bi-three-dots-vertical mx-2"></i>
@@ -86,78 +116,101 @@ const All_Page = () => {
                     </div>
                 </div>
 
-                {/* Search Equipment Bar */}
-                <div className="container">
-                    <div className="d-flex justify-content-end mb-3">
-                        {/* Search Bar */}
-                        <div className="input-group">
-                            <input
-                                type="text"
-                                className="form-control"
-                                placeholder="Search"
-                                aria-label="Search"
-                                id="search-input"
-                            />
-                            <button className="btn btn-outline-secondary" type="button" id="search-button">
-                                <i className="bi bi-search"></i>
+                    {/* Search Equipment Bar */}
+                    <div className="container">
+                        <div className="d-flex justify-content-end mb-3">
+                            <div className="input-group">
+                                <input
+                                    type="text"
+                                    className="form-control"
+                                    placeholder="Search"
+                                    aria-label="Search"
+                                    id="search-input"
+                                />
+                                <button className="btn btn-outline-secondary" type="button" id="search-button">
+                                    <i className="bi bi-search"></i>
+                                </button>
+                            </div>
+                            <button type="button" className="btn btn-outline-secondary filter">
+                                <i className="bi bi-funnel-fill"></i> Filter
                             </button>
                         </div>
-                        {/* Filter */}
-                        <button type="button" className="btn btn-outline-secondary filter">
-                            <i className="bi bi-funnel-fill"></i> Filter
-                        </button>
                     </div>
-                </div>
 
+                    {/* Table */}
+                    <div className="container mt-4">
+                        <div className="row">
+                            <div className="col">
+                                <div className="table-height">
+                                    <table className="table">
+                                        <thead className="thead-bg">
+                                            <tr>
+                                                <th>Image</th>
+                                                <th>Item</th>
+                                                <th>Description</th>
+                                                <th>Available</th>
+                                                <th></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {labDevices.map((device) => (
+                                                <tr key={device.device_id}>
+                                                    <td>
+                                                        <div>
+                                                            {device.image_path ? (
+                                                                <img
+                                                                    src={`http://localhost:5001/static/equipment_photos/${device.image_path}`}
+                                                                    alt={device.device_name}
+                                                                    className="item-image me-2"
+                                                                    style={{ width: '150px', height: 'auto' }}
+                                                                />
+                                                            ) : (
+                                                                <i className="bi bi-image item-image me-2"></i>
+                                                            )}
+                                                        </div>
+                                                    </td>
+                                                    <td>{device.device_name}</td>
+                                                    <td className='text-center'>
+                                                        <div className='description-content'>
+                                                            <div className='description-item'>
+                                                                <span className='description-label'>Model Info:</span>
+                                                                <span className='description-value'>{device.description}</span>
+                                                            </div>
+                                                            <div className='description-item'>
+                                                                <span className='description-label'>Person In Charge:</span>
+                                                                <span className='description-value'>{device.person_in_charge}</span>
+                                                            </div>
+                                                            <div className='description-item'>
+                                                                <span className='description-label'>Building:</span>
+                                                                <span className='description-value'>{device.building}</span>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td className="text-center">{device.available ? 'Yes' : 'No'}</td>
+                                                    <td className="bookmark-cell">
+                                                        <div className="bookmark"
+                                                            onClick={() => handleBookmarkClick(device.device_id)}
+                                                            style={{ cursor: 'pointer' }}>
+                                                            {bookmarkedItems[device.device_id] ? (
+                                                                <i className="bi bi-bookmark-fill text-primary"></i> 
+                                                            ) : (
+                                                                <i className="bi bi-bookmark text-secondary"></i> 
+                                                            )}
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
 
-                {/* Table and Cancel Button */}
-                <div className="container mt-4">
-                    <div className="row">
-                        <div className="col">
-                            <div className="table-height">
-                                <table className="table">
-                                    <thead classname="thead-bg">
-                                        <tr>
-                                            <th>Image</th>
-                                            <th>Item</th>
-                                            <th>Description</th>
-                                            <th>Time</th>
-                                            <th><></>
-                                            </th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td>
-                                                <div>
-                                                    <i className="bi bi-image item-image me-2"></i>
-                                                </div>
-                                            </td>
-                                            <td>ITEM 1</td>
-                                            <td>
-                                                <div>
-                                                    Model Info
-                                                    <span className="bi bi-dot"></span>
-                                                    <span className="bi bi-clock"></span>
-                                                    <span className="bi bi-dot"></span>
-                                                    Building
-                                                </div>
-                                            </td>
-                                            <td>Time Data</td>
-                                            <td className="checkbox-cell">
-                                                <input className="form-check-input" type="checkbox" value="" id="flexCheckDefault" />
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
+        
     );
 };
 
 export default All_Page;
-
