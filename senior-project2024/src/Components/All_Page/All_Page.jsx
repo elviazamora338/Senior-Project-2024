@@ -38,7 +38,7 @@ const All_Page = () => {
                         </Link>
                     </li>
                     <li className="nav-item nav-icon">
-                        <Link to="/requests" className="nav-link text-white">
+                        <Link to="/inventory" className="nav-link text-white">
                             <div className="nav-icon">
                                 <i className="bi bi-box"></i>
                             </div>
@@ -144,11 +144,8 @@ const All_Page = () => {
                                                 </div>
                                             </td>
                                             <td>Time Data</td>
-                                            <td className="bookmark-cell">
-                                                <div className="bookmark">
-                                                    <input type="checkbox" id="bookmark1"></input>
-                                                    <label for="bookmark1"></label>
-                                                </div>
+                                            <td className="checkbox-cell">
+                                                <input className="form-check-input" type="checkbox" value="" id="flexCheckDefault" />
                                             </td>
                                         </tr>
                                     </tbody>
