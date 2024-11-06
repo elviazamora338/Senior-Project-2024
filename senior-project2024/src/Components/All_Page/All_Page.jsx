@@ -204,6 +204,46 @@ const All_Page = () => {
                                     </table>
                                 </div>
 
+                {/* Table and Cancel Button */}
+                <div className="container mt-4">
+                    <div className="row">
+                        <div className="col">
+                            <div className="table-height">
+                                <table className="table">
+                                    <thead classname="thead-bg">
+                                        <tr>
+                                            <th>Image</th>
+                                            <th>Item</th>
+                                            <th>Description</th>
+                                            <th>Time</th>
+                                            <th><></>
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>
+                                                <div>
+                                                    <i className="bi bi-image item-image me-2"></i>
+                                                </div>
+                                            </td>
+                                            <td>ITEM 1</td>
+                                            <td>
+                                                <div>
+                                                    Model Info
+                                                    <span className="bi bi-dot"></span>
+                                                    <span className="bi bi-clock"></span>
+                                                    <span className="bi bi-dot"></span>
+                                                    Building
+                                                </div>
+                                            </td>
+                                            <td>Time Data</td>
+                                            <td className="checkbox-cell">
+                                                <input className="form-check-input" type="checkbox" value="" id="flexCheckDefault" />
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
                     </div>
