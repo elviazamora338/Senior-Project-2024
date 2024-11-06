@@ -206,7 +206,7 @@ const AddPage = () => {
                                         <label for="availability" className="form-check-label ms-2">Available</label>
                                     </div>
                                     {/* Calendar Button */}
-                                    <button type="button" className="bi bi-calendar4 btn-light btn-sm cal-button"></button>
+                                    <button type="button" className="bi bi-calendar4 btn-light btn-sm cal-button d-flex"></button>
                                 </div>
                             </div>
 

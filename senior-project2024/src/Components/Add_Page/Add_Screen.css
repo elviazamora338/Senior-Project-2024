@@ -64,6 +64,11 @@ h5, .page-header {
 }
 
 .cal-button {
-    margin-left: 9px;
+    margin-left: 95px;
+    margin-top: -25px;
+    width: 30px;
+    height: 30px;
+    padding: 10px;
+    align-items: center;
 }
 
