@@ -1,0 +1,74 @@
+.cal_button {
+    border: none;
+    width: 10px;
+    height: 10px;
+    background: white;
+    padding-top: 8px;
+    padding-left: 30px;
+}
+
+.availability {
+    font-size: 18px;
+    padding-top: 35px;
+    padding-left: 30px;
+}
+
+.uploadImage {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 300px;
+    width: 420px;
+    margin-bottom: 5px;
+    font-size: 150px;
+    background-color: #ADB5BD;
+    border-radius: 1rem;
+}
+
+.uploadImage i {
+    margin-bottom: 0.5rem;
+    /* Adjust this value to bring the icon closer to the text */
+}
+
+.text-primary {
+    font-size: x-large
+}
+
+.resize-text {
+    resize: none;
+}
+
+.cal_button {
+    width: 20px; 
+    height: 20px;
+    padding: 2px;
+}
+
+.save-button {
+    background-color: #CB4900; 
+    color: white; 
+    width: 150px;
+}
+
+h5, .page-header {
+    text-align: left;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    margin-bottom: 5px;
+}
+
+.availability {
+    margin-top: 6px;
+
+}
+
+.cal-button {
+    margin-left: 95px;
+    margin-top: -25px;
+    width: 30px;
+    height: 30px;
+    padding: 10px;
+    align-items: center;
+}
+
