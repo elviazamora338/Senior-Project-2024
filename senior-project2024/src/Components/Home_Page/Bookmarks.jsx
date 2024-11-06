@@ -135,7 +135,7 @@ const BookmarksPage = () => {
                                             </td>
                                             <td>Data @ Time</td>
                                             <td className="checkbox-cell">
-                                                <input className="checkbox" type="checkbox" value="" id="flexCheckDefault" />
+                                                <input className="checkbox bookmark" type="checkbox" value="" id="flexCheckDefault" />
                                             </td>
                                         </tr>
                                     </tbody>
