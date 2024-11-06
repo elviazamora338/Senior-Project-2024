@@ -73,6 +73,11 @@
     border-bottom-right-radius: 80em;
 }
 
+.middle-button {
+    border-radius: 0;
+}
+
+
 .thead {
     position: sticky; 
     top: 0; 
