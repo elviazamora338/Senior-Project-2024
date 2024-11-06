@@ -2,9 +2,9 @@
 .card-custom {
     background-color: #CB4900;
     color: white;
-    border-radius: 0
+    border-radius: 0; 
+    display: flex;
 }
-
 
 .sidebar {
     height: 100vh;
@@ -15,6 +15,9 @@
     left: 0;
     z-index: 1; /* Ensure the sidebar is below the header */
     padding-top: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 .img-container {
@@ -79,6 +82,7 @@
 
 .td {
     font-size: 120px;
+    
 }
 
 .nav-link {
@@ -198,7 +202,7 @@ tr {
 .input-group {
     padding: 11px;
     width: 300px;
-    marginRight: 10px;
+    margin-right: 10px;
 }
 
 .filter {
@@ -209,4 +213,34 @@ tr {
     line-height: 1;
 }
 
+.descritption-content {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+}
+
+.description-item{
+    display: flex;
+    align-items: center;
+}
+
+.description-label {
+    font-weight: bold;
+    margin-right: 0.5rem;
+    white-space: nowrap;
+}
+
+.description-value {
+    color: #555;
+    
+}
 /* Bookmark css */
+.bookmark i {
+    font-size: 1.5rem;
+    transition: color 0.2 ease;
+}
+
+.bookmark:hover {
+    color: #007bff;
+}
