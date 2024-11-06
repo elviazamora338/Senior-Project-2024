@@ -10,6 +10,9 @@ import SignUp_Screen from './Components/SignUp_Page/SignUp_Screen';
 import All_Page from './Components/All_Page/All_Page.jsx';
 import RequestsPage from './Components/MyEquip_Page/Requests_Page.jsx';
 import InventoryPage from './Components/MyEquip_Page/Inventory_Page.jsx'
+import AddPage from './Components/Add_Page/Add_Screen.jsx'
+import HistoryPage from './Components/Home_Page/History.jsx'
+import BookmarksPage from './Components/Home_Page/Bookmarks.jsx'
 
 import './App.css';
 
@@ -23,9 +26,14 @@ function App() {
                <Route path="/loginauth" element={<><LoginAuth_Screen /></>} />
                <Route path="/login" element={<><Login_Screen /></>} />
                <Route path="/all" element={<><All_Page /></>} />
+               <Route path="/add" element={<><AddPage /></>} />
                <Route path="/requests" element={<><RequestsPage /></>} />
                <Route path="/inventory" element={<><InventoryPage /></>} />
+
                <Route path="/calendar" element={<Calendar_Screen />} />
+               <Route path="/history" element={<><HistoryPage /></>} />
+               <Route path="/bookmarks" element={<><BookmarksPage /></>} />
+
                 {/* <Route path="/logout" element={<LogOut />} /> */}
                 {/* <Route path="/forgot" element={<ForgotPasswordPage />} /> */}
 {/*               
