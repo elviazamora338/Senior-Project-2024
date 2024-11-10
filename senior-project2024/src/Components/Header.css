@@ -54,4 +54,50 @@
     transition: background-color 0.3s;
 }
 
+/* Dropdown menu styling */
+.cursor-pointer {
+  cursor: pointer;
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: 40px;  /* Adjust this to position the menu correctly */
+  right: 0;
+  background-color: #666666;
+  border: 1px solid #666666;
+  box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+  display: none;  /* Default to hidden */
+  opacity: 0;
+  transform: translateY(-10px);  /* Slide in from top */
+  transition: opacity 0.3s ease, transform 0.3s ease;  /* Fade and slide effect */
+}
+
+/* Show class to toggle visibility with animation */
+.dropdown-menu.show {
+  display: block;  /* Make the menu visible */
+  opacity: 1;
+  transform: translateY(0);  /* Slide to normal position */
+}
+
+.dropdown-menu ul {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+.dropdown-menu li {
+  padding: 8px 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+
+.dropdown-menu li:hover {
+  background-color: #CB4900;
+}
+
+.menu-item i {
+  margin-right: 10px;  /* Space between icon and text */
+}
 

@@ -1,5 +1,5 @@
 import logo from './logo.svg';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom';
 import { useState } from 'react';
 import Sidebar from './Components/Sidebar.jsx';
 import Header from './Components/Header.jsx';
@@ -19,31 +19,48 @@ import BookmarksPage from './Components/Home_Page/Bookmarks.jsx'
 
 import './App.css';
 
+// Create a component that contains the Sidebar logic
+const AppContent = () => {
+  // Get the current location
+  const location = useLocation();
 
-function App() {
   return (
-      <Router>
+    <>
+      {/* Routes without the Sidebar */}
+      <Routes>
+        <Route path="/signup" element={<SignUp_Screen />} />
+        <Route path="/loginauth" element={<LoginAuth_Screen />} />
+        <Route path="/login" element={<Login_Screen />} />
+        <Route path="/calendar" element={<Calendar_Screen />} />
+      </Routes>
+
+      {/* If the current route is not "/calendar", render the Sidebar */}
+      {location.pathname !== "/calendar" && (
         <div className="d-flex">
-                <Sidebar /> {/* This sidebar will stay consistent on all pages */}
-                <div className="main-content">
+          <Sidebar /> {/* Sidebar will be hidden on /calendar */}
+          <div className="main-content">
             <Routes>
-              <Route path="/signup" element={<SignUp_Screen />} />
               <Route path="/home" element={<><Header /><HomePage /></>} />
-              <Route path="/loginauth" element={<LoginAuth_Screen />} />
-              <Route path="/login" element={<Login_Screen />} />
               <Route path="/all" element={<><Header /><All_Page /></>}  />
               <Route path="/add" element={<><Header /><AddPage /></>} />
               <Route path="/requests" element={<><Header /><RequestsPage /></>} />
               <Route path="/inventory" element={<><Header /><InventoryPage /></>} />
-              <Route path="/calendar" element={<Calendar_Screen />} />
               <Route path="/history" element={<><Header /><HistoryPage /></>} />
               <Route path="/bookmarks" element={<><Header /><BookmarksPage /></>} />
-              {/* Catch-all route for undefined paths */}
               <Route path="*" element={<h1>Not Found</h1>} />
             </Routes>
-            </div>
           </div>
-      </Router>
+        </div>
+      )}
+    </>
+  );
+};
+
+function App() {
+  return (
+    <Router>
+      <AppContent />
+    </Router>
   );
 }
 
