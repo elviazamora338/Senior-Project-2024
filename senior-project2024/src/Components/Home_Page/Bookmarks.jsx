@@ -2,7 +2,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import './Bookmarks.css'
-import banner from '../../static/uni_banner/utrgv_banner.jpg'; // Import image from source
 import 'bootstrap/dist/css/bootstrap.min.css';
 import "bootstrap-icons/font/bootstrap-icons.css";
 
