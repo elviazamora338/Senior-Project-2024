@@ -1,0 +1,32 @@
+/* Custom Card Style for Header */
+.card-custom {
+    background-color: #CB4900;
+    color: white;
+    border-radius: 0;
+}
+
+/* For the navigation bar */
+.nav-link {
+    color: white;
+    text-decoration: none;
+    font-size: 1rem; /* Text size */
+    display: block; /* Make link block-level for full width */
+    padding: 10px; /* Add padding for click area */
+    transition: background-color 0.3s; /* Smooth background transition */
+}
+
+.nav {
+    width: 100%; /* Ensure nav items take full width */
+    padding: 0; /* Remove default padding */
+}
+
+.nav-item {
+    width: 100%; /* Make nav items full width */
+    text-align: center; /* Center the text in the nav items */
+    margin: 10px 0; /* Add vertical space between items */
+}
+
+.nav-item:hover {
+    text-decoration: underline;
+    text-decoration-color: white;
+}

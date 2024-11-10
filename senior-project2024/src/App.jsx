@@ -1,7 +1,10 @@
 import logo from './logo.svg';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { useState } from 'react';
+import Sidebar from './Components/Sidebar.jsx';
+import Header from './Components/Header.jsx';
 // import Add_Screen from './Components/Add_Page/Add_Screen';
+// import Sidebar from './Components/Sidebar.jsx'
 import Calendar_Screen from './Components/Calendar_Page/Calendar_Screen';
 import HomePage from './Components/Home_Page/Home_Page.jsx';
 import Login_Screen from './Components/Login_Page/Login_Screen';
@@ -16,37 +19,31 @@ import BookmarksPage from './Components/Home_Page/Bookmarks.jsx'
 
 import './App.css';
 
+
 function App() {
   return (
-    <Router>
-      <div className="App">
-               <Routes>
-               <Route path="/signup" element={<SignUp_Screen/>} />
-               <Route path="/home" element={<><HomePage /></>} />
-               <Route path="/loginauth" element={<><LoginAuth_Screen /></>} />
-               <Route path="/login" element={<><Login_Screen /></>} />
-               <Route path="/all" element={<><All_Page /></>} />
-               <Route path="/add" element={<><AddPage /></>} />
-               <Route path="/requests" element={<><RequestsPage /></>} />
-               <Route path="/inventory" element={<><InventoryPage /></>} />
-
-               <Route path="/calendar" element={<Calendar_Screen />} />
-               <Route path="/history" element={<><HistoryPage /></>} />
-               <Route path="/bookmarks" element={<><BookmarksPage /></>} />
-
-                {/* <Route path="/logout" element={<LogOut />} /> */}
-                {/* <Route path="/forgot" element={<ForgotPasswordPage />} /> */}
-{/*               
-              
-              
-                {/* <Route path='/add' element={<Add_Screen />} /> */}
-                {/* <Route path='/account' element={<Account />} /> */}
-                {/* <Route path="*" element={<h1>Not Found</h1>} /> */}
-              </Routes>
-              {/* <div className='footerSpace'></div> */}
-            {/* <Footer  className="footer"/> */}
+      <Router>
+        <div className="d-flex">
+                <Sidebar /> {/* This sidebar will stay consistent on all pages */}
+                <div className="main-content">
+            <Routes>
+              <Route path="/signup" element={<SignUp_Screen />} />
+              <Route path="/home" element={<><Header /><HomePage /></>} />
+              <Route path="/loginauth" element={<LoginAuth_Screen />} />
+              <Route path="/login" element={<Login_Screen />} />
+              <Route path="/all" element={<><Header /><All_Page /></>}  />
+              <Route path="/add" element={<><Header /><AddPage /></>} />
+              <Route path="/requests" element={<><Header /><RequestsPage /></>} />
+              <Route path="/inventory" element={<><Header /><InventoryPage /></>} />
+              <Route path="/calendar" element={<Calendar_Screen />} />
+              <Route path="/history" element={<><Header /><HistoryPage /></>} />
+              <Route path="/bookmarks" element={<><Header /><BookmarksPage /></>} />
+              {/* Catch-all route for undefined paths */}
+              <Route path="*" element={<h1>Not Found</h1>} />
+            </Routes>
+            </div>
           </div>
-        </Router>
+      </Router>
   );
 }
 
