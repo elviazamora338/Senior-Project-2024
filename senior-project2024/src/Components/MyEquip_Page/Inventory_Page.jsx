@@ -9,7 +9,7 @@ const InventoryPage = () => {
     return (
         <>
             {/* Requests and Inventory Buttons */}
-            <div className="col text-center m-3">
+            <div className="col text-center">
                 <div className="btn-group">
                     <Link to="/requests">
                         <button type="button" className="bi bi-clock btn-outline-dark text-dark btn buttons-right"> Requests</button>
@@ -21,7 +21,7 @@ const InventoryPage = () => {
             </div>
 
             {/* Table and Cancel Button */}
-            <div className="container mt-4">
+            <div className="container">
                 <div className="row">
                     <div className="col">
                         <div className="table-height">

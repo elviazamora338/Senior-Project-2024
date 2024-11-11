@@ -80,7 +80,7 @@ const Header = () => {
             </div>
 
             {/* University Banner */}
-            <div className="container container-banner mt-3">
+            <div className="container container-banner">
                 <div className="img-container">
                     <img src={banner} alt="UTRGV logo banner" />
                     <div className="text-overlay">

@@ -8,7 +8,7 @@ import "bootstrap-icons/font/bootstrap-icons.css";
 const BookmarksPage = () => {
     return (
         <>
-            <div className="col text-center mt-3">
+            <div className="col text-center">
                 <div className="btn-group">
                     <Link to="/home">
                         <button type="button" className="bi bi-check-lg btn text-dark btn btn-outline-dark buttons-right"> Scheduled</button>
@@ -23,7 +23,7 @@ const BookmarksPage = () => {
             </div>
 
                 {/* Table and Cancel Button */}
-                <div className="container mt-4">
+                <div className="container">
                     <div className="row">
                         <div className="col">
                             <div className="table-height">
