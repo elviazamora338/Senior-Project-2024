@@ -1,32 +1,67 @@
-/* Custom Card Style for Header */
-.card-custom {
-    background-color: #CB4900;
-    color: white;
-    border-radius: 0;
-}
-
-/* For the navigation bar */
-.nav-link {
-    color: white;
-    text-decoration: none;
-    font-size: 1rem; /* Text size */
-    display: block; /* Make link block-level for full width */
-    padding: 10px; /* Add padding for click area */
-    transition: background-color 0.3s; /* Smooth background transition */
+/* Sidebar Styling */
+.sidebar {
+    width: 150px; /* Adjust sidebar width */
+    height: 100vh; /* Full height */
+    background-color: #313131; /* Sidebar background color */
+    position: fixed; /* Fix the sidebar to the left */
+    padding: 0;
+    top: 0;
+    left: 0;
+    display: flex;
+    flex-direction: column; /* Stack items vertically */
+    align-items: center; /* Center items horizontally */
 }
 
 .nav {
-    width: 100%; /* Ensure nav items take full width */
-    padding: 0; /* Remove default padding */
+    width: 100%; /* Take full width of the sidebar */
+    padding-top: 50px;
+    margin: 0;
+    list-style-type: none;
 }
 
 .nav-item {
-    width: 100%; /* Make nav items full width */
-    text-align: center; /* Center the text in the nav items */
-    margin: 10px 0; /* Add vertical space between items */
+    width: 100%; /* Make sure the item takes up the full width of the sidebar */
+    text-align: center; /* Center text inside the item */
+    transition: background-color 0.3s; /* Smooth transition on hover */
+    display: flex; /* Use flexbox to align children */
+    justify-content: center; /* Horizontally center the content */
+    align-items: center; /* Vertically center the content */
+    padding: 15px 0; /* Add some padding for better spacing */
 }
 
 .nav-item:hover {
-    text-decoration: underline;
-    text-decoration-color: white;
+    background-color: #48474782; /* Highlight on hover */
+    cursor: pointer;
+}
+
+.nav-item i {
+    display: block;
+    margin-bottom: 5px; /* Space between the icon and text */
+    font-size: 1.5rem; /* Adjust icon size */
+}
+
+.nav-item.active i {
+    background-color: #CB4900; /* Orange color when active */
+    color: white; /* Icon color changes to white */
+    border-radius: 50%; /* Make the icon a circle */
+    padding: 10px; /* Padding to make the icon fit inside the circle */
+}
+
+.nav-link {
+    color: white; /* Link text color */
+    text-decoration: none; /* Remove underline */
+    font-size: 1rem; /* Font size */
+    display: flex;
+    flex-direction: column; /* Stack icon and text vertically */
+    align-items: center; /* Center the icon and text horizontally */
+    justify-content: center; /* Center vertically */
+}
+
+.nav-link:hover {
+    color: white; /* Ensure text remains white on hover */
+}
+
+.nav-item {
+    margin: 0;
+    padding: 0;
 }

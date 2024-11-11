@@ -48,16 +48,6 @@
   flex-grow: 1; /* Ensures the main content takes up remaining space next to the sidebar */
 }
 
-.sidebar {
-  width: 150px; /* Sidebar width */
-  position: fixed; /* Fixed position for sidebar */
-  top: 0;
-  left: 0;
-  height: 100vh; /* Full viewport height */
-  background-color: #343a40; /* Sidebar background color */
-  z-index: 1; /* Sidebar stays behind header */
-}
-
 /* Sticky Header */
 .table-header {
   position: sticky;
@@ -83,21 +73,6 @@ html, body {
   margin: 0;
   padding: 0;
   font-family: Arial, sans-serif;
-}
-
-/* Sidebar */
-.sidebar {
-  height: 100vh;
-  background-color: #343a40;
-  width: 150px;
-  position: fixed;
-  top: 0;
-  left: 0;
-  z-index: 1; /* Sidebar should be below the header */
-  padding-top: 20px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
 }
 
 /* Optional: Adjust for smaller screens */
