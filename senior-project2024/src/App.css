@@ -1,3 +1,4 @@
+/* Basic App styling */
 .App {
   text-align: center;
 }
@@ -37,64 +38,72 @@
   }
 }
 
-/* Ensure content is not pushed too far to the right */
+/* Layout adjustments */
 .d-flex {
-  margin-left: 150px; /* Keeps the sidebar separate */
-  width: calc(100% - 150px); /* Centers content relative to the remaining width */
-  justify-content: center;
+  display: flex;
+  margin-left: 150px; /* Offset for sidebar */
+  width: calc(100% - 150px); /* Centers content relative to remaining width */
+}
+
+.sidebar {
+  width: 150px;
+  position: fixed;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  background-color: #333; /* Customize sidebar background color */
+  z-index: 999;
 }
 
 .main-content {
-  flex-grow: 1; /* Ensures the main content takes up remaining space next to the sidebar */
+  flex-grow: 1;
 }
 
-/* Sticky Header */
+/* Sticky Table Header */
 .table-header {
   position: sticky;
   top: 0;
-  left: 0;
-  width: 100%;
   background-color: #CB4900;
-  z-index: 1000; /* Make sure header is on top */
-  margin: 0; /* Remove extra space around header */
-  box-sizing: border-box; /* Include padding and border in width/height */
+  color: white;
+  z-index: 1000;
+  width: 100%;
+  box-sizing: border-box;
 }
 
-/* Make sure the header is not overlapped by the sidebar */
+/* Card customization */
 .card-custom {
   background-color: #CB4900;
   color: white;
   border-radius: 0;
-  position: relative; /* Makes the header content stack above sidebar */
+  position: relative;
 }
 
-/* Remove padding/margins on html and body to avoid extra space */
+/* Global reset */
 html, body {
   margin: 0;
   padding: 0;
   font-family: Arial, sans-serif;
 }
 
-/* Optional: Adjust for smaller screens */
+/* Responsive adjustments */
 @media screen and (max-width: 768px) {
   .sidebar {
-      width: 100%; /* Sidebar takes full width on smaller screens */
-      height: auto;
-      position: relative;
+    width: 100%;
+    height: auto;
+    position: relative;
   }
   
   .table-header {
-      position: relative; /* Header behaves normally on smaller screens */
+    position: relative;
   }
-  
+
   .table-container {
-      margin-left: 0; /* No sidebar, so no need for left margin */
-      padding-top: 60px; /* Ensure space between header and content */
+    margin-left: 0;
+    padding-top: 60px;
   }
-  
+
   .d-flex {
-      margin-left: 0;
-      width: 100%;
+    margin-left: 0;
+    width: 100%;
   }
 }
-
