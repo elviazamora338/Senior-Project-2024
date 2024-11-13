@@ -2,7 +2,6 @@ import logo from './logo.svg';
 import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom';
 import Sidebar from './Components/Sidebar.jsx';
 import Header from './Components/Header.jsx';
-import Calendar_Screen from './Components/Calendar_Page/Calendar_Screen';
 import HomePage from './Components/Home_Page/Home_Page.jsx';
 import Login_Screen from './Components/Login_Page/Login_Screen';
 import LoginAuth_Screen from './Components/LoginAuth_Page/LoginAuth_Screen';
@@ -22,7 +21,6 @@ const AppContent = () => {
 
   // Determine if routes require Sidebar and Header
   const showSidebar = !["/calendar", "/loginauth", "/login", "/signup"].includes(location.pathname);
-
   return (
     <>
       {showSidebar ? (
@@ -47,7 +45,6 @@ const AppContent = () => {
           <Route path="/signup" element={<SignUp_Screen />} />
           <Route path="/loginauth" element={<LoginAuth_Screen />} />
           <Route path="/login" element={<Login_Screen />} />
-          <Route path="/calendar" element={<Calendar_Screen />} />
           <Route path="*" element={<h1>Not Found</h1>} />
         </Routes>
       )}
