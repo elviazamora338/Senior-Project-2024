@@ -44,6 +44,13 @@ function Availability({ index, removeSection, onDateChange }) {
     const [selectedDay, setSelectedDay] = useState('');
     const [startMonth, setStartMonth] = useState('');
     const [endMonth, setEndMonth] = useState('');
+    const [timeSelection, setTimeSelection] = useState({
+        "8am-10am": false,
+        "10am-12pm": false,
+        "12pm-2pm": false,
+        "2pm-4pm": false
+    });
+    
   
     const handlePeriodChange = (e) => {
         setPeriod(e.target.value);
@@ -53,42 +60,81 @@ function Availability({ index, removeSection, onDateChange }) {
         setSelectedDay('');
         setStartMonth('');
         setEndMonth('');
+         setTimeSelection({
+        "8am-10am": false,
+        "10am-12pm": false,
+        "12pm-2pm": false,
+        "2pm-4pm": false
+    });
         onDateChange(index, []);
     };
+    const isAllSelected = (times = timeSelection) => Object.values(times).every(selected => selected);
+    const selectedTimes = (times = timeSelection) => Object.keys(times).filter(time => times[time]);
+
+     // times chosen
+     const handleTimeSelection = (timeSlot) => {
+        const updatedTimes = { ...timeSelection, [timeSlot]: !timeSelection[timeSlot] };
+        setTimeSelection(updatedTimes);
+    
+        // Update unavailable dates for each selected/unselected slot immediately
+        onDateChange(index, {
+            dates:  period == 'Day'? [selectedDay] :
+                    period == 'Week' ? getDatesInRange(startDate, endDate) :
+                   getMonthRangeDates(startMonth, endMonth, new Date().getFullYear()),
+            allSelected: isAllSelected(updatedTimes),
+            times: selectedTimes(updatedTimes)
+        });
+    };
+    
+    // this is for week
     const handleStartDateChange = (e) => {
         setStartDate(e.target.value);
-        if (period === 'Day') {
-            onDateChange(index, [e.target.value]);
-        } else if (period === 'Week' && endDate) {
-            onDateChange(index, getDatesInRange(e.target.value, endDate));
+        if (period === 'Week' && endDate) {
+            onDateChange(index, { dates: getDatesInRange(e.target.value, endDate), allSelected: isAllSelected(), times: selectedTimes() });
         }
     };
 
+//    this is for the week change
     const handleEndDateChange = (e) => {
         setEndDate(e.target.value);
         if (period === 'Week' && startDate) {
-            onDateChange(index, getDatesInRange(startDate, e.target.value));
+            onDateChange(index, { dates: getDatesInRange(startDate, e.target.value), allSelected: isAllSelected(), times: selectedTimes() });
         }
     };
 
+    // Day-specific handler
     const handleDayChange = (e) => {
         setSelectedDay(e.target.value);
-        onDateChange(index, [e.target.value]);
+        onDateChange(index, { dates: [e.target.value], allSelected: isAllSelected(), times: selectedTimes() });
     };
+    
+    // Month-specific handlers for start and end months
     const handleStartMonthChange = (e) => {
         const monthIndex = months.indexOf(e.target.value);
         setStartMonth(monthIndex);
-        if (endMonth !== '' && monthIndex <= endMonth) {
-            onDateChange(index, getMonthRangeDates(monthIndex, endMonth, new Date().getFullYear()));
+        if (monthIndex !== '' && endMonth !== '') {
+            const dates = getMonthRangeDates(monthIndex, endMonth, new Date().getFullYear());
+            onDateChange(index, {
+                dates,
+                allSelected: isAllSelected(),
+                times: selectedTimes()
+            });
         }
     };
+    
     const handleEndMonthChange = (e) => {
         const monthIndex = months.indexOf(e.target.value);
         setEndMonth(monthIndex);
-        if (startMonth !== '' && startMonth <= monthIndex) {
-            onDateChange(index, getMonthRangeDates(startMonth, monthIndex, new Date().getFullYear()));
+        if (startMonth !== '' && monthIndex !== '' && startMonth <= monthIndex) {
+            const dates = getMonthRangeDates(startMonth, monthIndex, new Date().getFullYear());
+            onDateChange(index, {
+                dates,
+                allSelected: isAllSelected(),
+                times: selectedTimes()
+            });
         }
     };
+
   return (
     <tr>
         <td>
@@ -152,17 +198,15 @@ function Availability({ index, removeSection, onDateChange }) {
         <td>
             {/* Can make this simpler -E need to work on this */}
             <div class = "row justify-content-center p-8 mt-4 ">
+            {Object.keys(timeSelection).map(time => (
                 <div class = "col-6 p-2" style={{ width: 'fit-content' }}>
                     <div class="form-check form-check-inline">
-                        <input class="form-check-input" type="checkbox" value="8am-10am"></input>
-                        <label class="form-check-label" style={{ fontSize: '12.5px' }}>8AM-10AM</label>
-                    </div>
-                    <div class="form-check form-check-inline">
-                        <input class="form-check-input" type="checkbox" value="8am-10am"></input>
-                        <label class="form-check-label" style={{ fontSize: '12.5px' }}>10AM-12PM</label>
+                        <input class="form-check-input" type="checkbox" checked={timeSelection[time]} onChange={() => handleTimeSelection(time)} />
+                        <label class="form-check-label" style={{ fontSize: '12.5px' }}>{time}</label>
                     </div>
                 </div>
-                <div class = "col-6  p-2" style={{ width: 'fit-content' }}>
+                 ))}
+                {/* <div class = "col-6  p-2" style={{ width: 'fit-content' }}>
                     <div class="form-check form-check-inline">
                         <input class="form-check-input" type="checkbox" value="8am-10am"></input>
                         <label class="form-check-label" style={{ fontSize: '12.5px' }}>12PM-2PM</label>
@@ -170,8 +214,8 @@ function Availability({ index, removeSection, onDateChange }) {
                     <div class="form-check form-check-inline">
                         <input class="form-check-input" type="checkbox" value="8am-10am"></input>
                         <label class="form-check-label" style={{ fontSize: '12.5px' }}>2PM-4PM</label>
-                    </div>
-                </div>
+                    </div>f
+                </div> */}
             </div>
             
         </td>
@@ -206,9 +250,17 @@ function GenerateCalender({ unavailableDates }) {
                     break;
                 } else {
                     const formattedDate = `${year}-${String(month + 1).padStart(2, '0')}-${String(date).padStart(2, '0')}`;
-                    const isUnavailable = unavailableDates.includes(formattedDate);
+                    const dateInfo = unavailableDates[formattedDate];
+                    const backgroundColor = dateInfo
+                    ? dateInfo.allSelected
+                        ? 'red'
+                        : dateInfo.times && dateInfo.times.length > 0
+                            ? 'orange' // Apply orange when some time slots are selected
+                            : 'white'
+                    : '';
+                
                     week.push(
-                        <td key={j} style={{ backgroundColor: isUnavailable ? 'orange' : '' }}>{date}</td>
+                        <td key={j} style={{ backgroundColor }}>{date}</td>
                     );
                     date++;
                 }
@@ -300,6 +352,18 @@ function GenerateCalender({ unavailableDates }) {
                     ))}
                 </select>
             </div>
+            <div class='my-legend'>
+                <div class='legend-title'>Availability Legend</div>
+                    <div class='legend-scale'>
+                        <ul class='legend-labels text-start'>
+                            <li><span style ={{ backgroundColor: 'red'}}></span>Unavailable</li>
+                            <li><span style={{ backgroundColor: 'orange'}} ></span>Partially available</li>
+                            <li><span style={{ backgroundColor: 'white'}} ></span>Available</li>
+                            
+                            {/* <li><span style='background:#FFFFB3;'></span>Two</li> */}
+                        </ul>
+                </div>
+            </div>
         </div>
     );
 };
@@ -310,10 +374,7 @@ function Calendar_Screen() {
     const [availabilityList, setAvailabilityList] = useState([]);
     const [unavailableDates, setUnavailableDates] = useState({});
 
-    const handleAddSection = () => {
-        const index = availabilityList.length;
-        setAvailabilityList([...availabilityList, { key: index }]);
-    };
+    const handleAddSection = () => setAvailabilityList([...availabilityList, { key: availabilityList.length }]);
 
     const removeSection = (index) => {
         setAvailabilityList(availabilityList.filter((_, i) => i !== index));
@@ -326,13 +387,27 @@ function Calendar_Screen() {
         setUnavailableDates(prev => ({ ...prev, [index]: dates }));
     };
 
-    const flattenedUnavailableDates = Object.values(unavailableDates).flat();
+    const flattenedUnavailableDates = Object.values(unavailableDates).reduce((acc, dateInfo) => {
+        const dates = dateInfo.dates || []; // Default to an empty array if dates is undefined
+        dates.forEach(date => {
+            acc[date] = { allSelected: dateInfo.allSelected, times: dateInfo.times };
+        });
+        return acc;
+    }, {});
+    
 
     return (
         <div className="container">
-            <h2>Set Equipment Availability</h2>
+            <div className='row'>
+                <div className = "col-7 text-start mt-4">
+                <h2 >Set Equipment Availability</h2>
+                <p className="text-danger" style={{ fontSize: '18px' }}>
+                        *By default, every weekday is set to 'available' from 8am-8pm. This page is to set up UNAVAILABILITY.
+                </p>
+                </div>
+            </div>
             <div className="row">
-                <div className="col-md-7">
+                <div className=" card col-md-7">
                     <table className="table">
                         <thead>
                             <tr>
@@ -362,7 +437,9 @@ function Calendar_Screen() {
                     <GenerateCalender unavailableDates={flattenedUnavailableDates} />
                 </div>
             </div>
-        </div>
+
+            
+            </div>
     );
 }
 

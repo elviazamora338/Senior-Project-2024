@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import './Login_Screen.css'; 
 import axios from 'axios'; 
+import 'bootstrap/dist/css/bootstrap.min.css'; 
+
 
 const LoginPage = () => {
     const [email, setEmail] = useState(''); 
