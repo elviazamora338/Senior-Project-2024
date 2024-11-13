@@ -1,3 +1,4 @@
+/* Basic App styling */
 .App {
   text-align: center;
 }
@@ -34,5 +35,75 @@
   }
   to {
     transform: rotate(360deg);
+  }
+}
+
+/* Layout adjustments */
+.d-flex {
+  display: flex;
+  margin-left: 150px; /* Offset for sidebar */
+  width: calc(100% - 150px); /* Centers content relative to remaining width */
+}
+
+.sidebar {
+  width: 150px;
+  position: fixed;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  background-color: #333; /* Customize sidebar background color */
+  z-index: 999;
+}
+
+.main-content {
+  flex-grow: 1;
+}
+
+/* Sticky Table Header */
+.table-header {
+  position: sticky;
+  top: 0;
+  background-color: #CB4900;
+  color: white;
+  z-index: 1000;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Card customization */
+.card-custom {
+  background-color: #CB4900;
+  color: white;
+  border-radius: 0;
+  position: relative;
+}
+
+/* Global reset */
+html, body {
+  margin: 0;
+  padding: 0;
+  font-family: Arial, sans-serif;
+}
+
+/* Responsive adjustments */
+@media screen and (max-width: 768px) {
+  .sidebar {
+    width: 100%;
+    height: auto;
+    position: relative;
+  }
+  
+  .table-header {
+    position: relative;
+  }
+
+  .table-container {
+    margin-left: 0;
+    padding-top: 60px;
+  }
+
+  .d-flex {
+    margin-left: 0;
+    width: 100%;
   }
 }
