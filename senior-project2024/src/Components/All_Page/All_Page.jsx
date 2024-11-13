@@ -11,14 +11,20 @@ const All_Page = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [bookmarkedItems, setBookmarkedItems] = useState({}); // Use an object for bookmarking by device id
+    const [searchTerm, setSearchTerm] = useState(''); 
 
+    // function for bookmark 
     const handleBookmarkClick = (id) => {
         setBookmarkedItems((prev) => ({
             ...prev,
             [id]: !prev[id], // Toggle bookmark for the specific device id
         }));
     }; 
-
+    
+    // 
+    const handleSearchChange = (e) => {
+        setSearchTerm(e.target.value.toLowerCase())
+    }
     useEffect(() => {
         const fetchLabDevices = async () => {
             try {
@@ -36,6 +42,21 @@ const All_Page = () => {
 
     if (loading) return <p>Loading...</p>;
     if (error) return <p>{error}</p>;
+
+    // Filter devices based on the search
+    const filteredDevices = labDevices.filter((device) => {
+        const deviceName = device.device_name.toLowerCase();
+        const description = device.description.toLowerCase();
+        const building = device.building.toLowerCase();
+        const poc = device.person_in_charge.toLowerCase();
+        return (
+            deviceName.includes(searchTerm) ||
+            description.includes(searchTerm) ||
+            building.includes(searchTerm) ||
+            poc.includes(searchTerm)
+        );
+    });
+
 
     return (
         <div className="d-flex">
@@ -126,12 +147,16 @@ const All_Page = () => {
                                     placeholder="Search"
                                     aria-label="Search"
                                     id="search-input"
+                                    // Bind input to searchTerm
+                                    value={searchTerm}
+                                    // Update searchTerm on change
+                                    onChange={handleSearchChange}
                                 />
                                 <button className="btn btn-outline-secondary" type="button" id="search-button">
                                     <i className="bi bi-search"></i>
                                 </button>
                             </div>
-                            <button type="button" className="btn btn-outline-secondary filter">
+                        <button type="button" className="btn btn-outline-secondary filter">
                                 <i className="bi bi-funnel-fill"></i> Filter
                             </button>
                         </div>
@@ -153,7 +178,7 @@ const All_Page = () => {
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            {labDevices.map((device) => (
+                                            {filteredDevices.map((device) => (
                                                 <tr key={device.device_id}>
                                                     <td>
                                                         <div>
