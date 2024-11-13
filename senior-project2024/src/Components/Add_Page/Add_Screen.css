@@ -72,3 +72,15 @@ h5, .page-header {
     align-items: center;
 }
 
+/* Custom wider modal */
+.custom-wide-modal .modal-dialog {
+    max-width: 1000px; /* Adjust this value for wider width */
+    width: 90%; /* Makes it responsive */
+}
+
+.custom-wide-modal .modal-body {
+    overflow-x: auto; /* Ensures that content is scrollable if it overflows */
+}
+
+
+

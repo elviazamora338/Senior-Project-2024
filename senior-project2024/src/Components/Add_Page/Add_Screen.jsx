@@ -1,13 +1,20 @@
 // Import React and necessary hooks
-import React from 'react';
+import React, {useState} from 'react';
 import { Link } from 'react-router-dom';
+import { Modal, Button } from 'react-bootstrap';
 import './Add_Screen.css'
 import banner from '../../static/uni_banner/utrgv_banner.jpg'; // Import image from source
 // import cal_button from '../../static/buttons/utrgv_banner.jpg''
+import Calendar from '../Calendar_Page/Calendar_Screen.jsx'; // Import the Calendar component
 import 'bootstrap/dist/css/bootstrap.min.css';
 import "bootstrap-icons/font/bootstrap-icons.css";
 
 const AddPage = () => {
+    const [showCalendar, setShowCalendar] = useState(false);
+    // Calendar Modal toggle handlers
+    const handleCalendarClose = () => setShowCalendar(false);
+    const handleCalendarShow = () => setShowCalendar(true);
+
     return (
         <div className="d-flex">
             {/* Sidebar */}
@@ -206,7 +213,7 @@ const AddPage = () => {
                                         <label for="availability" className="form-check-label ms-2">Available</label>
                                     </div>
                                     {/* Calendar Button */}
-                                    <button type="button" className="bi bi-calendar4 btn-light btn-sm cal-button d-flex"></button>
+                                    <button type="button" className="bi bi-calendar4 btn-light btn-sm cal-button d-flex" onClick={handleCalendarShow}></button>
                                 </div>
                             </div>
 
@@ -214,6 +221,25 @@ const AddPage = () => {
                                 <button type="button" className="btn btn-secondary save-button">Save</button>
                             </div>
 
+
+                            {/* Calendar Modal */}
+                            <Modal show={showCalendar} onHide={handleCalendarClose} centered dialogClassName="custom-wide-modal"  size="xl" >
+                                <Modal.Header closeButton>
+                                    <Modal.Title>Select Dates</Modal.Title>
+                                </Modal.Header>
+                                <Modal.Body>
+                                    {/* Render the Calendar Component */}
+                                    <Calendar />
+                                </Modal.Body>
+                                <Modal.Footer>
+                                    <Button variant="secondary" onClick={handleCalendarClose}>
+                                        Close
+                                    </Button>
+                                    <Button variant="primary" onClick={handleCalendarClose}>
+                                        Save Changes
+                                    </Button>
+                                </Modal.Footer>
+                            </Modal>
                             <br></br>
 
                         </div>

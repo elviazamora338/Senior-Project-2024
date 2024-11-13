@@ -2,7 +2,7 @@ import logo from './logo.svg';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { useState } from 'react';
 // import Add_Screen from './Components/Add_Page/Add_Screen';
-import Calendar_Screen from './Components/Calendar_Page/Calendar_Screen';
+// import Calendar_Screen from './Components/Calendar_Page/Calendar_Screen';
 import HomePage from './Components/Home_Page/Home_Page.jsx';
 import Login_Screen from './Components/Login_Page/Login_Screen';
 import LoginAuth_Screen from './Components/LoginAuth_Page/LoginAuth_Screen';
@@ -30,7 +30,7 @@ function App() {
                <Route path="/requests" element={<><RequestsPage /></>} />
                <Route path="/inventory" element={<><InventoryPage /></>} />
 
-               <Route path="/calendar" element={<Calendar_Screen />} />
+               {/* <Route path="/calendar" element={<Calendar_Screen />} /> */}
                <Route path="/history" element={<><HistoryPage /></>} />
                <Route path="/bookmarks" element={<><BookmarksPage /></>} />
 
