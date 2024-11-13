@@ -14,6 +14,9 @@ const InventoryPage = () => {
                     <Link to="/requests">
                         <button type="button" className="bi bi-clock btn-outline-dark text-dark btn buttons-right"> Requests</button>
                     </Link>
+                    <Link to="/reports">
+                            <button type="button" className="bi bi-box btn text-dark btn btn-outline-dark middle-button"> Reports</button>
+                    </Link>
                     <Link to="/inventory">
                         <button type="button" className="bi bi-clipboard-fill btn btn-secondary btn text-dark border-secondary buttons-left"> Inventory</button>
                     </Link>
