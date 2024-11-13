@@ -1,1 +1,1 @@
-# Equipment Scheduler
+# Equipment Scheduler (Book 'em)
