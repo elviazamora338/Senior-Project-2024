@@ -1,40 +1,36 @@
 import React, { useState, useEffect, useRef } from 'react';
 import './Header.css';
 import banner from '../static/uni_banner/utrgv_banner.jpg';
+import { Modal, Button } from 'react-bootstrap'; // Import Modal and Button
+import Profile from '../Components/Profile_Page/Profile.jsx'; // Import the Profile component
 import 'bootstrap/dist/css/bootstrap.min.css';
 import "bootstrap-icons/font/bootstrap-icons.css";
 
 const Header = () => {
-    // State to toggle the dropdown visibility
     const [menuOpen, setMenuOpen] = useState(false);
-
-    // Ref to the dropdown menu to check for outside clicks
+    const [showProfileModal, setShowProfileModal] = useState(false); // State to control Profile modal visibility
     const menuRef = useRef(null);
 
-    // Menu items with icons
+    // Open and close modal handlers
+    const handleProfileShow = () => setShowProfileModal(true);
+    const handleProfileClose = () => setShowProfileModal(false);
+
+    // Menu items with icons and actions
     const menuItems = [
-        { name: 'Profile', icon: 'bi-person' },
+        { name: 'Profile', icon: 'bi-person', action: handleProfileShow }, // Trigger modal for Profile
         { name: 'Settings', icon: 'bi-gear' },
         { name: 'Log out', icon: 'bi-box-arrow-right' }
     ];
 
-    // Function to toggle the dropdown visibility
-    const toggleMenu = () => {
-        setMenuOpen(!menuOpen);
-    };
+    const toggleMenu = () => setMenuOpen(!menuOpen);
 
-    // Close menu if the user clicks outside
     useEffect(() => {
         const handleClickOutside = (event) => {
             if (menuRef.current && !menuRef.current.contains(event.target)) {
-                setMenuOpen(false); // Close menu
+                setMenuOpen(false);
             }
         };
-
-        // Adding event listener
         document.addEventListener('mousedown', handleClickOutside);
-
-        // Cleanup event listener on unmount
         return () => {
             document.removeEventListener('mousedown', handleClickOutside);
         };
@@ -60,14 +56,15 @@ const Header = () => {
                                 ></i>
 
                                 {/* Dropdown Menu with animation and ref */}
-                                <div
-                                    ref={menuRef}
-                                    className={`dropdown-menu ${menuOpen ? 'show' : ''}`}
-                                >
+                                <div ref={menuRef} className={`dropdown-menu ${menuOpen ? 'show' : ''}`}>
                                     <ul>
                                         {menuItems.map((item) => (
-                                            <li key={item.name} className="menu-item text-white">
-                                                <i className={`bi ${item.icon} mr-2 text-white`}></i> {/* Icon */}
+                                            <li
+                                                key={item.name}
+                                                className="menu-item text-white"
+                                                onClick={item.action || (() => {})} // Call action if defined
+                                            >
+                                                <i className={`bi ${item.icon} mr-2 text-white`}></i>
                                                 {item.name}
                                             </li>
                                         ))}
@@ -88,6 +85,21 @@ const Header = () => {
                     </div>
                 </div>
             </div>
+
+            {/* Profile Modal */}
+            <Modal show={showProfileModal} onHide={handleProfileClose} centered>
+                <Modal.Header closeButton>
+                    <Modal.Title>Profile</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <Profile /> {/* Render Profile component in the modal */}
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={handleProfileClose}>
+                        Close
+                    </Button>
+                </Modal.Footer>
+            </Modal>
         </>
     );
 };
