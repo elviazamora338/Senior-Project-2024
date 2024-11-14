@@ -1,15 +1,18 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import './Login_Screen.css';
+import './Login_Screen.css'; 
+import axios from 'axios'; 
 import 'bootstrap/dist/css/bootstrap.min.css'; 
+
 
 const LoginPage = () => {
     const [email, setEmail] = useState(''); 
     const [error, setError] = useState(''); 
+    const [success, setSuccess] = useState(''); 
     const navigate = useNavigate(''); 
 
     // Function to handle form submission
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         // prevent default form submission 
         e.preventDefault();
 
@@ -18,9 +21,18 @@ const LoginPage = () => {
             setError('Please enter a valid .edu email address');
             return;
         }
+        try {
+            const response = await axios.post('http://localhost:5001/send-otp', { email });
 
-        setError('');
-        navigate('/loginauth'); 
+            if (response.data.message === 'OTP sent to your email') {
+                setError('');
+                setSuccess('OTP sent successfully! Check your email.');
+
+                navigate('/loginauth', { state: { email } });
+            }
+        } catch (error) {
+            setError('Failed to send OTP. Please try again'); 
+        }
 
     }; 
 
@@ -48,6 +60,7 @@ const LoginPage = () => {
                             </div>
                             <br/>
                             {error && <p className="text-danger">{error}</p>}
+                            {success && <p className="text-success">{success}</p>}
                             <br />
                             <button type="submit" className="btn btn-primary btn-block login-button">Login</button>
                             <div className="row p-2">
