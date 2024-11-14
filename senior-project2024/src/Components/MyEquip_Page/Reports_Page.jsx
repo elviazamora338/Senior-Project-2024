@@ -13,10 +13,10 @@ const RequestsPage = () => {
                 <div className="col text-center">
                     <div className="btn-group">
                         <Link to="/requests">
-                            <button type="button" className="bi bi-clock btn btn-secondary text-dark btn buttons-right"> Requests</button>
+                            <button type="button" className="bi bi-clock btn btn-outline-dark text-dark btn buttons-right"> Requests</button>
                         </Link>
                         <Link to="/reports">
-                            <button type="button" className="bi bi-box btn text-dark btn btn-outline-dark middle-button"> Reports</button>
+                            <button type="button" className="bi bi-box btn text-dark btn btn-secondary middle-button"> Reports</button>
                         </Link>
                         <Link to="/inventory">
                             <button type="button" className="bi bi-clipboard-fill btn btn-outline-dark text-dark border-secondary buttons-left"> Inventory</button>
@@ -45,7 +45,7 @@ const RequestsPage = () => {
                                             <td>Jane Doe</td>
                                             <td>jane.doe@utrgv.edu</td>
                                             <td>Equipment Name</td>
-                                            <td>Approved</td>
+                                            <td>Resolved</td>
                                             <td>
                                                 <div>
                                                 <button type="button" className="btn btn-secondary btn-sm">View</button>
@@ -56,10 +56,9 @@ const RequestsPage = () => {
                                             <td>John Doe</td>
                                             <td>john.doe@utrgv.edu</td>
                                             <td>Equipment Name</td>
-                                            <td>Pending Approval</td>
+                                            <td>Unresolved</td>
                                             <td>
                                                 <div>
-                                                    <button type="button" className="bi bi-x btn btn-danger btn-sm me-2"></button>
                                                     <button type="button" className="bi bi-check2 btn btn-success btn-sm me-2"></button>
                                                     <button type="button" className="btn btn-secondary btn-sm">View</button>
                                                 </div>

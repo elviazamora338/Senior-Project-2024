@@ -9,6 +9,7 @@ import SignUp_Screen from './Components/SignUp_Page/SignUp_Screen';
 import All_Page from './Components/All_Page/All_Page.jsx';
 import RequestsPage from './Components/MyEquip_Page/Requests_Page.jsx';
 import InventoryPage from './Components/MyEquip_Page/Inventory_Page.jsx';
+import ReportsPage from './Components/MyEquip_Page/Reports_Page.jsx';
 import AddPage from './Components/Add_Page/Add_Screen.jsx';
 import HistoryPage from './Components/Home_Page/History.jsx';
 import BookmarksPage from './Components/Home_Page/Bookmarks.jsx';
@@ -33,6 +34,7 @@ const AppContent = () => {
               <Route path="/all" element={<All_Page />} />
               <Route path="/add" element={<AddPage />} />
               <Route path="/requests" element={<RequestsPage />} />
+              <Route path="/reports" element={<ReportsPage />} />
               <Route path="/inventory" element={<InventoryPage />} />
               <Route path="/history" element={<HistoryPage />} />
               <Route path="/bookmarks" element={<BookmarksPage />} />
