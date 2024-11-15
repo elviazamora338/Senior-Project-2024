@@ -101,7 +101,7 @@
                 <!-- Sidebar item: Home button -->
                 <li class="nav-item">
                     <!-- 'bi bi-house-door' shows a house icon (from Bootstrap Icons) -->
-                    <a class="nav-link text-white bi bi-house-door" style="font-size: 25px;"></a>
+                    <a href="{{url_for('home')}}"class="nav-link text-white bi bi-house-door" style="font-size: 25px;"></a>
                     <!-- Home text link below the icon -->
                     <a class ="nav-link text-white ">Home</a>
                 </li>
@@ -109,14 +109,14 @@
                 <li class="nav-item">
                     <!-- 'bi bi-grid' shows a grid icon -->
                     <!-- 'font-size: 20' sets the icon size -->
-                    <a class="nav-link text-white bi bi-grid" style="font-size: 20"></a>
+                    <a href="{{url_for('lab_devices')}}"class="nav-link text-white bi bi-grid" style="font-size: 20"></a>
                      <!-- Text for 'All' -->
                     <a class ="nav-link text-white">All</a>
                 </li>
                 <!-- For Add -->
                 <li class="nav-item">
                     <!-- 'bi bi-plus-circle' shows a plus-circle icon -->
-                    <a class="nav-link text-white bi bi-plus-circle" style="font-size: 20" ></a>
+                    <a href="{{url_for('add')}}" class="nav-link text-white bi bi-plus-circle" style="font-size: 20" ></a>
                     <a class ="nav-link text-white">Add</a>
                 </li>
                 <!-- Sidebar item: 'My Equipment' button -->
