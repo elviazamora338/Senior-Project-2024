@@ -1,43 +1,94 @@
-import React from 'react';
 import { Link } from 'react-router-dom';
-import './SignUp_Page.css'; // Assuming you have a CSS file for custom styling
+import "./SignUp_Page.css";
+import React, { useState } from "react";
+import axios from 'axios'; 
 
-const SignUp_Screen = () => {
+
+const SignUpScreen = () => {
+  const [role, setRole] = useState(""); // State to track selected role
+  const [id, setId] = useState(""); // State for SID/EID input
+  const [errorMessage, setErrorMessage] = useState(""); // State for validation errors
+
+  const handleRoleChange = (e) => {
+    setRole(e.target.value);
+    setId(""); // Clear SID/EID input when role changes
+    setErrorMessage(""); // Clear error message
+  };
+
+  const handleIdChange = (e) => {
+    const value = e.target.value;
+    // Ensure only numeric input
+    if (!/^\d*$/.test(value)) return;
+    setId(value);
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (errorMessage) {
+      alert("Please fix the errors before submitting.");
+      return;
+    }
+  };
+
   return (
-    <div className="container-fluid h-100">
-      <div className="row h-100">
-        {/* Left side of the screen for login */}
-        <div className="col-md-6 login-section">
-          <div className="login-box">
-            <h1 className="text-center">Get Started Now!</h1>
-            <br />
-            <div className="form-group login-button">
-              <label htmlFor="email">Email address (.edu only)</label>
-              <input type="email" className="form-control" id="email" placeholder="Enter your email" />
-            </div>
-            <br /><br />
-            <div className="form-group login-button">
-              <label htmlFor="university">Choose University</label>
-              <select className="form-select">
-                <option value="option0">None</option>
-                <option value="option1">University of Texas Rio Grande Valley - Edinburg</option>
-                <option value="option2">University of Texas Rio Grande Valley - Brownsville</option>
-              </select>
-            </div>
-            <br /><br />
-            <button type="submit" className="btn btn-primary w-100 login-button">Sign Up</button>
-            <div className="row p-2">
-              <div className="text-center">
-                <p>Have an account? <Link to="/login" className="nav-link d-inline p-0">Sign In</Link></p>
-              </div>
-            </div>
-          </div>
-        </div>
-        {/* Right side of login screen */}
-        <div className="col-md-6 welcome-image"></div>
+    <div className="signup-container">
+      <div className="signup-form">
+        <h1>Get Started Now</h1>
+        <form onSubmit={handleSubmit}>
+          {/* User Name */}
+          <label htmlFor="name">Name</label>
+          <input type="text" id="name" placeholder="Enter first and last name" required />
+          {/* User Email */}
+          <label htmlFor="email">Email address (.edu only)</label>
+          <input type="email" id="email" placeholder="Enter your email" required />
+          {/* User University */}
+          <label htmlFor="university">Choose University</label>
+          <select id="university" required>
+            <option value="">Select University...</option>
+            <option value="University of Texas Rio Grande Valley (Edinburg)">
+              University of Texas Rio Grande Valley (Edinburg)
+            </option>
+            <option value="University of Texas Rio Grande Valley (Brownsville)">
+              University of Texas Rio Grande Valley (Brownsville)
+            </option>
+          </select>
+          {/* User Role */}
+          <label htmlFor="role">You are</label>
+          <select id="role" value={role} onChange={handleRoleChange} required>
+            <option value="">Select role...</option>
+            <option value="student">Student</option>
+            <option value="faculty">Faculty</option>
+          </select>
+
+          {/* Conditional rendering for SID/EID */}
+          {role && (
+            <>
+              <label htmlFor="sid">{role === "student" ? "SID" : "EID"}</label>
+              <input
+                type="text"
+                id="sid"
+                placeholder={`Enter your ${role === "student" ? "student ID" : "employee ID"}`}
+                value={id}
+                onChange={handleIdChange}
+                className={errorMessage ? "error-input" : ""}
+                required
+              />
+              {errorMessage && <p className="error-message">{errorMessage}</p>}
+            </>
+          )}
+
+          <button type="submit" className="signup-button">
+            Sign Up
+          </button>
+        </form>
+        <p className="have-account">
+          Have an account? <Link to="/login">Sign In</Link>
+         </p>
       </div>
+      <div className="col-md-6 signup-image"></div>
     </div>
   );
 };
 
-export default SignUp_Screen;
+export default SignUpScreen;
