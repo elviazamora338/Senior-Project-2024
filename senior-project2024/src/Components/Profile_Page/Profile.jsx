@@ -45,11 +45,8 @@ const Profile = () => {
                 />
             </div>
             <form>
-                <label htmlFor="firstName">First Name</label>
-                <input type="text" id="firstName" placeholder="First Name" required />
-
-                <label htmlFor="lastName">Last Name</label>
-                <input type="text" id="lastName" placeholder="Last Name" required />
+                <label htmlFor="Name">Name</label>
+                <input type="text" id="Name" placeholder="Name" required />
 
                 <label htmlFor="role">Role</label>
                 <input type="text" id="role" value="Student" readOnly />
