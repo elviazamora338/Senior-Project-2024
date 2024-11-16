@@ -58,6 +58,12 @@ const SignUpScreen = () => {
     const name = document.getElementById("name").value;
     const email = document.getElementById("email").value
 
+    // Check if email ends with .edu
+    if (!email.endsWith(".edu")) {
+      alert("Please use an email address that ends with .edu.");
+      return;
+    }
+
     if (!campusId) {
       alert("Please select a valid university.");
       return;
