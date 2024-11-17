@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- Link to Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous" />
+    <!-- For Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <style>
+        .uploadImage {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 300px;
+            font-size: 150px;
+            margin-top: 15px;
+            background-color: #f0f0f0;
+            border-radius: 1rem;
+        }
+
+        .uploadCalendar {
+            display: flex;
+            margin: 5px;
+            justify-content: center;
+            align-items: center;
+            /* Adjust height as necessary */
+            height: 200px;
+            width: 200px;
+            background-color: #f0f0f0;
+            border-radius: 1rem;
+        }
+
+        .uploadImage i {
+            margin-bottom: 0.5rem;
+            /* Adjust this value to bring the icon closer to the text */
+        }
+
+        .scheduleContainer {
+            padding-top: 5px;
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+        .time-row {
+            display: flex;
+            gap: 5px; /* Adds space between the two columns */
+        }
+
+        .time-col {
+            display: flex;
+            flex-direction: column; /* Stack checkboxes vertically */
+        }
+
+        .message-row {
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: flex-start;
+            width: 60%;
+        }
+
+        .message-row textarea {
+        width: 100%; /* Makes the textarea fill the width of the parent container */
+        resize: none; /* Optional: Disable manual resizing */
+        }
+
+        .right-col {
+            padding-left: 50px;
+        }
+
+        .schedule-text {
+            justify-content: center;
+        }
+
+        .title {
+            display: flex;           /* Enables flexbox */
+            flex-direction: row; 
+            align-items: center;     /* Centers items horizontally */
+            gap: 30px;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            margin-top: 5px; /* Adds space above the heading */
+            margin-bottom: 5px; /* Adds space below the heading */
+        }
+
+        .schedule-button {
+            background-color: #CB4900; 
+            color: white; 
+            width: 150px;
+        }
+
+    </style>
+
+    
+</head>
+
+<body>
+        
+            <div class="container" style="width: 80%; margin-left: 15%;">
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="row">
+
+                                <div class="container-fluid uploadImage">
+                                    <i class="bi bi-cloud-arrow-up"></i>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <h4>Campus</h4>
+                                    <select id="campusSelect" class="form-select form-select-sm">
+                                        <optgroup label="Campus">
+                                            <option value="" disabled selected>Select Campus</option>
+                                            <option value="Edinburg">Edinburg</option>
+                                            <option value="Brownsville">Brownsville</option>
+                                        </optgroup>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <h4>Department</h4>
+                                    <select id="departmentSelect" class="form-select form-select-sm">
+                                        <optgroup label="Department">
+                                            <option value="" disabled selected>Select Department</option>
+                                            <option value="Biology">Biology</option>
+                                            <option value="Physics">Physics</option>
+                                            <option value="School of Medicine">School of Medicine</option>
+                                        </optgroup>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="row mt-3">
+                                <div class="col-md-6">
+                                    <h4>Building</h4>
+                                    <select id="buildingSelect" class="form-select form-select-sm">
+                                        <optgroup label="Building">
+                                            <option value="" disabled selected>Select Building</option>
+                                            <option value="EPOB4">EPOB4 - Engineering Portable</option>
+                                            <option value="EENGR">EENGR - Engineering</option>
+                                            <option value="EACSB">EACSB- Academic Services</option>
+                                            <option value="ESCNE">ESCNE - Science</option>
+                                        </optgroup>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <h4>Room #</h4>
+                                    <input type="number" id="room_number" name="room_number"
+                                        class="form-control form-control-sm" step="any" />
+                                </div>
+                            </div>
+
+                            <h4>Person in Charge</h4>
+                            <input type="text" id="person_in_charge" name="person_in_charge" class="form-control" />
+
+                            <h4>Link to Manual</h4>
+                            <input type="text" id="manual_link" name="manual_link" class="form-control" />
+                            <br>
+                        </div>
+
+                        <div class="col-md-6 right-col">
+                            <div class="title">
+                                <h1>Equipment Name</h1>
+                                <h6 class="text-success">Available: 2</h6>
+                            </div>
+
+                            <h4>Description</h4>
+                            <textarea id="description" name="description" class="form-control" rows="3"
+                                style="resize: none;"></textarea>
+
+                            <h4>Application</h4>
+                            <textarea id="application" name="application" class="form-control" rows="2"
+                                style="resize: none;"></textarea>
+                        
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <h4>Category</h4>
+                                    <select id="category_select" class="form-select">
+                                        <optgroup label="Category">
+                                            <option value="" disabled selected>Select Category</option>
+                                            <option value="FFT_Spectrum">FFT Spectrum Analyzer</option>
+                                            <option value="Current_Source">Current Source</option>
+                                            <option value="Function_Generator">Function Generator</option>
+                                            <option value="Amplifier">Amplifier</option>
+                                            <option value="Preamplifier">Preamplifier</option>
+                                            <option value="Power_Supply">Power Supply</option>
+                                        </optgroup>
+                                    </select>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <h4>Model</h4>
+                                    <input type="text" id="model" name="model" class="form-control" />
+                                </div>
+                            
+                                <div class="col-md-4">
+                                    <h4>Brand</h4>
+                                    <select id="brand_select" class="form-select">
+                                        <optgroup label="Brand">
+                                            <option value="" disabled selected>Select Brand</option>
+                                            <option value="Stanford_Research">Stanford Research Systems</option>
+                                            <option value="VICI">VICI</option>
+                                            <option value="BandK_Precision">B&K Precision</option>
+                                            <option value="Global_Specialties">Global Specialties</option>
+                                            <option value="BSIDE">BSIDE</option>
+                                            <option value="PASCO">PASCO</option>
+                                        </optgroup>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <h5 class="schedule-text">Schedule Equipment</h5>
+                            <div class="scheduleContainer">
+                                <div class="row">
+
+                                    <div class="container-fluid uploadCalendar">
+                                    </div>
+
+        
+                                    <div class="message-row">
+                                        <div class="col-8">
+                                            <h6>Schedule Message</h6>
+                                            <textarea type="message" name="message" class="form-control" rows="2" ></textarea>
+                                        </div>
+
+                                        <div class="time-row">
+                                            <div class="time-col">
+                                                <div>
+                                                    <input type="checkbox" id="time1" name="time1" value="time1">
+                                                    <label for="time1">8 AM - 10 AM</label><br>
+                                        
+                                                    <input type="checkbox" id="time2" name="time2" value="time2">
+                                                    <label for="time2">10 AM - 12 PM</label><br>
+                                        
+                                                    <input type="checkbox" id="time3" name="time3" value="time3">
+                                                    <label for="time3">12 PM - 2 PM</label><br>
+                                                </div>
+                                            </div>
+                                        
+                                            <div class="time-col">
+                                                <div>
+                                                    <input type="checkbox" id="time4" name="time4" value="time4">
+                                                    <label for="time4">2 PM - 4 PM</label><br>
+                                        
+                                                    <input type="checkbox" id="time5" name="time5" value="time5">
+                                                    <label for="time5">4 PM - 6 PM</label><br>
+                                        
+                                                    <input type="checkbox" id="time6" name="time6" value="time6">
+                                                    <label for="time6">6 PM - 8 PM</label><br>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+        
+                                    <div class="text-center mt-3">
+                                        <button type="button" class="btn schedule-button">Schedule</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
