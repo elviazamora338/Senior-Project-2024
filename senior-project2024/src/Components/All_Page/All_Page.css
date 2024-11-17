@@ -128,3 +128,7 @@ tr {
 .bookmark:hover {
     color: #007bff;
 }
+
+.click {
+    cursor: 'pointer';
+}

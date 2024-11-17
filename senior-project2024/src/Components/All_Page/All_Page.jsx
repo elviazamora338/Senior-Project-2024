@@ -1,5 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { Modal, Button } from 'react-bootstrap';
+import { useNavigate } from 'react-router-dom';
+import ViewPage from '../View_Equipment/View_Equipment.jsx';
 import './All_Page.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import "bootstrap-icons/font/bootstrap-icons.css";
@@ -11,6 +14,28 @@ const All_Page = () => {
     const [error, setError] = useState(null);
     const [bookmarkedItems, setBookmarkedItems] = useState({});
     const [searchTerm, setSearchTerm] = useState('');
+
+    // View equipment function 
+    const navigate = useNavigate();
+    
+    // const handleRowClick = (device) => {
+    //     navigate('/view', { state: { device } });
+    // };
+
+    // Modal state
+    const [selectedDevice, setSelectedDevice] = useState(null);
+    const [showDevice, setShowDevice] = useState(false);
+ 
+    const handleShowDevice = (device) => {
+        console.log('Selected Device:', device); 
+        setSelectedDevice(device);
+        setShowDevice(true);
+    };
+
+    const handleCloseDevice = () => {
+        setSelectedDevice(null);
+        setShowDevice(false);
+    };
 
     // Bookmark function
     const handleBookmarkClick = (id) => {
@@ -39,6 +64,7 @@ const All_Page = () => {
         };
         fetchLabDevices();
     }, []);
+    
 
     if (loading) return <p>Loading...</p>;
     if (error) return <p>{error}</p>;
@@ -55,6 +81,7 @@ const All_Page = () => {
             poc.includes(searchTerm)
         );
     });
+    
 
     return (
         <div className="container">
@@ -77,7 +104,7 @@ const All_Page = () => {
                     <i className="bi bi-funnel-fill"></i> Filter
                 </button>
             </div>
-
+    
             {/* Table */}
             <div className="container mt-4">
                 <div className="row">
@@ -95,7 +122,7 @@ const All_Page = () => {
                                 </thead>
                                 <tbody>
                                     {filteredDevices.map((device) => (
-                                        <tr key={device.device_id}>
+                                        <tr key={device.device_id} onClick={() => handleShowDevice(device)}>
                                             <td>
                                                 {device.image_path ? (
                                                     <img
@@ -109,27 +136,28 @@ const All_Page = () => {
                                             </td>
                                             <td>{device.device_name}</td>
                                             <td>
-                                                <div className='description-content'>
-                                                    <div className='description-item'>
-                                                        <span className='description-label'>Model Info:</span>
-                                                        <span className='description-value'>{device.description}</span>
+                                                <div className="description-content">
+                                                    <div className="description-item">
+                                                        <span className="description-label">Model Info:</span>
+                                                        <span className="description-value">{device.description}</span>
                                                     </div>
-                                                    <div className='description-item'>
-                                                        <span className='description-label'>Person In Charge:</span>
-                                                        <span className='description-value'>{device.person_in_charge}</span>
+                                                    <div className="description-item">
+                                                        <span className="description-label">Person In Charge:</span>
+                                                        <span className="description-value">{device.person_in_charge}</span>
                                                     </div>
-                                                    <div className='description-item'>
-                                                        <span className='description-label'>Building:</span>
-                                                        <span className='description-value'>{device.building}</span>
+                                                    <div className="description-item">
+                                                        <span className="description-label">Building:</span>
+                                                        <span className="description-value">{device.building}</span>
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td className="text-center">{device.available ? 'Yes' : 'No'}</td>
+                                            <td className="text-center">
+                                                {device.available ? 'Yes' : 'No'}
+                                            </td>
                                             <td className="bookmark-cell">
                                                 <div
-                                                    className="bookmark"
+                                                    className="bookmark click"
                                                     onClick={() => handleBookmarkClick(device.device_id)}
-                                                    style={{ cursor: 'pointer' }}
                                                 >
                                                     {bookmarkedItems[device.device_id] ? (
                                                         <i className="bi bi-bookmark-fill text-primary"></i>
@@ -146,8 +174,26 @@ const All_Page = () => {
                     </div>
                 </div>
             </div>
+    
+            {/* Modal for Viewing Device Details */}
+            <Modal
+                show={showDevice}
+                onHide={handleCloseDevice}
+                centered
+                dialogClassName="custom-wide-modal"
+                size="xl"
+            >
+                <Modal.Body>
+                    <ViewPage device={selectedDevice} />
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={handleCloseDevice}>
+                        Close
+                    </Button>
+                </Modal.Footer>
+            </Modal>
         </div>
-    );
-};
+    );  
+};  
 
 export default All_Page;
