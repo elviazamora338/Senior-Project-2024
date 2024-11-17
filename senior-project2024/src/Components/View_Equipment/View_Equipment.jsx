@@ -23,28 +23,27 @@ const ViewPage = ({ device }) => {
                                 <div className="container-fluid">
                                 <img
                                     src={`http://localhost:5001/static/equipment_photos/${device.image_path}`}
-                                    alt={device.device_name}
                                     className="item-image me-2"
                                 />
                                 </div>
 
                                 <div className="col-md-6">
-                                    <h4>Campus</h4>
+                                    <h5>Campus</h5>
                                     <input
                                         type="text"
                                         id="campus"
                                         name="campus"
-                                        className="form-control"
+                                        className="form-control deviceDetails"
                                         value={device.campus || ''}
                                     />
                                 </div>
                                 <div className="col-md-6">
-                                    <h4>Department</h4>
+                                    <h5>Department</h5>
                                     <input
                                         type="text"
                                         id="department"
                                         name="department"
-                                        className="form-control"
+                                        className="form-control deviceDetails"
                                         value={device.department || ''}
 
                                     />
@@ -53,99 +52,99 @@ const ViewPage = ({ device }) => {
 
                             <div className="row mt-3">
                                 <div className="col-md-6">
-                                    <h4>Building</h4>
+                                    <h5>Building</h5>
                                     <input
                                         type="text"
                                         id="building"
                                         name="building"
-                                        className="form-control"
+                                        className="form-control deviceDetails"
                                         value={device.building || ''}
                                     />
                                 </div>
                                 <div class="col-md-6">
-                                    <h4>Room #</h4>
+                                    <h5>Room #</h5>
                                     <input
-                                        type="number"
+                                        type="text"
                                         id="room_number"
                                         name="room_number"
-                                        className="form-control"
+                                        className="form-control deviceDetails"
                                         value={device.room_number || ''}
                                     />
                                 </div>
                             </div>
 
-                            <h4>Person in Charge</h4>
+                            <h5>Person in Charge</h5>
                             <input
                                 type="text"
                                 id="person_in_charge"
                                 name="person_in_charge"
-                                className="form-control"
+                                className="form-control deviceDetails"
                                 value={device.person_in_charge || ''}
                             />
 
-                            <h4>Link to Manual</h4>
+                            <h5>Link to Manual</h5>
                             <input
                                 type="text"
                                 id="manual_link"
                                 name="manual_link"
-                                className="form-control"
+                                className="form-control deviceDetails"
                                 value={device.manual_link || ''}
                             />
                         </div>
 
                         <div className="col right-col">
                             <div className="title">
-                                <h1 className="fw-bold">{device.device_name}</h1>
+                                <h2 className="fw-bold">{device.device_name}</h2>
                                 <h6 className="text-success">Available: {device.available || 'N/A'}</h6>
                             </div>
 
-                            <h4>Description</h4>
+                            <h5>Description</h5>
                             <textarea
                                 id="description"
                                 name="description"
-                                className="form-control"
+                                className="form-control deviceDetails"
                                 rows="3"
                                 value={device.description || ''}
                             ></textarea>
 
-                            <h4>Application</h4>
+                            <h5>Application</h5>
                             <textarea
                                 id="application"
                                 name="application"
-                                className="form-control"
+                                className="form-control deviceDetails"
                                 rows="3"
                                 value={device.application || ''}
                             ></textarea>
                             <div className="row">
                                 <div className="col-md-4">
-                                    <h4>Category</h4>
+                                    <h5>Category</h5>
                                     <input
                                         type="text"
                                         id="category"
                                         name="category"
-                                        className="form-control"
+                                        className="form-control deviceDetails"
                                         value={device.category || ''}
                                     />
                                 </div>
 
                                 <div className="col-md-4">
-                                    <h4>Model</h4>
+                                    <h5>Model</h5>
                                     <input
                                         type="text"
                                         id="model"
                                         name="model"
-                                        className="form-control"
+                                        className="form-control deviceDetails"
                                         value={device.model || ''}
                                     />
                                 </div>
                             
                                 <div className="col-md-4">
-                                    <h4>Brand</h4>
+                                    <h5>Brand</h5>
                                     <input
                                         type="text"
                                         id="brand"
                                         name="brand"
-                                        className="form-control"
+                                        className="form-control deviceDetails"
                                         value={device.brand || ''}
                                     />
                                 </div>

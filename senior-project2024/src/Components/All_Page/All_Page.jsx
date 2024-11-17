@@ -17,10 +17,6 @@ const All_Page = () => {
 
     // View equipment function 
     const navigate = useNavigate();
-    
-    // const handleRowClick = (device) => {
-    //     navigate('/view', { state: { device } });
-    // };
 
     // Modal state
     const [selectedDevice, setSelectedDevice] = useState(null);
@@ -38,7 +34,8 @@ const All_Page = () => {
     };
 
     // Bookmark function
-    const handleBookmarkClick = (id) => {
+    const handleBookmarkClick = (e, id) => {
+        e.stopPropagation(); 
         setBookmarkedItems((prev) => ({
             ...prev,
             [id]: !prev[id],
@@ -86,7 +83,7 @@ const All_Page = () => {
     return (
         <div className="container">
             {/* Search Bar */}
-            <div className="d-flex justify-content-end mb-3">
+            <div className="d-flex justify-content-end">
                 <div className="input-group">
                     <input
                         type="text"
@@ -106,7 +103,7 @@ const All_Page = () => {
             </div>
     
             {/* Table */}
-            <div className="container mt-4">
+            <div className="container">
                 <div className="row">
                     <div className="col">
                         <div className="table-height">
@@ -157,7 +154,7 @@ const All_Page = () => {
                                             <td className="bookmark-cell">
                                                 <div
                                                     className="bookmark click"
-                                                    onClick={() => handleBookmarkClick(device.device_id)}
+                                                    onClick={(e) => handleBookmarkClick(e, device.device_id)}
                                                 >
                                                     {bookmarkedItems[device.device_id] ? (
                                                         <i className="bi bi-bookmark-fill text-primary"></i>

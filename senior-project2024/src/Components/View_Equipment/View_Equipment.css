@@ -58,9 +58,10 @@ width: 100%; /* Makes the textarea fill the width of the parent container */
 resize: none; /* Optional: Disable manual resizing */
 }
 
+/* 
 .right-col {
-    padding-left: 50px;
-}
+    padding-left: 30px;
+} */
 
 .schedule-text {
     justify-content: center;
@@ -89,20 +90,12 @@ input[type="checkbox"] {
 }
 
 /* Make the input fields and textareas look like non-interactive boxes */
-input[type="text"],
-input[type="number"],
-textarea {
-    background-color: #f5f5f5; /* Light grey background to look like a box */
+.deviceDetails {
+    background-color: white; /* Light grey background to look like a box */
     border: 1px solid #ccc;    /* Light border to simulate a box */
     cursor: not-allowed;       /* No cursor change when hovering over the box */
     pointer-events: none;      /* Disable interaction with the form field */
     padding: 5px;              /* Add some padding to make the box look neat */
 }
 
-/* Optional: Remove text selection and make the box look even more like a static box */
-input:disabled,
-textarea:disabled {
-    background-color: #f5f5f5;
-    color: #333;  /* Dark text color for better readability */
-    border: 1px solid #ddd;
-}
+
