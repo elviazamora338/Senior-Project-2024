@@ -7,6 +7,8 @@
         integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous" />
     <!-- For I icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    
+
     <!-- I incorporated some CSS to help with appearance in which bootstrap lacked -->
     <style>
         .card-custom {
@@ -21,7 +23,7 @@
         background-color: #343a40; 
     }
      /*custom styles for the image container */
-     .img-container {
+    .img-container {
         position: relative;
         width: 1190px;
         height: 250px;
@@ -122,7 +124,7 @@
                 <!-- Sidebar item: 'My Equipment' button -->
                 <li class="nav-item">
                     <!-- 'bi bi-box' shows a box icon -->
-                    <a class="nav-link text-white bi bi-box" style="font-size: 20"></a>
+                    <a href="{{url_for('inventory')}}"class="nav-link text-white bi bi-box" style="font-size: 20"></a>
                     <a class="nav-link text-white">My Equipment</a>
                 </li>
             </ul>
@@ -206,14 +208,33 @@
                             </button>
                         </div>
                         <!-- Filter -->
-                        <button type="button" class="btn btn-outline-secondary">
-                            <i class="bi bi-funnel-fill"></i> Filter
-                        </button>
+                        <div>
+                            <select class="form-select btn btn-outline-secondary" id="filter-select" style="width: auto;">
+                                <option disabled selected><i class="bi bi-funnel-fill"></i>Filter</option>
+                        
+                                <!-- Available Only -->
+                                <option value="1">Available Only</option>
+                        
+                                <!-- Category group for brands -->
+                                <optgroup label="Select Brand">
+                                    {% for brand, group in lab_devices|groupby('brand') %}
+                                    <option value="{{ brand }}">{{ brand }}</option>
+                                    {% endfor %}
+                                </optgroup>
+                        
+                                <!-- Category group for departments -->
+                                <optgroup label="Select Department">
+                                    {% for department, group in lab_devices|groupby('department') %}
+                                    <option value="{{ department }}">{{ department }}</option>
+                                    {% endfor %}
+                                </optgroup>
+                            </select>
+                        </div>
                     </div>
                 </div>
                 <!-- <br> -->
                 <!-- A responsive table -->
-                 
+                
                 <div class="row" >
                     <div class="col">
                         <div style="max-height: 500px; overflow-y: auto;">
@@ -225,8 +246,7 @@
                                         <th>Image</th>
                                         <th>Item</th>
                                         <th>Description</th>
-                                        <th>Time</th>
-                                        <th></th>
+                                        <th>Available</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -248,14 +268,16 @@
 
                                         <!-- Description Section -->
                                         <td>
-                                            <strong>Model Info: </strong> {{device.description }}
+                                            <strong>Model Info:</strong> {{device.description }}
                                             <span class="bi bi-dot"></span>
                                             <br>
                                             <strong>Person In Charge:</strong> {{device.person_in_charge}}
                                             <span class="bi bi-dot"></span>
                                             <br>
                                             <strong>Building:</strong> {{device.building}}
+                                            <br>
                                         </td>
+                                        <td class="text-center">{{device.available}}</td>
                                     </tr>
                                     {% endfor %}
                                 </tbody>
@@ -291,7 +313,6 @@
                 });
             });
         </script>
-
 </body>
 
 </html>
