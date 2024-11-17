@@ -129,7 +129,7 @@ const ViewPage = () => {
         
                                     <div className="message-row">
                                         <div className="col-8">
-                                            <h6>Reason for</h6>
+                                            <h6>Reason for booking</h6>
                                             <textarea type="message" name="message" className="form-control" rows="3" ></textarea>
                                         </div>
 
