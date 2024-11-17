@@ -71,7 +71,7 @@ resize: none; /* Optional: Disable manual resizing */
     display: flex;           /* Enables flexbox */
     flex-direction: row; 
     align-items: center;     /* Centers items horizontally */
-    gap: 30px;
+    gap: 20px;
 }
 
 .sub-title {
