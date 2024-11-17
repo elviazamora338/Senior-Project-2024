@@ -74,6 +74,13 @@ resize: none; /* Optional: Disable manual resizing */
     gap: 30px;
 }
 
+.sub-title {
+    display: flex;           /* Enables flexbox */
+    flex-direction: row; 
+    align-items: center;     /* Centers items horizontally */
+    gap: 5px;
+}
+
 h1, h2, h3, h4, h5, h6 {
     margin-top: 5px; /* Adds space above the heading */
     margin-bottom: 5px; /* Adds space below the heading */

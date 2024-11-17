@@ -4,14 +4,24 @@ import { Modal, Button } from 'react-bootstrap';
 import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import './View_Equipment.css'
-// import cal_button from '../../static/buttons/utrgv_banner.jpg''
+import * as bootstrap from 'bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import "bootstrap-icons/font/bootstrap-icons.css";
+import 'bootstrap/dist/js/bootstrap.bundle.min';
 
 const ViewPage = ({ device }) => {
     console.log("Device in ViewPage:", device);  // Log device prop to check if it's passed correctly
     if (!device) return <p>No device data available</p>;
     
+        // Initialize tooltips
+        const tooltipTriggerList = Array.from(
+          document.querySelectorAll('[data-toggle="tooltip"]')
+        );
+        tooltipTriggerList.forEach((tooltipTriggerEl) => {
+          new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+      
+
     return (
         <>
         <div className="container">
@@ -151,7 +161,11 @@ const ViewPage = ({ device }) => {
                             </div>
 
                             <div className="scheduleContainer">
-                                <h5 className="schedule-text fw-bold">Schedule Equipment:</h5>
+                                <div className="sub-title">
+                                    <h5 className="schedule-text fw-bold">Schedule Equipment</h5>
+                                    <i className="bi bi-info-circle" data-toggle="tooltip" data-placement="right" 
+                                    title="Only 2 hour incrememnts allowed"></i>
+                                </div>
                                 <div className="row">
 
                                     <div className="container-fluid uploadCalendar">
