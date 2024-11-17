@@ -26,6 +26,13 @@ const db = new sqlite3.Database('SchedulerDB.db', (err) => {
     }
 });
 
+
+// Start the server
+app.listen(PORT, () => {
+    console.log(`Server running at http://localhost:${PORT}`);
+});
+
+
 // Nodemailer setup
 const transporter = nodemailer.createTransport({
     service: 'gmail',
@@ -123,6 +130,41 @@ app.post('/verify-otp', async (req, res) => {
 //     });
 // });
 
+
+// Endpoint to add a new user in signup page
+app.post('/add-user', (req, res) => {
+    const { name, email, campus_id, school_id, role_id } = req.body;
+
+    if (!name || !email || !campus_id || !school_id || role_id === undefined) {
+        return res.status(400).json({ error: 'Name, email, campus ID, school ID, and role ID are required' });
+    }
+
+    // Check for duplicate user_name or user_email
+    const checkDuplicateQuery = `SELECT * FROM users WHERE user_name = ? OR user_email = ?`;
+    db.get(checkDuplicateQuery, [name, email], (err, row) => {
+        if (err) {
+            console.error('Error checking for duplicates:', err.message);
+            return res.status(500).json({ error: 'Failed to check for duplicate user' });
+        }
+
+        if (row) {
+            return res.status(400).json({ error: 'User with this name or email already exists' });
+        }
+
+        // Insert the new user if no duplicates found
+        const insertQuery = `INSERT INTO users (user_name, user_email, campus_id, school_id, role_id) VALUES (?, ?, ?, ?, ?)`;
+        db.run(insertQuery, [name, email, campus_id, school_id, role_id], function (err) {
+            if (err) {
+                console.error('Error adding user to database:', err.message);
+                return res.status(500).json({ error: 'Failed to add user' });
+            }
+            res.json({ message: 'User added successfully', userId: this.lastID });
+        });
+    });
+});
+
+
+
 // Function to get all lab devices
 function getAllLabDevices() {
     return new Promise((resolve, reject) => {
@@ -159,7 +201,4 @@ process.on('SIGINT', () => {
     });
 });
 
-// Start the server
-app.listen(PORT, () => {
-    console.log(`Server running at http://localhost:${PORT}`);
-});
+
