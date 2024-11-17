@@ -12,11 +12,11 @@
     height: 250px;
     overflow: hidden;
     border-radius: 15px;
-    margin: 0;
+    margin-top: 5px;
 }
 
 /* For UTRGV image */
-.img-container img {
+.uni-img {
     width: 100%;
     height: 100%;
     object-position: 10% 55%;
@@ -39,7 +39,7 @@
 
 /* Main Content Centering */
 .container-banner {
-    width: 90%; /* Centers within available space */
+    width: 100%; /* Centers within available space */
     max-width: 1200px;
     margin: 0;
     padding: 0;

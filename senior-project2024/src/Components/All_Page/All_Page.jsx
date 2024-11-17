@@ -81,7 +81,7 @@ const All_Page = () => {
     
 
     return (
-        <div className="container">
+        <>
             {/* Search Bar */}
             <div className="d-flex justify-content-end">
                 <div className="input-group">
@@ -103,7 +103,6 @@ const All_Page = () => {
             </div>
     
             {/* Table */}
-            <div className="container">
                 <div className="row">
                     <div className="col">
                         <div className="table-height">
@@ -113,7 +112,6 @@ const All_Page = () => {
                                         <th>Image</th>
                                         <th>Item</th>
                                         <th>Description</th>
-                                        <th>Available</th>
                                         <th></th>
                                     </tr>
                                 </thead>
@@ -148,9 +146,6 @@ const All_Page = () => {
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td className="text-center">
-                                                {device.available ? 'Yes' : 'No'}
-                                            </td>
                                             <td className="bookmark-cell">
                                                 <div
                                                     className="bookmark click"
@@ -169,8 +164,6 @@ const All_Page = () => {
                             </table>
                         </div>
                     </div>
-                </div>
-            </div>
     
             {/* Modal for Viewing Device Details */}
             <Modal
@@ -190,6 +183,7 @@ const All_Page = () => {
                 </Modal.Footer>
             </Modal>
         </div>
+    </>
     );  
 };  
 
