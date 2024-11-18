@@ -15,11 +15,22 @@ const Header = () => {
     const handleProfileShow = () => setShowProfileModal(true);
     const handleProfileClose = () => setShowProfileModal(false);
 
+    const handleLogout = () => {
+        try {
+            sessionStorage.clear();
+            // i did this instead of in the server but i'm open to suggestions!
+            window.location.href = '/login';
+            console.log('Logged Out');
+        } catch (error) {
+            console.error('Error during logout:', error);
+        }
+
+    }
     // Menu items with icons and actions
     const menuItems = [
         { name: 'Profile', icon: 'bi-person', action: handleProfileShow }, // Trigger modal for Profile
         { name: 'Settings', icon: 'bi-gear' },
-        { name: 'Log out', icon: 'bi-box-arrow-right' }
+        { name: 'Log out', icon: 'bi-box-arrow-right', action: handleLogout }
     ];
 
     const toggleMenu = () => setMenuOpen(!menuOpen);

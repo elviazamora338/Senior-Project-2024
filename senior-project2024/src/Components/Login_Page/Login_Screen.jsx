@@ -68,8 +68,8 @@ const LoginPage = () => {
                         <p>Enter your Credentials to access  your account</p>
                         <br />
                         <form onSubmit={handleSubmit}>
-                            <div className="form-group login">
-                                <label htmlFor="email">Email address (.edu only)</label>
+                            <label htmlFor="email">Email address (.edu only)</label>
+                            <div className="form-group login-button">
                                 <input
                                     type="email"
                                     className="form-control"
@@ -80,7 +80,7 @@ const LoginPage = () => {
                                     required
                                     />
                             </div>
-                            
+
                             {error && <p className="text-danger">{error}</p>}
                             {success && <p className="text-success">{success}</p>}
                             
