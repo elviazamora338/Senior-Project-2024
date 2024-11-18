@@ -161,11 +161,69 @@ app.post('/add-user', (req, res) => {
                 console.error('Error adding user to database:', err.message);
                 return res.status(500).json({ error: 'Failed to add user' });
             }
-            res.json({ message: 'User added successfully', userId: this.lastID });
+
+            // Retrieve the newly created user's full data
+            const getUserQuery = `SELECT * FROM users WHERE user_id = ?`;
+            db.get(getUserQuery, [this.lastID], (err, newUser) => {
+                if (err) {
+                    console.error('Error retrieving new user:', err.message);
+                    return res.status(500).json({ error: 'Failed to retrieve new user' });
+                }
+                // Return the new user's full data
+                res.json({
+                    message: 'User added successfully',
+                    user: newUser,
+                });
+            });
         });
     });
 });
 
+// updates database when user updates their profile information
+app.put('/user', (req, res) => {
+    const { user_email, user_name, phone_number } = req.body;
+
+    if (!user_email || !user_name || !phone_number) {
+        return res.status(400).json({ error: 'Email, name, and phone number are required.' });
+    }
+
+    const query = `
+        UPDATE users 
+        SET user_name = ?, phone_number = ? 
+        WHERE user_email = ?
+    `;
+
+    db.run(query, [user_name, phone_number, user_email], function (err) {
+        if (err) {
+            console.error('Error updating user:', err.message);
+            res.status(500).json({ error: 'Failed to update user.' });
+        } else {
+            res.json({ message: 'User updated successfully.' });
+        }
+    });
+});
+
+// fetches a user's data after logging in and saves it to UserContext
+app.post('/user', (req, res) => {
+    const { email } = req.body;
+
+    if (!email) {
+        return res.status(400).json({ error: 'Email is required.' });
+    }
+
+    const query = `SELECT * FROM users WHERE user_email = ?`;
+
+    db.get(query, [email], (err, row) => {
+        if (err) {
+            console.error('Error fetching user by email:', err.message);
+            res.status(500).json({ error: 'Failed to fetch user.' });
+        } else if (!row) {
+            res.status(404).json({ error: 'No user found with the provided email.' });
+        } else {
+            res.json({ message: 'User fetched successfully.', user: row });
+        }
+    });
+});
 
 
 // Function to get all lab devices

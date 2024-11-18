@@ -2,9 +2,15 @@ import { Link } from 'react-router-dom';
 import "./SignUp_Page.css";
 import React, { useState } from "react";
 import axios from 'axios'; 
+import { useNavigate } from 'react-router-dom';
+import { useUser } from '../../UserContext';
 
 
 const SignUpScreen = () => {
+  const { setUser } = useUser(); // Access setUser from context
+  const navigate = useNavigate();
+  
+  
   const [role, setRole] = useState(""); // State to track selected role
   const [id, setId] = useState(""); // State for SID/EID input
   const [errorMessage, setErrorMessage] = useState(""); // State for validation errors
@@ -89,7 +95,19 @@ const SignUpScreen = () => {
         });
 
         if (response.data.message) {
-            alert(response.data.message); // Success message
+          alert(response.data.message); // Success message
+  
+          // Save user data in React Context
+          setUser({
+            name: name,
+            email: email,
+            campus_id: campusId,
+            school_id: id,
+            role_id: roleId,
+          });
+  
+          // Navigate to the home page
+          navigate('/home');
         }
       } catch (error) {
         if (error.response && error.response.status === 400) {
