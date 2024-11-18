@@ -3,9 +3,11 @@ import { Link, useNavigate } from "react-router-dom";
 import './Login_Screen.css'; 
 import axios from 'axios'; 
 import 'bootstrap/dist/css/bootstrap.min.css'; 
+import { useUser } from '../../UserContext'; 
 
 
 const LoginPage = () => {
+    const { setUser } = useUser();
     const [email, setEmail] = useState(''); 
     const [error, setError] = useState(''); 
     const [success, setSuccess] = useState(''); 
@@ -28,9 +30,29 @@ const LoginPage = () => {
                 setError('');
                 setSuccess('OTP sent successfully! Check your email.');
 
-                navigate('/loginauth', { state: { email } });
+                 // Step 2: Fetch User Data
+            const userResponse = await axios.post('http://localhost:5001/user', { email });
+
+            if (userResponse.data.user) {
+                // Map the backend user data to the context structure
+                const { user_name, user_email, role_id, campus_id, school_id, phone_number } = userResponse.data.user;
+
+                setUser({
+                    name: user_name, 
+                    email: user_email, 
+                    role_id: role_id,
+                    campus_id: campus_id,
+                    school_id: school_id,
+                    phone: phone_number, 
+                });
+
+                navigate('/loginauth', { state: { email } }); // Redirect to OTP verification page
+            } else {
+                setError('Failed to fetch user data. Please try again.');
             }
+        }
         } catch (error) {
+            console.error('Login error:', error);
             setError('Failed to send OTP. Please try again'); 
         }
 

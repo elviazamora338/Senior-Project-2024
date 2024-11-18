@@ -13,11 +13,10 @@ import ReportsPage from './Components/MyEquip_Page/Reports_Page.jsx';
 import AddPage from './Components/Add_Page/Add_Screen.jsx';
 import HistoryPage from './Components/Home_Page/History.jsx';
 import BookmarksPage from './Components/Home_Page/Bookmarks.jsx';
-import ViewPage from './Components/View_Equipment/View_Equipment.jsx'
+import { UserProvider } from './UserContext';
 
 import './App.css';
 
-// Create a component that contains the Sidebar logic
 const AppContent = () => {
   const location = useLocation();
 
@@ -48,7 +47,6 @@ const AppContent = () => {
           <Route path="/signup" element={<SignUp_Screen />} />
           <Route path="/loginauth" element={<LoginAuth_Screen />} />
           <Route path="/login" element={<Login_Screen />} />
-          <Route path="/view" element={<ViewPage />} />
           <Route path="*" element={<h1>Not Found</h1>} />
         </Routes>
       )}
@@ -58,9 +56,11 @@ const AppContent = () => {
 
 function App() {
   return (
-    <Router>
-      <AppContent />
-    </Router>
+    <UserProvider>
+      <Router>
+        <AppContent />
+      </Router>
+    </UserProvider>
   );
 }
 
