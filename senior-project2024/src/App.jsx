@@ -13,7 +13,7 @@ import ReportsPage from './Components/MyEquip_Page/Reports_Page.jsx';
 import AddPage from './Components/Add_Page/Add_Screen.jsx';
 import HistoryPage from './Components/Home_Page/History.jsx';
 import BookmarksPage from './Components/Home_Page/Bookmarks.jsx';
-
+import { UserProvider } from './UserContext';
 import './App.css';
 
 // Create a component that contains the Sidebar logic
@@ -56,9 +56,11 @@ const AppContent = () => {
 
 function App() {
   return (
-    <Router>
-      <AppContent />
-    </Router>
+    <UserProvider>
+      <Router>
+        <AppContent />
+      </Router>
+    </UserProvider>
   );
 }
 
