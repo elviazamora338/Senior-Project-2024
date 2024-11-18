@@ -59,11 +59,12 @@ tr {
     color: white;
 }
 
-.item-image {
+.table img, .bi-image{
     width: 100px;   /* Set a fixed width */
     height: 100px;  /* Set a fixed height */
     object-fit: cover;  /* Ensures the image covers the box without distortion */
 }
+
 
 /* Layout for adding */
 .input-group {
