@@ -128,7 +128,7 @@ const All_Page = () => {
                                 <tbody>
                                     {currentDevices.map((device) => (
                                         <tr key={device.device_id} onClick={() => handleShowDevice(device)}>
-                                            <td>
+                                            <td className="image-height">
                                                 {device.image_path ? (
                                                     <img
                                                         src={`http://localhost:5001/static/equipment_photos/${device.image_path}`}
@@ -136,7 +136,7 @@ const All_Page = () => {
                                                         className="item-image me-2"
                                                     />
                                                 ) : (
-                                                    <i className="bi bi-image item-image me-2"></i>
+                                                    <i className="item-image bi bi-image me-2"></i>
                                                 )}
                                             </td>
                                             <td>{device.device_name}</td>

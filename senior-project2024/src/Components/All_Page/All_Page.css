@@ -9,6 +9,10 @@
     margin-top: 15px;
 }
 
+.image-height {
+    min-height: 150px;
+}
+
 .cancel-button {
     width: 80px; 
     height: 30px; 
@@ -55,7 +59,7 @@ tr {
     color: white;
 }
 
-.table img, .bi-image{
+.item-image {
     width: 100px;   /* Set a fixed width */
     height: 100px;  /* Set a fixed height */
     object-fit: cover;  /* Ensures the image covers the box without distortion */
@@ -100,7 +104,7 @@ tr {
     
 }
 /* Bookmark css */
-.bookmark i {
+.bookmark {
     font-size: 1.4rem;
     transition: color 0.2 ease;
 }
