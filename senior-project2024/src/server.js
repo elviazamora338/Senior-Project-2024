@@ -7,9 +7,12 @@ const nodemailer = require('nodemailer');
 require('dotenv').config();
 const app = express();
 const PORT = process.env.PORT || 5001;
+const bodyParser = require('body-parser'); 
+
 app.use(cors());
 app.use(express.json());
 app.use('/static', express.static(path.join(__dirname, 'static')));
+app.use(bodyParser.json()); 
 
 // Verify environment variables
 if (!process.env.EMAIL_USER || !process.env.EMAIL_PASSWORD) {
@@ -187,6 +190,32 @@ app.get('/all', async (req, res) => {
         console.error('Error fetching lab devices:', error.message);
         res.status(500).send("Error fetching data");
     }
+});
+
+// Endpoint to add a new lab device
+app.post('/add-device', (req, res) => {
+    const {
+        campus, department, building, room_number, person_in_charge,
+        device_name, description, application, manual_link,
+        category, model, brand, keywords, available
+    } = req.body;
+
+    const query = `INSERT INTO lab_devices (
+    campus, department, building, room_number, person_in_charge, device_name, 
+    description, application, manual_link, category, model, brand, keywords, available)
+    VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)`;
+
+    db.run(query, [
+        campus, department, building, room_number, person_in_charge, device_name, description, application,
+        manual_link, category, model, brand, keywords, available
+    ], function (err) {
+        if (err) {
+            console.error(err.message);
+            res.status(500).json({ error: "Failed to add the lab device." });
+        } else {
+            res.status(200).json({ message: "Lab device was added successfully!", id: this.lastID })
+        }
+    });
 });
 
 // Close database connection on server close

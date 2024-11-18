@@ -11,6 +11,9 @@
     padding: 2rem;
     text-align: left;
 }
+.login{
+    width: 350px;
+}
 .login-button {
     width: 350px;
     height: 35px;
