@@ -12,10 +12,10 @@ app.use(express.json());
 app.use('/static', express.static(path.join(__dirname, 'static')));
 
 // Verify environment variables
-if (!process.env.EMAIL_USER || !process.env.EMAIL_PASSWORD) {
-    console.error("Error: EMAIL_USER and EMAIL_PASSWORD environment variables are required.");
-    process.exit(1);
-}
+// if (!process.env.EMAIL_USER || !process.env.EMAIL_PASSWORD) {
+//     console.error("Error: EMAIL_USER and EMAIL_PASSWORD environment variables are required.");
+//     process.exit(1);
+// }
 
 // Database connection setup
 const db = new sqlite3.Database('SchedulerDB.db', (err) => {

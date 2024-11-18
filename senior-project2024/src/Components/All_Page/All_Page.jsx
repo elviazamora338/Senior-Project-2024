@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
 import { Modal, Button } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import ViewPage from '../View_Equipment/View_Equipment.jsx';
 import './All_Page.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import "bootstrap-icons/font/bootstrap-icons.css";
+import Pagination from '../Pagination.jsx'; // Import Pagination Component
 import axios from 'axios';
 
 const All_Page = () => {
@@ -14,16 +14,14 @@ const All_Page = () => {
     const [error, setError] = useState(null);
     const [bookmarkedItems, setBookmarkedItems] = useState({});
     const [searchTerm, setSearchTerm] = useState('');
-
-    // View equipment function 
-    const navigate = useNavigate();
+    const [currentPage, setCurrentPage] = useState(1); // Current page
+    const postsPerPage = 8; // Number of items per page
 
     // Modal state
     const [selectedDevice, setSelectedDevice] = useState(null);
     const [showDevice, setShowDevice] = useState(false);
  
     const handleShowDevice = (device) => {
-        console.log('Selected Device:', device); 
         setSelectedDevice(device);
         setShowDevice(true);
     };
@@ -49,6 +47,7 @@ const All_Page = () => {
 
     useEffect(() => {
         const fetchLabDevices = async () => {
+            setLoading(true)
             try {
                 const response = await axios.get('http://localhost:5001/all');
                 setLabDevices(response.data);
@@ -62,10 +61,15 @@ const All_Page = () => {
         fetchLabDevices();
     }, []);
     
+    // Set pagination 
+    const handlePagination = (pageNumber) => {
+        setCurrentPage (pageNumber);
+    };
 
     if (loading) return <p>Loading...</p>;
     if (error) return <p>{error}</p>;
 
+    // Filter devices based on search term
     const filteredDevices = labDevices.filter((device) => {
         const deviceName = device.device_name.toLowerCase();
         const description = device.description.toLowerCase();
@@ -78,6 +82,12 @@ const All_Page = () => {
             poc.includes(searchTerm)
         );
     });
+
+    // Paginate devices
+    const indexOfLastPost = currentPage * postsPerPage;
+    const indexOfFirstPost = indexOfLastPost - postsPerPage;
+    const currentDevices = filteredDevices.slice(indexOfFirstPost, indexOfLastPost);
+
     
 
     return (
@@ -116,7 +126,7 @@ const All_Page = () => {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {filteredDevices.map((device) => (
+                                    {currentDevices.map((device) => (
                                         <tr key={device.device_id} onClick={() => handleShowDevice(device)}>
                                             <td>
                                                 {device.image_path ? (
@@ -163,8 +173,19 @@ const All_Page = () => {
                                 </tbody>
                             </table>
                         </div>
+
+                        {/* Pagination */}
+                        <div className="d-flex justify-content-end mr-4 mb-4">
+                            <Pagination
+                                postsPerPage={postsPerPage}
+                                length={filteredDevices.length}
+                                handlePagination={handlePagination}
+                                currentPage={currentPage}
+                            />
+                        </div>
                     </div>
-    
+
+
             {/* Modal for Viewing Device Details */}
             <Modal
                 show={showDevice}

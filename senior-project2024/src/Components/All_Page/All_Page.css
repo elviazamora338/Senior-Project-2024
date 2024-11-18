@@ -20,7 +20,7 @@
 
 .table-height {
     max-width: 100%;
-    height: 500px;
+    /* max-height: 500px; */
     margin: auto;
 }
 
@@ -55,12 +55,7 @@ tr {
     color: white;
 }
 
-.item-image {
-    font-size: 100px;
-    align-items: center;
-}
-
-.table img {
+.table img, .bi-image{
     width: 100px;   /* Set a fixed width */
     height: 100px;  /* Set a fixed height */
     object-fit: cover;  /* Ensures the image covers the box without distortion */
@@ -117,3 +112,28 @@ tr {
 .click {
     cursor: 'pointer';
 }
+
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+}
+
+.page-number, .page-arrow {
+    margin: 0 5px;
+    padding: 5px 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    cursor: pointer;
+    background-color: #f8f9fa;
+}
+
+.page-number.active {
+    background-color: #CB4900;
+    color: #fff;
+    border-color: #CB4900;
+}
+
+
