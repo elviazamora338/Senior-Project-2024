@@ -66,7 +66,6 @@ const LoginPage = () => {
                     <div className="login-box">
                         <h1 className="text-center">Welcome Back!</h1>
                         <p>Enter your Credentials to access  your account</p>
-                        <br />
                         <form onSubmit={handleSubmit}>
                              <label htmlFor="email">Email address (.edu only)</label>
                             <div className="form-group login-button">

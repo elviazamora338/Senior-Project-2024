@@ -5,11 +5,21 @@ import { Modal, Button } from 'react-bootstrap'; // Import Modal and Button
 import Profile from '../Components/Profile_Page/Profile.jsx'; // Import the Profile component
 import 'bootstrap/dist/css/bootstrap.min.css';
 import "bootstrap-icons/font/bootstrap-icons.css";
+import { useUser } from '../UserContext';
 
 const Header = () => {
+    const { user, setUser } = useUser();
     const [menuOpen, setMenuOpen] = useState(false);
-    const [showProfileModal, setShowProfileModal] = useState(false); // State to control Profile modal visibility
+    const [showProfileModal, setShowProfileModal] = useState(false);
     const menuRef = useRef(null);
+
+     // Restore user data from sessionStorage on mount
+     useEffect(() => {
+        const storedUser = sessionStorage.getItem('user');
+        if (storedUser && !user) {
+            setUser(JSON.parse(storedUser));
+        }
+    }, [setUser, user]);
 
     // Open and close modal handlers
     const handleProfileShow = () => setShowProfileModal(true);
@@ -19,6 +29,7 @@ const Header = () => {
         try {
             sessionStorage.clear();
             // i did this instead of in the server but i'm open to suggestions!
+            setUser(null); // Clear the UserContext
             window.location.href = '/login';
             console.log('Logged Out');
         } catch (error) {
@@ -28,7 +39,7 @@ const Header = () => {
     }
     // Menu items with icons and actions
     const menuItems = [
-        { name: 'Profile', icon: 'bi-person', action: handleProfileShow }, // Trigger modal for Profile
+        { name: 'Profile', icon: 'bi-person', action: handleProfileShow },
         { name: 'Settings', icon: 'bi-gear' },
         { name: 'Log out', icon: 'bi-box-arrow-right', action: handleLogout }
     ];
