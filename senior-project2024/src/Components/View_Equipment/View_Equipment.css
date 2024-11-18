@@ -1,0 +1,108 @@
+.uploadImage {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 300px;
+    width: 420px;
+    margin-bottom: 5px;
+    font-size: 150px;
+    background-color: #ADB5BD;
+    border-radius: 1rem;
+}
+
+
+.uploadCalendar {
+    display: flex;
+    margin: 5px;
+    justify-content: center;
+    align-items: center;
+    /* Adjust height as necessary */
+    height: 200px;
+    width: 200px;
+    background-color: #f0f0f0;
+    border-radius: 1rem;
+}
+
+.uploadImage i {
+    margin-bottom: 0.5rem;
+    /* Adjust this value to bring the icon closer to the text */
+}
+
+.scheduleContainer {
+    padding-top: 5px;
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.time-row {
+    display: flex;
+    gap: 5px; /* Adds space between the two columns */
+}
+
+.time-col {
+    display: flex;
+    flex-direction: column; /* Stack checkboxes vertically */
+}
+
+.message-row {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+    width: 60%;
+}
+
+.textarea {
+width: 100%; /* Makes the textarea fill the width of the parent container */
+resize: none; /* Optional: Disable manual resizing */
+}
+
+/* 
+.right-col {
+    padding-left: 30px;
+} */
+
+.schedule-text {
+    justify-content: center;
+}
+
+.title {
+    display: flex;           /* Enables flexbox */
+    flex-direction: row; 
+    align-items: center;     /* Centers items horizontally */
+    gap: 20px;
+}
+
+.sub-title {
+    display: flex;           /* Enables flexbox */
+    flex-direction: row; 
+    align-items: center;     /* Centers items horizontally */
+    gap: 5px;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    margin-top: 5px; /* Adds space above the heading */
+    margin-bottom: 5px; /* Adds space below the heading */
+}
+
+.schedule-button {
+    background-color: #CB4900; 
+    color: white; 
+    width: 150px;
+}
+
+input[type="checkbox"] {
+    margin-right: 10px; /* Adjust the spacing as needed */
+}
+
+/* Make the input fields and textareas look like non-interactive boxes */
+.deviceDetails {
+    background-color: white; /* Light grey background to look like a box */
+    border: 1px solid #ccc;    /* Light border to simulate a box */
+    cursor: not-allowed;       /* No cursor change when hovering over the box */
+    pointer-events: none;      /* Disable interaction with the form field */
+    padding: 5px;              /* Add some padding to make the box look neat */
+}
+
+

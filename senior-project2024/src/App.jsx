@@ -16,7 +16,6 @@ import BookmarksPage from './Components/Home_Page/Bookmarks.jsx';
 import { UserProvider } from './UserContext';
 import './App.css';
 
-// Create a component that contains the Sidebar logic
 const AppContent = () => {
   const location = useLocation();
 

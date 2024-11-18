@@ -88,9 +88,9 @@ const Header = () => {
             </div>
 
             {/* University Banner */}
-            <div className="container container-banner">
+            <div className="container-banner">
                 <div className="img-container">
-                    <img src={banner} alt="UTRGV logo banner" />
+                    <img className="uni-img"src={banner} alt="UTRGV logo banner" />
                     <div className="text-overlay">
                         <h1>Equipment Scheduler</h1>
                     </div>

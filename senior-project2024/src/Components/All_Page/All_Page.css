@@ -5,6 +5,14 @@
     margin: auto;
 }
 
+.col {
+    margin-top: 15px;
+}
+
+.image-height {
+    min-height: 150px;
+}
+
 .cancel-button {
     width: 80px; 
     height: 30px; 
@@ -16,32 +24,8 @@
 
 .table-height {
     max-width: 100%;
+    /* max-height: 500px; */
     margin: auto;
-    padding: 10px;
-}
-
-.table-container {
-    margin-left: 150px; /* Adjust main content to the right of the sidebar */
-    padding-top: 60px; /* Ensure content doesn't overlap with the header */
-}
-
-.table-header {
-    position: sticky;
-    top: 0;
-    background-color: #CB4900;
-    color: white;
-    z-index: 3; /* Ensure it's above the table */
-}
-
-.table-content {
-    position: sticky;
-}
-
-.thead-bg {
-    position: sticky; 
-    top: 0; 
-    background-color:#CB4900; 
-    z-index: 1;
 }
 
 .checkbox-cell {
@@ -60,7 +44,7 @@
 }
 
 tr {
-    min-height: 60px; /* Adjust this value to your preferred row height */
+    min-height: 50px; 
 }
 
 .form-check {
@@ -71,15 +55,16 @@ tr {
 }
 
 
-
 .text-white {
     color: white;
 }
 
-.item-image {
-    font-size: 120px;
-    align-items: center;
+.table img, .bi-image{
+    width: 100px;   /* Set a fixed width */
+    height: 100px;  /* Set a fixed height */
+    object-fit: cover;  /* Ensures the image covers the box without distortion */
 }
+
 
 /* Layout for adding */
 .input-group {
@@ -120,11 +105,40 @@ tr {
     
 }
 /* Bookmark css */
-.bookmark i {
-    font-size: 1.5rem;
+.bookmark {
+    font-size: 1.4rem;
     transition: color 0.2 ease;
 }
 
 .bookmark:hover {
     color: #007bff;
 }
+
+.click {
+    cursor: 'pointer';
+}
+
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+}
+
+.page-number, .page-arrow {
+    margin: 0 5px;
+    padding: 5px 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    cursor: pointer;
+    background-color: #f8f9fa;
+}
+
+.page-number.active {
+    background-color: #CB4900;
+    color: #fff;
+    border-color: #CB4900;
+}
+
+
