@@ -64,7 +64,7 @@ const AddPage = () => {
 
                                 <div className="col-md-6">
                                     <h5>Campus</h5>
-                                    <select id="campusSelect" className="form-select form-select-sm" value={formData.campus} onChange={handleChange}>
+                                    <select id="campusSelect" className="form-select form-select-sm" value={formData.campus} onChange={(e) => setFormData({...formData, campus: e.target.value})}>
                                         <optgroup label="Campus">
                                             <option value="" disabled selected>Select Campus</option>
                                             <option value="Edinburg">Edinburg</option>
@@ -74,7 +74,7 @@ const AddPage = () => {
                                 </div>
                                 <div className="col-md-6">
                                     <h5>Department</h5>
-                                    <select id="departmentSelect" class="form-select form-select-sm" value={formData.department} onChange={handleChange}>
+                                    <select id="departmentSelect" class="form-select form-select-sm" value={formData.department} onChange={(e) => setFormData({...formData, department: e.target.value})}>
                                         <optgroup label="Department">
                                             <option value="" disabled selected>Select Department</option>
                                             <option value="Biology">Biology</option>
@@ -88,7 +88,7 @@ const AddPage = () => {
                             <div className="row mt-3">
                                 <div className="col-md-6">
                                     <h5>Building</h5>
-                                    <select id="buildingSelect" class="form-select form-select-sm" value={formData.building} onChange={handleChange}>
+                                    <select id="buildingSelect" class="form-select form-select-sm" value={formData.building} onChange={((e) => setFormData({...formData, building: e.target.value}))}>
                                         <optgroup label="Building">
                                             <option value="" disabled selected>Select Building</option>
                                             <option value="EPOB4">EPOB4 - Engineering Portable</option>
@@ -126,7 +126,7 @@ const AddPage = () => {
 
                         <div className="col-md-4">
                             <h5>Category</h5>
-                            <select id="category_select" className="form-select" value={formData.category} onChange={handleChange}>
+                            <select id="category_select" className="form-select" value={formData.category} onChange={(e) => setFormData({...formData, category: e.target.value})}>
                                 <optgroup label="Category">
                                     <option value="" disabled selected>Select Category</option>
                                     <option value="FFT_Spectrum">FFT Spectrum Analyzer</option>
@@ -142,7 +142,7 @@ const AddPage = () => {
                             <input type="text" id="model" name="model" className="form-control" value={formData.model} onChange={handleChange} />
 
                             <h5>Brand</h5>
-                            <select id="brand_select" className="form-select" value={formData.brand} onChange={handleChange}>
+                            <select id="brand_select" className="form-select" value={formData.brand} onChange={(e) => setFormData({...formData, brand: e.target.value})}>
                                 <optgroup label="Brand">
                                     <option value="" disabled selected>Select Brand</option>
                                     <option value="Stanford_Research">Stanford Research Systems</option>
