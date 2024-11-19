@@ -118,7 +118,7 @@ app.post('/verify-otp', async (req, res) => {
 // app.get('/test-email', (req, res) => {
 //     const mailOptions = {
 //         from: process.env.EMAIL_USER,
-//         to: 'amadozuniga3@yahoo.com',
+//         to: '**********@yahoo.com',
 //         subject: 'Test Email',
 //         text: 'This is a test email.'
 //     };

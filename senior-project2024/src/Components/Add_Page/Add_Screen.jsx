@@ -40,6 +40,20 @@ const AddPage = () => {
     }
 
     const handleSave = async () => {
+
+        const missingFields = []; 
+        if (!formData.campus) missingFields.push("Campus"); 
+        if (!formData.department) missingFields.push("Department"); 
+        if (!formData.device_name) missingFields.push("Device Name"); 
+        if (!formData.person_in_charge) missingFields.push("Person in Charge");
+        if (!formData.category) missingFields.push("Category")
+
+        // show alert if there are missing fields
+        if (missingFields.length > 0) {
+            alert(`Please fill out the following required fields: ${missingFields.join(", ")}`); 
+            return; //stop execution if validation fails
+        }
+
         try {
             const response = await axios.post('http://localhost:5001/add-device', formData); 
             alert(response.data.message); 
@@ -64,31 +78,33 @@ const AddPage = () => {
 
                                 <div className="col-md-6">
                                     <h5>Campus</h5>
-                                    <select id="campusSelect" className="form-select form-select-sm" value={formData.campus} onChange={(e) => setFormData({...formData, campus: e.target.value})}>
+                                    <select id="campusSelect" className={`form-select form-select-sm ${!formData.campus ? "is-invalid" : ""}`} value={formData.campus} onChange={(e) => setFormData({...formData, campus: e.target.value})}>
                                         <optgroup label="Campus">
                                             <option value="" disabled selected>Select Campus</option>
                                             <option value="Edinburg">Edinburg</option>
                                             <option value="Brownsville">Brownsville</option>
                                         </optgroup>
-                                    </select>
+                                </select>
+                                {!formData.campus && <div className='invalid-feedback'>Campus is required.</div>}
                                 </div>
                                 <div className="col-md-6">
                                     <h5>Department</h5>
-                                    <select id="departmentSelect" class="form-select form-select-sm" value={formData.department} onChange={(e) => setFormData({...formData, department: e.target.value})}>
+                                    <select id="departmentSelect" class={`form-select form-select-sm ${!formData.department && 'is-invalid'}`} value={formData.department} onChange={(e) => setFormData({...formData, department: e.target.value})}>
                                         <optgroup label="Department">
                                             <option value="" disabled selected>Select Department</option>
                                             <option value="Biology">Biology</option>
                                             <option value="Physics">Physics</option>
                                             <option value="School of Medicine">School of Medicine</option>
                                         </optgroup>
-                                    </select>
+                                </select>
+                                {!formData.department && <div className='invalid-feedback'>Department is required.</div>}
                                 </div>
                             </div>
 
                             <div className="row mt-3">
                                 <div className="col-md-6">
                                     <h5>Building</h5>
-                                    <select id="buildingSelect" class="form-select form-select-sm" value={formData.building} onChange={((e) => setFormData({...formData, building: e.target.value}))}>
+                                    <select id="buildingSelect" class={`form-select form-select-sm ${!formData.building && 'is-invalid'}`} value={formData.building} onChange={((e) => setFormData({...formData, building: e.target.value}))}>
                                         <optgroup label="Building">
                                             <option value="" disabled selected>Select Building</option>
                                             <option value="EPOB4">EPOB4 - Engineering Portable</option>
@@ -96,7 +112,8 @@ const AddPage = () => {
                                             <option value="EACSB">EACSB- Academic Services</option>
                                             <option value="ESCNE">ESCNE - Science</option>
                                         </optgroup>
-                                    </select>
+                                </select>
+                                {!formData.building && <div className='invalid-feedback'>Building is required.</div>}
                                 </div>
                                 <div className="col-md-6">
                                     <h5>Room #</h5>
