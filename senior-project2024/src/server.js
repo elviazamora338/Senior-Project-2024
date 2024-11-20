@@ -223,6 +223,36 @@ app.post('/user', (req, res) => {
 });
 
 
+// Fetch user data by user_name for person in charge
+app.post('/user-by-name', (req, res) => {
+    const { name } = req.body;
+
+    console.log("Received Payload:", req.body); // Debug log to verify payload
+
+    if (!name) {
+        console.warn("Name not provided");
+        return res.status(400).json({ error: 'Name is required.' });
+    }
+
+    const query = `SELECT * FROM users WHERE user_name = ?`;
+
+    db.get(query, [name], (err, row) => {
+        if (err) {
+            console.error('Database error:', err.message);
+            res.status(500).json({ error: 'Failed to fetch user by name.' });
+        } else if (!row) {
+            console.warn("No user found for name:", name);
+            res.status(404).json({ error: 'No user found with the provided name.' });
+        } else {
+            console.log("User found:", row);
+            res.json({ message: 'User fetched successfully by name.', user: row });
+        }
+    });
+});
+
+
+
+
 // Function to get all lab devices
 function getAllLabDevices() {
     return new Promise((resolve, reject) => {

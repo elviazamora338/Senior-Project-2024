@@ -105,4 +105,27 @@ input[type="checkbox"] {
     padding: 5px;              /* Add some padding to make the box look neat */
 }
 
-
+/* Style for the "Person in Charge" link to look like an input */
+.link-input {
+    display: block; /* Makes it behave like a block element similar to inputs */
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: #f7f7f7;
+    color: #333;
+    text-decoration: none; /* Remove underline */
+    font-size: 1rem;
+    box-sizing: border-box;
+    cursor: pointer; /* Indicate it's clickable */
+  }
+  
+  .link-input:hover {
+    background-color: #eaeaea;
+  }
+  
+  .link-input:focus {
+    outline: 2px solid #ffcc00; /* Optional focus effect */
+  }
+  
