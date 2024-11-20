@@ -13,6 +13,8 @@ const All_Page = () => {
     const [bookmarkedItems, setBookmarkedItems] = useState({});
     const [searchTerm, setSearchTerm] = useState('');
 
+
+    
     // Bookmark function
     const handleBookmarkClick = async (id) => {
         setBookmarkedItems((prev) => ({

@@ -281,6 +281,7 @@ app.post('/bookmarked', (req, res) => {
                     });
                 });
             } 
+            
             else {
                 // If the bookmark doesn't exist, return a message (or optionally create one)
                 // Insert the bookmark into the `bookmarks` table
