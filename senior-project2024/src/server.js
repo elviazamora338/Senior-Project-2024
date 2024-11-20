@@ -277,6 +277,71 @@ app.get('/all', async (req, res) => {
     }
 });
 
+// bookmarked
+app.post('/bookmarked', (req, res) => {
+    const { newid, userid } = req.body;
+
+    if (!newid || !userid) {
+        return res.status(400).json({ error: 'Device ID or User ID is missing.' });
+    }
+
+    console.log("Bookmark request received for Device ID:", newid, "and User ID:", userid);
+    try{
+         // Step 1: Verify if the user exists in the `users` table
+        const checkQuery = `SELECT * FROM bookmarks WHERE device_id = ? AND user_id = ?`;
+        db.get(checkQuery, [newid, userid], (err, bookmark) => {
+            if (err) {
+                console.error('Error checking bookmark:', err.message);
+                return res.status(500).json({ error: 'Failed to check bookmark.' });
+            }
+            if (bookmark) {
+                // If the bookmark exists, toggle the `toggle` column value
+                const newToggleValue = bookmark.toggle === 1 ? 0 : 1; // Switch between 0 and 1
+                const updateQuery = `UPDATE bookmarks SET toggle = ? WHERE device_id = ? AND user_id = ?`;
+                db.run(updateQuery, [newToggleValue, newid, userid], function (err) {
+                    if (err) {
+                        console.error('Error updating toggle value:', err.message);
+                        return res.status(500).json({ error: 'Failed to update toggle value.' });
+                    }
+
+                    res.status(200).json({
+                        success: true,
+                        message: 'Bookmark toggle updated successfully.',
+                        newToggle: newToggleValue,
+                    });
+                });
+            } 
+
+
+            
+            else {
+                // If the bookmark doesn't exist, return a message (or optionally create one)
+                // Insert the bookmark into the `bookmarks` table
+                const toggle = 1;
+                console.log("bookmark not found, inserting bookmark")
+                const insertBookmarkQuery = `INSERT INTO bookmarks (device_id, user_id, toggle) VALUES (?, ?, ?)`;
+                db.run(insertBookmarkQuery, [newid, userid, toggle], function (err) {
+                    if (err) {
+                        console.error('Error inserting bookmark:', err.message);
+                        return res.status(500).json({ error: 'Failed to save bookmark.' });
+                    }
+
+                console.log(`Bookmark saved for Device ID: ${newid} by User ID: ${userid}`);
+                res.status(200).json({ success: true, message: 'Bookmark saved successfully.', bookmarkId: this.lastID });
+                });
+            }
+        });
+    }
+    catch (error) {
+         console.error("Error bookmarking:", error);
+         console.log("Failed to bookmark. Please try again.");
+    } 
+        
+});
+
+        
+
+
 // Close database connection on server close
 process.on('SIGINT', () => {
     db.close((err) => {

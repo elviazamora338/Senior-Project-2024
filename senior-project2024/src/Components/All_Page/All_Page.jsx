@@ -6,9 +6,11 @@ import './All_Page.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import "bootstrap-icons/font/bootstrap-icons.css";
 import Pagination from '../Pagination.jsx'; // Import Pagination Component
+import { useUser } from '../../UserContext'; // Imports the custom hook
 import axios from 'axios';
 
 const All_Page = () => {
+    const { user } = useUser(); // Access user from context
     const [labDevices, setLabDevices] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -32,13 +34,36 @@ const All_Page = () => {
     };
 
     // Bookmark function
-    const handleBookmarkClick = (e, id) => {
+   const handleBookmarkClick =  async (e, id) => {
         e.stopPropagation(); 
         setBookmarkedItems((prev) => ({
             ...prev,
             [id]: !prev[id],
         }));
+        const user = 11;
+        console.log(id);
+        try {
+            const response = await axios.post('http://localhost:5001/bookmarked', {
+                newid: id,
+                userid: user
+            });
+            if(response.data.message) {
+                console.log("bookmarked successful");
+            }
+            // Map bookmarked items from the database into an object
+            const bookmarks = response.data.reduce((acc, item) => {
+                acc[item.device_id] = item.toggle === 1; // true if toggle is 1, false otherwise
+                return acc;
+            }, {});
+
+            setBookmarkedItems(bookmarks);
+        } catch (e) {
+            if (e.response && e.response.status === 400) {
+                console.log(e.response.data.error); // Display duplicate user error
+            }
+        }
     };
+    
 
     // Search function
     const handleSearchChange = (e) => {
