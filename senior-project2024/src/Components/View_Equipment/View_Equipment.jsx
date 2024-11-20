@@ -3,38 +3,49 @@ import { Link } from 'react-router-dom';
 import { Modal, Button } from 'react-bootstrap';
 import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
-import './View_Equipment.css'
+import './View_Equipment.css';
 import * as bootstrap from 'bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import "bootstrap-icons/font/bootstrap-icons.css";
 import 'bootstrap/dist/js/bootstrap.bundle.min';
+import Profile_Message from "../Profile_Page/Profile_Message.jsx";
 
 const ViewPage = ({ device }) => {
-    console.log("Device in ViewPage:", device);  // Log device prop to check if it's passed correctly
-    if (!device) return <p>No device data available</p>;
-    
-        // Initialize tooltips
+    const [showProfilePopup, setShowProfilePopup] = useState(false);
+    const [personInChargeName, setPersonInChargeName] = useState('');
+
+    // Initialize tooltips (Always execute useEffect)
+    useEffect(() => {
         const tooltipTriggerList = Array.from(
-          document.querySelectorAll('[data-toggle="tooltip"]')
+            document.querySelectorAll('[data-toggle="tooltip"]')
         );
         tooltipTriggerList.forEach((tooltipTriggerEl) => {
-          new bootstrap.Tooltip(tooltipTriggerEl);
+            new bootstrap.Tooltip(tooltipTriggerEl);
         });
-      
+    }, []);
+
+    if (!device) {
+        return <p>No device data available</p>;
+    }
+
+    // Handle "Person in Charge" click
+    const handlePersonInChargeClick = () => {
+        setPersonInChargeName(device.person_in_charge); // Ensure 'person_in_charge' matches your data
+        setShowProfilePopup(true);
+    };
 
     return (
         <>
-        <div className="container">
+            <div className="container">
                 <div className="container-fluid">
                     <div className="row">
                         <div className="col-md-4">
                             <div className="row">
-
                                 <div className="container-fluid">
-                                <img
-                                    src={`http://localhost:5001/static/equipment_photos/${device.image_path}`}
-                                    className="item-image me-2"
-                                />
+                                    <img
+                                        src={`http://localhost:5001/static/equipment_photos/${device.image_path}`}
+                                        className="item-image me-2"
+                                    />
                                 </div>
 
                                 <div className="col-md-6">
@@ -55,7 +66,6 @@ const ViewPage = ({ device }) => {
                                         name="department"
                                         className="form-control deviceDetails"
                                         value={device.department || ''}
-
                                     />
                                 </div>
                             </div>
@@ -71,7 +81,7 @@ const ViewPage = ({ device }) => {
                                         value={device.building || ''}
                                     />
                                 </div>
-                                <div class="col-md-6">
+                                <div className="col-md-6">
                                     <h5>Room #</h5>
                                     <input
                                         type="text"
@@ -84,13 +94,15 @@ const ViewPage = ({ device }) => {
                             </div>
 
                             <h5>Person in Charge</h5>
-                            <input
-                                type="text"
-                                id="person_in_charge"
-                                name="person_in_charge"
-                                className="form-control deviceDetails"
-                                value={device.person_in_charge || ''}
-                            />
+                            <p>
+                                <a
+                                    href="#"
+                                    onClick={handlePersonInChargeClick}
+                                    className="link-input"
+                                    >
+                                    {device.person_in_charge || 'N/A'}
+                                </a>
+                            </p>
 
                             <h5>Link to Manual</h5>
                             <input
@@ -147,7 +159,7 @@ const ViewPage = ({ device }) => {
                                         value={device.model || ''}
                                     />
                                 </div>
-                            
+
                                 <div className="col-md-4">
                                     <h5>Brand</h5>
                                     <input
@@ -164,14 +176,11 @@ const ViewPage = ({ device }) => {
                                 <div className="sub-title">
                                     <h5 className="schedule-text fw-bold">Schedule Equipment</h5>
                                     <i className="bi bi-info-circle" data-toggle="tooltip" data-placement="right" 
-                                    title="Only 2 hour incrememnts allowed"></i>
+                                    title="Only 2 hour increments allowed"></i>
                                 </div>
                                 <div className="row">
+                                    <div className="container-fluid uploadCalendar"></div>
 
-                                    <div className="container-fluid uploadCalendar">
-                                    </div>
-
-        
                                     <div className="message-row">
                                         <div className="col-8">
                                             <h6>Reason for booking</h6>
@@ -182,41 +191,47 @@ const ViewPage = ({ device }) => {
                                             <div className="time-col">
                                                 <div>
                                                     <input type="checkbox" id="time1" name="time1" value="time1"></input>
-                                                    <label for="time1">8 AM - 10 AM</label><br></br>
-                                        
+                                                    <label htmlFor="time1">8 AM - 10 AM</label><br></br>
+
                                                     <input type="checkbox" id="time2" name="time2" value="time2"></input>
-                                                    <label for="time2">10 AM - 12 PM</label><br></br>
-                                        
+                                                    <label htmlFor="time2">10 AM - 12 PM</label><br></br>
+
                                                     <input type="checkbox" id="time3" name="time3" value="time3"></input>
-                                                    <label for="time3">12 PM - 2 PM</label><br></br>
+                                                    <label htmlFor="time3">12 PM - 2 PM</label><br></br>
                                                 </div>
                                             </div>
-                                        
-                                            <div class="time-col">
+
+                                            <div className="time-col">
                                                 <div>
                                                     <input type="checkbox" id="time4" name="time4" value="time4"></input>
-                                                    <label for="time4">2 PM - 4 PM</label><br></br>
-                                        
+                                                    <label htmlFor="time4">2 PM - 4 PM</label><br></br>
+
                                                     <input type="checkbox" id="time5" name="time5" value="time5"></input>
-                                                    <label for="time5">4 PM - 6 PM</label><br></br>
-                                        
+                                                    <label htmlFor="time5">4 PM - 6 PM</label><br></br>
+
                                                     <input type="checkbox" id="time6" name="time6" value="time6"></input>
-                                                    <label for="time6">6 PM - 8 PM</label><br></br>
+                                                    <label htmlFor="time6">6 PM - 8 PM</label><br></br>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
-                                    
-        
+
                                     <div className="text-center mt-3">
                                         <button type="button" className="btn schedule-button">Schedule</button>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        </div>
                     </div>
                 </div>
+            </div>
+
+            {/* Profile_Message modal */}
+            <Profile_Message
+                show={showProfilePopup}
+                onHide={() => setShowProfilePopup(false)}
+                personInChargeName={personInChargeName}
+            />
         </>
     );
 };
