@@ -35,9 +35,10 @@ const LoginPage = () => {
 
             if (userResponse.data.user) {
                 // Map the backend user data to the context structure
-                const { user_name, user_email, role_id, campus_id, school_id, phone_number } = userResponse.data.user;
+                const { user_id, user_name, user_email, role_id, campus_id, school_id, phone_number } = userResponse.data.user;
 
                 setUser({
+                    user_id: user_id,
                     name: user_name, 
                     email: user_email, 
                     role_id: role_id,

@@ -8,7 +8,9 @@ export const UserProvider = ({ children }) => {
   const [user, setUser] = useState(() => {
     // Retrieve user data from sessionStorage or initialize with default values
     const storedUser = sessionStorage.getItem('user');
+    console.log(storedUser);
     return storedUser ? JSON.parse(storedUser) : {
+      user_id: null,
       name: '',
       email: '',
       campus_id: null,
@@ -16,6 +18,7 @@ export const UserProvider = ({ children }) => {
       role_id: null,
       phone: null,
     };
+
   });
 
   useEffect(() => {

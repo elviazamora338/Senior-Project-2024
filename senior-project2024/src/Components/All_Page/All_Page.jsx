@@ -36,27 +36,25 @@ const All_Page = () => {
     // Bookmark function
    const handleBookmarkClick =  async (e, id) => {
         e.stopPropagation(); 
-        setBookmarkedItems((prev) => ({
-            ...prev,
-            [id]: !prev[id],
-        }));
-        const user = 11;
-        console.log(id);
+       // To add bookmark to database
+       console.log("Toggling bookmark for Device ID:", id);
         try {
             const response = await axios.post('http://localhost:5001/bookmarked', {
                 newid: id,
-                userid: user
+                userid: user.user_id
             });
-            if(response.data.message) {
+            if(response.data.success) {
                 console.log("bookmarked successful");
+                // Update the bookmarkedItems state
+                setBookmarkedItems((prev) => ({
+                    ...prev,
+                    [id]: response.data.newToggle === 1, // Reflect the new toggle state
+                }));
             }
-            // Map bookmarked items from the database into an object
-            const bookmarks = response.data.reduce((acc, item) => {
-                acc[item.device_id] = item.toggle === 1; // true if toggle is 1, false otherwise
-                return acc;
-            }, {});
+            else {
+                console.error("Failed to toggle bookmark");
+            }          
 
-            setBookmarkedItems(bookmarks);
         } catch (e) {
             if (e.response && e.response.status === 400) {
                 console.log(e.response.data.error); // Display duplicate user error
@@ -70,21 +68,39 @@ const All_Page = () => {
         setSearchTerm(e.target.value.toLowerCase());
     };
 
+    
+
     useEffect(() => {
-        const fetchLabDevices = async () => {
-            setLoading(true)
+        const fetchData = async () => {
+            setLoading(true);
             try {
-                const response = await axios.get('http://localhost:5001/all');
-                setLabDevices(response.data);
+                const [devicesResponse, bookmarksResponse] = await Promise.all([
+                    axios.get('http://localhost:5001/all'),
+                    axios.get('http://localhost:5001/toggled', {
+                        params: { userid: user.user_id }, // Pass userid as a query parameter
+                    }),
+                ]);
+    
+                // Set lab devices
+                setLabDevices(devicesResponse.data);
+    
+                // Prepare bookmark state
+                const bookmarkState = bookmarksResponse.data.bookmarks.reduce((acc, deviceId) => {
+                    acc[deviceId] = true; // Mark device as bookmarked
+                    return acc;
+                }, {});
+    
+                setBookmarkedItems(bookmarkState);
             } catch (error) {
-                console.error('Error fetching lab devices:', error);
-                setError('Failed to fetch lab devices');
+                console.error('Error fetching data:', error);
+                setError('Failed to fetch data');
             } finally {
                 setLoading(false);
             }
         };
-        fetchLabDevices();
-    }, []);
+    
+        fetchData();
+    }, [user.user_id]);
     
     // Set pagination 
     const handlePagination = (pageNumber) => {
