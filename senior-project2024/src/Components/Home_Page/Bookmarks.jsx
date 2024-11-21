@@ -11,6 +11,8 @@ const BookmarksPage = () => {
     const { user } = useUser();
     const [labDevices, setLabDevices] = useState([]);
     const [bookmarkedItems,  setBookmarkedItems] = useState({});
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
       // Bookmark function
     const handleBookmarkClick =  async (e, id) => {
