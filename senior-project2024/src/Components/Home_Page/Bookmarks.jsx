@@ -2,10 +2,12 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import './Bookmarks.css'
+import { Modal, Button } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import "bootstrap-icons/font/bootstrap-icons.css";
 import { useUser} from '../../UserContext';
 import axios from 'axios';
+import ViewPage from '../View_Equipment/View_Equipment.jsx';
 
 const BookmarksPage = () => {
     const { user } = useUser();
@@ -13,6 +15,21 @@ const BookmarksPage = () => {
     const [bookmarkedItems,  setBookmarkedItems] = useState({});
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [showDevice, setShowDevice] = useState(false);
+    const [selectedDevice, setSelectedDevice] = useState(null); // Add state for the selected device
+    const [currentPage, setCurrentPage] = useState(1); // Pagination state
+    const postsPerPage = 8; // Items per page
+
+    
+    const handleShowDevice = (device) => {
+        setSelectedDevice(device);
+        setShowDevice(true);
+    };
+
+    const handleCloseDevice = () => {
+        setSelectedDevice(null);
+        setShowDevice(false);
+    };
 
       // Bookmark function
     const handleBookmarkClick =  async (e, id) => {
@@ -27,9 +44,10 @@ const BookmarksPage = () => {
             if(response.data.success) {
                 console.log("bookmarked successful");
                 // Update the bookmarkedItems state
+               // Optimistically update the UI
                 setBookmarkedItems((prev) => ({
                     ...prev,
-                    [id]: response.data.newToggle === 1, // Reflect the new toggle state
+                    [id]: !prev[id], // Toggle the bookmarked state locally
                 }));
             }
             else {
@@ -84,6 +102,15 @@ const BookmarksPage = () => {
         fetchData();
     }, [user.user_id]);
 
+
+    // tried adding page thing here from All page :(
+    const handlePagination = (pageNumber) => {
+        setCurrentPage(pageNumber);
+    };
+    
+    if (loading) return <p>Loading...</p>;
+    if (error) return <p>{error}</p>;
+
     return (
         <>
             <div className="col text-center">
@@ -117,7 +144,7 @@ const BookmarksPage = () => {
                                     </thead>
                                     <tbody>
                                     {labDevices.map((device) => (
-                                        <tr key={device.device_id}>
+                                         <tr key={device.device_id} onClick={() => handleShowDevice(device)}>
                                             <td className="image-height">
                                                 {device.image_path ? (
                                                     <img
@@ -162,13 +189,30 @@ const BookmarksPage = () => {
                                     ))}
                                 </tbody>
                             </table>
-                        </div>
-                        </div>
+                            </div>
                     </div>
                 </div>
+            </div>
+
+            {/* Modal for Viewing Device Details */}
+            <Modal
+                show={showDevice}
+                onHide={handleCloseDevice}
+                centered
+                dialogClassName="custom-wide-modal"
+                size="xl"
+            >
+                <Modal.Body>
+                    <ViewPage device={selectedDevice} />
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={handleCloseDevice}>
+                        Close
+                    </Button>
+                </Modal.Footer>
+            </Modal>
         </>
     );
 };
 
 export default BookmarksPage;
-
