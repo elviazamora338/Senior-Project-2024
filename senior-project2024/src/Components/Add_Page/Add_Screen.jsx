@@ -47,6 +47,7 @@ const AddPage = () => {
         if (!formData.device_name) missingFields.push("Device Name"); 
         if (!formData.person_in_charge) missingFields.push("Person in Charge");
         if (!formData.category) missingFields.push("Category")
+        if (!formData.building) missingFields.push("Building"); 
 
         // show alert if there are missing fields
         if (missingFields.length > 0) {
@@ -118,7 +119,7 @@ const AddPage = () => {
                                 <div className="col-md-6">
                                     <h5>Room #</h5>
                                     <input type="number" id="room_number" name="room_number"
-                                        className="form-control form-control-sm" step="any" value={formData.room_number} onChange={handleChange}/>
+                                        className={`form-select form-select-sm ${!formData.room_number && 'is-invalid'}`} step="any" value={formData.room_number} onChange={handleChange}/>
                                 </div>
                             </div>
 
