@@ -16,11 +16,14 @@ import BookmarksPage from './Components/Home_Page/Bookmarks.jsx';
 import { UserProvider } from './UserContext';
 import './App.css';
 
+import { Navigate } from 'react-router-dom'; // Import Navigate for redirection
+
 const AppContent = () => {
   const location = useLocation();
 
   // Determine if routes require Sidebar and Header
   const showSidebar = !["/calendar", "/loginauth", "/login", "/signup"].includes(location.pathname);
+
   return (
     <>
       {showSidebar ? (
@@ -29,6 +32,8 @@ const AppContent = () => {
           <div className="main-content">
             <Header />
             <Routes>
+              {/* Redirect root to login */}
+              <Route path="/" element={<Navigate to="/login" />} />
               <Route path="/home" element={<HomePage />} />
               <Route path="/all" element={<All_Page />} />
               <Route path="/add" element={<AddPage />} />
@@ -43,6 +48,8 @@ const AppContent = () => {
         </div>
       ) : (
         <Routes>
+          {/* Redirect root to login */}
+          <Route path="/" element={<Navigate to="/login" />} />
           <Route path="/signup" element={<SignUp_Screen />} />
           <Route path="/loginauth" element={<LoginAuth_Screen />} />
           <Route path="/login" element={<Login_Screen />} />
@@ -52,6 +59,7 @@ const AppContent = () => {
     </>
   );
 };
+
 
 function App() {
   return (

@@ -231,6 +231,7 @@ const ViewPage = ({ device }) => {
                 show={showProfilePopup}
                 onHide={() => setShowProfilePopup(false)}
                 personInChargeName={personInChargeName}
+                equipmentName={device.device_name} // Pass the equipment name
             />
         </>
     );

@@ -1,75 +1,147 @@
 /* Center the profile container */
 .profile-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 20px;
-  }
-  
-  /* Avatar styling */
-  .avatar {
-    width: 100px;
-    height: 100px;
-    border-radius: 50%;
-    background-color: #e0e0e0;
-    background-size: cover; /* Ensure the background image covers the whole area */
-    background-position: center;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 20px;
-    position: relative;
-    overflow: hidden;
-  }
-  
-  /* Input fields styling */
-  form {
-    width: 100%;
-    max-width: 300px;
-    display: flex;
-    flex-direction: column;
-  }
-  
-  form label {
-    font-size: 0.9rem;
-    color: #333;
-    margin-bottom: 5px;
-    font-weight: bold;
-  }
-  
-  form input[type="text"] {
-    padding: 8px;
-    margin-bottom: 15px;
-    border-radius: 4px;
-    border: 1px solid #ccc;
-    width: 100%;
-    font-size: 1rem;
-    box-sizing: border-box;
-  }
-  
-  form input[type="text"][readonly] {
-    background-color: #f7f7f7;
-    color: #666;
-    border: none; /* Removes the rectangular border */
-    outline: none; /* Removes focus outline */
-  }
-  
-  /* Message button styling */
-  .message-button {
-    padding: 10px;
-    background-color: #ffcc00;
-    color: #333;
-    font-weight: bold;
-    border: none;
-    border-radius: 4px;
-    text-align: center;
-    cursor: pointer;
-    transition: background-color 0.3s ease, color 0.3s ease;
-    width: 100%;
-  }
-  
-  .message-button:hover {
-    background-color: #e6b800;
-    color: #fff;
-  }
-  
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+}
+
+/* Avatar styling */
+.avatar {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background-color: #e0e0e0;
+  background-size: cover; /* Ensure the background image covers the whole area */
+  background-position: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Input fields styling */
+form {
+  width: 100%;
+  max-width: 300px;
+  display: flex;
+  flex-direction: column;
+}
+
+form label {
+  font-size: 0.9rem;
+  color: #333;
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+form input[type="text"] {
+  padding: 8px;
+  margin-bottom: 15px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  width: 100%;
+  font-size: 1rem;
+  box-sizing: border-box;
+}
+
+form input[type="text"][readonly] {
+  background-color: #f7f7f7;
+  color: #666;
+  border: none; /* Removes the rectangular border */
+  outline: none; /* Removes focus outline */
+}
+
+.center-text {
+  text-align: center;
+  margin: 0 auto;
+  font-weight: bold;
+}
+
+/* Message button styling */
+.message-button {
+  padding: 10px;
+  background-color: #ffcc00;
+  color: #333;
+  font-weight: bold;
+  border: none;
+  border-radius: 4px;
+  text-align: center;
+  cursor: pointer;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  width: 100%;
+}
+
+.message-button:hover {
+  background-color: #e6b800;
+  color: #fff;
+}
+
+.message-form {
+display: flex;
+flex-direction: column;
+align-items: center; /* Center horizontally */
+justify-content: center; /* Center vertically */
+height: 100%; /* Fill the modal */
+}
+
+.message-form .header {
+display: flex;
+align-items: center;
+justify-content: center; /* Center name and back arrow */
+margin-bottom: 20px;
+width: 100%;
+}
+
+.message-form .header h2 {
+font-size: 1.2rem; /* Reduce the font size for the name */
+margin: 0;
+}
+
+.message-form .back-button {
+position: absolute;
+left: 20px;
+background: none;
+border: none;
+font-size: 1.5rem;
+cursor: pointer;
+}
+
+.message-form form {
+width: 80%; /* Adjust width for better alignment */
+}
+
+.message-form form label {
+display: block;
+margin-top: 10px;
+}
+
+.message-form form textarea {
+width: 100%;
+height: 150px;
+resize: none;
+margin-bottom: 10px;
+padding: 10px;
+}
+
+.send-button {
+background-color: orange;
+color: white;
+padding: 10px 20px;
+border: none;
+border-radius: 5px;
+cursor: pointer;
+margin-top: 10px;
+}
+
+.modal-content {
+min-height: 600px;
+display: flex;
+}
+
+.modal-body {
+padding: 20px;
+width: 100%;
+}
