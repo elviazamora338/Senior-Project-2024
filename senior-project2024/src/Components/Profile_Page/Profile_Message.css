@@ -54,6 +54,12 @@ form input[type="text"][readonly] {
   outline: none; /* Removes focus outline */
 }
 
+.center-text {
+  text-align: center;
+  margin: 0 auto;
+  font-weight: bold;
+}
+
 /* Message button styling */
 .message-button {
   padding: 10px;

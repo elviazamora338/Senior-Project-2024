@@ -250,6 +250,61 @@ app.post('/user-by-name', (req, res) => {
     });
 });
 
+// sends message to recipient about equipment inquiry
+app.post('/save-and-send-message', (req, res) => {
+    const { sender_email, recipient_email, message_content, equipment_name } = req.body;
+
+    if (!sender_email || !recipient_email || !message_content || !equipment_name) {
+        return res.status(400).json({ error: 'All fields are required' });
+    }
+
+    console.log('Received Payload:', req.body); // Debugging log
+
+
+    // Save the message in the database
+    const query = `
+        INSERT INTO messages (sender_email, recipient_email, message_content, equipment_name)
+        VALUES (?, ?, ?, ?)
+    `;
+
+    db.run(query, [sender_email, recipient_email, message_content, equipment_name], function (err) {
+        if (err) {
+            console.error('Error saving message:', err.message);
+            return res.status(500).json({ error: 'Failed to save message' });
+        }
+
+        // Construct the email content
+        const fullMessageContentText = `Inquiry for ${equipment_name}:\n${message_content}\n\n---\nReplying to this email will automatically send to the sender's email (${sender_email}).`;
+
+        const fullMessage_Html = `
+            <p><strong>Inquiry for ${equipment_name}:</strong></p>
+            <p>${message_content}</p>
+            <hr />
+            <p style="font-style: italic; color: gray;">
+              Replying to this email will automatically send to the sender's email (<strong>${sender_email}</strong>).
+            </p>
+        `;
+
+        const mailOptions = {
+            from: sender_email,
+            to: recipient_email,
+            subject: `Equipment Inquiry`,
+            text: fullMessageContentText,
+            html: fullMessage_Html,
+            replyTo: sender_email, 
+        };
+        
+        transporter.sendMail(mailOptions, (error, info) => {
+            if (error) {
+                console.error('Error sending email:', error.message);
+                return res.status(500).json({ error: 'Message saved but failed to send email' });
+            }
+
+            console.log('Email sent:', info.response);
+            res.json({ message: 'Message saved and email sent successfully', messageId: this.lastID });
+        });
+    });
+});
 
 
 
