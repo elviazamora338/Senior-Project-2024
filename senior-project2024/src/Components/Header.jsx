@@ -27,16 +27,29 @@ const Header = () => {
 
     const handleLogout = () => {
         try {
-            sessionStorage.clear();
-            // i did this instead of in the server but i'm open to suggestions!
-            setUser(null); // Clear the UserContext
-            window.location.href = '/login';
+            // Clear only the user-related data from sessionStorage
+            sessionStorage.removeItem('user');
+            
+            // Reset UserContext to default user structure
+            setUser({
+                user_id: null,
+                name: '',
+                email: '',
+                campus_id: null,
+                school_id: null,
+                role_id: null,
+                phone: null,
+            });
+    
+            // Redirect to the login page using React Router
+            window.location.href = '/login'; // You can use navigate('/login') if using useNavigate
             console.log('Logged Out');
         } catch (error) {
             console.error('Error during logout:', error);
         }
+    };
+    
 
-    }
     // Menu items with icons and actions
     const menuItems = [
         { name: 'Profile', icon: 'bi-person', action: handleProfileShow },

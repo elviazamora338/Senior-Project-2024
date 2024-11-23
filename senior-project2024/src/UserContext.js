@@ -3,27 +3,32 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 // Create the User Context
 const UserContext = createContext();
 
+// Default user structure
+const defaultUser = {
+  user_id: null,
+  name: '',
+  email: '',
+  campus_id: null,
+  school_id: null,
+  role_id: null,
+  phone: null,
+};
+
 // UserProvider Component
 export const UserProvider = ({ children }) => {
   const [user, setUser] = useState(() => {
     // Retrieve user data from sessionStorage or initialize with default values
     const storedUser = sessionStorage.getItem('user');
-    console.log(storedUser);
-    return storedUser ? JSON.parse(storedUser) : {
-      user_id: null,
-      name: '',
-      email: '',
-      campus_id: null,
-      school_id: null,
-      role_id: null,
-      phone: null,
-    };
-
+    return storedUser ? JSON.parse(storedUser) : defaultUser;
   });
 
   useEffect(() => {
     // Save user data to sessionStorage whenever it changes
-    sessionStorage.setItem('user', JSON.stringify(user));
+    if (user && user.user_id !== null) {
+      sessionStorage.setItem('user', JSON.stringify(user));
+    } else {
+      sessionStorage.removeItem('user'); // Clear session storage if user is reset
+    }
   }, [user]);
 
   return (
