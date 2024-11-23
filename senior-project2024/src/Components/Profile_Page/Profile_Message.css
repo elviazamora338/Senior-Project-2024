@@ -31,7 +31,7 @@ form {
 }
 
 form label {
-  font-size: 0.9rem;
+  font-size: 1rem;
   color: #333;
   margin-bottom: 5px;
   font-weight: bold;
@@ -56,8 +56,9 @@ form input[type="text"][readonly] {
 
 .center-text {
   text-align: center;
-  margin: 0 auto;
+  margin: 10 auto;
   font-weight: bold;
+  font-size: 1.3rem;
 }
 
 /* Message button styling */
@@ -80,68 +81,78 @@ form input[type="text"][readonly] {
 }
 
 .message-form {
-display: flex;
-flex-direction: column;
-align-items: center; /* Center horizontally */
-justify-content: center; /* Center vertically */
-height: 100%; /* Fill the modal */
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Center horizontally */
+  justify-content: flex-start; /* Align content at the top */
+  height: 100%; /* Fill the modal */
 }
 
 .message-form .header {
-display: flex;
-align-items: center;
-justify-content: center; /* Center name and back arrow */
-margin-bottom: 20px;
-width: 100%;
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+  width: 100%;
+  position: relative;
 }
 
-.message-form .header h2 {
-font-size: 1.2rem; /* Reduce the font size for the name */
-margin: 0;
-}
-
+/* Back button styling */
 .message-form .back-button {
-position: absolute;
-left: 20px;
-background: none;
-border: none;
-font-size: 1.5rem;
-cursor: pointer;
+  position: absolute;
+  top: 0;
+  left: 0;
+  background: none;
+  border: none;
+  font-size: 1.7rem;
+  cursor: pointer;
+  margin: 10px; /* Add spacing from edges */
 }
 
+/* Center the rest of the content below the back arrow */
+.message-content {
+  margin-top: 3rem; /* Push content down by 3 lines */
+  width: 100%; /* Ensure content fills available space */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-bottom: 15px;
+ 
+}
+
+/* Form alignment and styling */
 .message-form form {
-width: 80%; /* Adjust width for better alignment */
+  width: 80%; /* Adjust width for better alignment */
 }
 
 .message-form form label {
-display: block;
-margin-top: 10px;
+  display: block;
+  margin-top: 10px;
 }
 
 .message-form form textarea {
-width: 100%;
-height: 150px;
-resize: none;
-margin-bottom: 10px;
-padding: 10px;
+  width: 100%;
+  height: 150px;
+  resize: none;
+  margin-bottom: 10px;
+  padding: 10px;
 }
 
 .send-button {
-background-color: orange;
-color: white;
-padding: 10px 20px;
-border: none;
-border-radius: 5px;
-cursor: pointer;
-margin-top: 10px;
+  background-color: orange;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-top: 10px;
 }
 
 .modal-content {
-min-height: 600px;
-display: flex;
+  min-height: 600px;
+  display: flex;
 }
 
 .modal-body {
-padding: 20px;
-width: 100%;
+  padding: 20px;
+  width: 100%;
 }
