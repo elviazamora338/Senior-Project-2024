@@ -227,7 +227,7 @@ app.post('/user', (req, res) => {
 app.post('/user-by-name', (req, res) => {
     const { name } = req.body;
 
-    console.log("Received Payload:", req.body); // Debug log to verify payload
+    console.log("Received Payload:", req.body);
 
     if (!name) {
         console.warn("Name not provided");
