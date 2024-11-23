@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Modal, Button } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import ViewPage from '../View_Equipment/View_Equipment.jsx';
+import Book_Equipment from '../View_Equipment/Book_Equipment.jsx';
 import './All_Page.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import "bootstrap-icons/font/bootstrap-icons.css";
@@ -22,16 +23,18 @@ const All_Page = () => {
     // Modal state
     const [selectedDevice, setSelectedDevice] = useState(null);
     const [showDevice, setShowDevice] = useState(false);
+    const [showCalendar, setShowCalendar] = useState(false);
  
     const handleShowDevice = (device) => {
+        console.log("Device to show:", device); // Debugging
         setSelectedDevice(device);
         setShowDevice(true);
     };
 
-    const handleCloseDevice = () => {
-        setSelectedDevice(null);
-        setShowDevice(false);
-    };
+    const handleCloseDevice = () => setShowDevice(false);
+
+    const handleCalendarClose = () => setShowCalendar(false);
+    const handleCalendarShow = () => setShowCalendar(true);
 
     // Bookmark function
    const handleBookmarkClick =  async (e, id) => {
@@ -233,14 +236,57 @@ const All_Page = () => {
                 onHide={handleCloseDevice}
                 centered
                 dialogClassName="custom-wide-modal"
-                size="xl"
-            >
+                size="xl" >
+                    
+                <Modal.Header closeButton>
+                    <Modal.Title>Equipment Information</Modal.Title>
+                </Modal.Header>
                 <Modal.Body>
                     <ViewPage device={selectedDevice} />
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button variant="secondary" onClick={handleCloseDevice}>
-                        Close
+                <Button 
+                    variant="secondary" 
+                    onClick={() => {
+                        handleCloseDevice();
+                        handleCalendarShow();
+                    }}
+                >
+                    <i className="bi bi-arrow-right"></i>
+                </Button>
+                </Modal.Footer>
+            </Modal>
+
+            {/* Calendar Modal */}
+            <Modal 
+                show={showCalendar} 
+                onHide={handleCalendarClose} 
+                centered dialogClassName="custom-wide-modal"  
+                size="xl" >
+
+                <Modal.Header closeButton>
+                    <Modal.Title>Select Dates</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    {/* Render the Calendar Component */}
+                    <Book_Equipment />
+                </Modal.Body>
+                <Modal.Footer>
+                <Button 
+                    variant="secondary" 
+                    onClick={() => {
+                        handleCalendarClose(); // Close Calendar modal
+                        if (selectedDevice) {
+                            setShowDevice(true); // Reopen Equipment Information modal
+                        } else {
+                            console.error("No device selected to navigate back.");
+                        }
+                    }}
+                >
+                    <i className="bi bi-arrow-left"></i>
+                </Button>
+                    <Button variant="primary" onClick={handleCalendarClose}>
+                        Submit Booking
                     </Button>
                 </Modal.Footer>
             </Modal>
