@@ -9,6 +9,7 @@ const Profile_Message = ({ show, onHide, personInChargeName, equipmentName }) =>
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [message, setMessage] = useState(""); // Store the message input
+  const [showMessageForm, setShowMessageForm] = useState(false); // Toggle between profile and message form
 
   useEffect(() => {
     if (personInChargeName && show) {
@@ -49,7 +50,7 @@ const Profile_Message = ({ show, onHide, personInChargeName, equipmentName }) =>
       equipment_name: equipmentName,
     };
 
-    console.log('Payload:', payload); // Debugging log
+    console.log("Payload:", payload); // Debugging log
 
     try {
       const response = await fetch("http://localhost:5001/save-and-send-message", {
@@ -64,7 +65,7 @@ const Profile_Message = ({ show, onHide, personInChargeName, equipmentName }) =>
       if (response.ok) {
         alert("Message sent successfully!");
         setMessage(""); // Clear the message input
-        onHide(); // Close the modal
+        setShowMessageForm(false); // Return to profile view
       } else {
         console.error("Error saving or sending message:", result.error);
         alert("Failed to send the message. Please try again.");
@@ -75,6 +76,10 @@ const Profile_Message = ({ show, onHide, personInChargeName, equipmentName }) =>
     }
   };
 
+  const handleBackToProfile = () => {
+    setShowMessageForm(false); // Return to profile view
+  };
+
   return (
     <Modal show={show} onHide={onHide} centered>
       <Modal.Body>
@@ -82,29 +87,61 @@ const Profile_Message = ({ show, onHide, personInChargeName, equipmentName }) =>
           <p>Loading...</p>
         ) : error ? (
           <p className="text-danger">{error}</p>
-        ) : (
+        ) : showMessageForm ? (
+          // Show the messaging form
           <div className="message-form">
             <div className="header">
-              <h2 className="profile-name center-text">Inquiry for: {equipmentName}</h2>
-            </div>
-            <form>
-              <label>Sender Email</label>
-              <input type="text" value={user.email || ""} readOnly className="read-only-input" />
-
-              <label>Recipient Email</label>
-              <input type="text" value={profileData.user_email || ""} readOnly className="read-only-input" />
-
-              <label>Message</label>
-              <textarea
-                value={message}
-                onChange={(e) => setMessage(e.target.value)}
-                rows="4"
-              />
-
-              <button type="button" className="send-button" onClick={handleSendMessage}>
-                Send
+              <button className="back-button" onClick={handleBackToProfile}>
+                ← 
               </button>
+            </div>
+            <div className="message-content">
+              <h2 className="profile-name center-text">Inquiry for: {equipmentName}</h2>
+              <form>
+                <label>Sender Email</label>
+                <input type="text" value={user.email || ""} readOnly className="read-only-input" />
+
+                <label>Recipient Email</label>
+                <input type="text" value={profileData.user_email || ""} readOnly className="read-only-input" />
+
+                <label>Message</label>
+                <textarea
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
+                  rows="4"
+                />
+
+                <button type="button" className="send-button" onClick={handleSendMessage}>
+                  Send
+                </button>
+              </form>
+            </div>
+          </div>
+        ) : (
+          // Show the profile view
+          <div className="profile-container">
+            <div
+              className="avatar"
+              style={{
+                backgroundImage: `url(${profileData.profileImage || "placeholder.jpg"})`,
+              }}
+            ></div>
+            <form>
+              <label>Name</label>
+              <input type="text" value={profileData.user_name || "Name"} readOnly />
+
+              <label>Role</label>
+              <input type="text" value={profileData.role_id === 1 ? "Faculty" : "Student"} readOnly />
+
+              <label>Email</label>
+              <input type="text" value={profileData.user_email || "xxx@school.edu"} readOnly />
+
+              <label>Phone Number</label>
+              <input type="text" value={profileData.phone_number || "+93123135"} readOnly />
             </form>
+            <button className="message-button" onClick={() => setShowMessageForm(true)}>
+              Message
+            </button>
           </div>
         )}
       </Modal.Body>
