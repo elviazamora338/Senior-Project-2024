@@ -32,34 +32,27 @@ const BookmarksPage = () => {
     };
 
       // Bookmark function
-    const handleBookmarkClick =  async (e, id) => {
-        e.stopPropagation(); 
-    // To add bookmark to database
+ const handleBookmarkClick = async (e, id) => {
+    e.stopPropagation(); 
     console.log("Toggling bookmark for Device ID:", id);
-        try {
-            const response = await axios.post('http://localhost:5001/bookmarked', {
-                newid: id,
-                userid: user.user_id
-            });
-            if(response.data.success) {
-                console.log("bookmarked successful");
-                // Update the bookmarkedItems state
-               // Optimistically update the UI
-                setBookmarkedItems((prev) => ({
-                    ...prev,
-                    [id]: !prev[id], // Toggle the bookmarked state locally
-                }));
-            }
-            else {
-                console.error("Failed to toggle bookmark");
-            }          
-
-        } catch (e) {
-            if (e.response && e.response.status === 400) {
-                console.log(e.response.data.error); // Display duplicate user error
-            }
+    try {
+        const response = await axios.post('http://localhost:5001/bookmarked', {
+            newid: id,
+            userid: user.user_id
+        });
+        if (response.data.success) {
+            console.log("Bookmark toggled successfully on the server.");
+            setBookmarkedItems((prev) => ({
+                ...prev,
+                [id]: !prev[id], // Toggle the bookmarked state
+            }));
+        } else {
+            console.error("Failed to toggle bookmark on the server.");
         }
-    };
+    } catch (e) {
+        console.error("Error toggling bookmark:", e);
+    }
+};
 
     useEffect(() => {
         const fetchData = async() => {
