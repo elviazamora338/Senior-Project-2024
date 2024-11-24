@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import './LoginAuth_Screen.css'; 
 import axios from 'axios'; 
 import { useLocation, useNavigate } from "react-router-dom";
+import { useUser } from '../../UserContext';
 
 const LoginAuth_Screen = () => {
     const [otp, setOtp] = useState(''); 
@@ -10,6 +11,7 @@ const LoginAuth_Screen = () => {
     const navigate = useNavigate(); 
     const location = useLocation(); 
     const email = location.state?.email; 
+    const { setUser } = useUser(); // Access setUser from UserContext
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -20,14 +22,24 @@ const LoginAuth_Screen = () => {
             if (response.data.message === 'OTP verified successfully') {
                 setSuccess('OTP verified! You are logged in.');
 
-                setTimeout(() => {
-                    navigate('/home');
-                }, 1000);
+                // Fetch user data from the backend
+                const userResponse = await axios.post('http://localhost:5001/user', { email });
+
+                if (userResponse.data.user) {
+                    // Set the user context with the retrieved data
+                    setUser(userResponse.data.user);
+
+                    // Redirect to the home page
+                    setTimeout(() => {
+                        navigate('/home');
+                    }, 1000);
+                }
             }
         } catch (error) {
             setError('Invalid OTP or OTP expired');
         }
-    }; 
+    };
+
 
     return (
         <div className="container-fluid h-100">
