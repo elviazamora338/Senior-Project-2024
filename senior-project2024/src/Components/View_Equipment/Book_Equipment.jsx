@@ -37,7 +37,7 @@ const getMonthRangeDates = (startMonth, endMonth, year) => {
 };
   
   
-function Availability({ index, onDateChange }) {
+function Availability({ index, removeSection, onDateChange }) {
     const [period, setPeriod] = useState('Week'); // Default to Week
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
@@ -76,20 +76,73 @@ function Availability({ index, onDateChange }) {
         const updatedTimes = { ...timeSelection, [timeSlot]: !timeSelection[timeSlot] };
         setTimeSelection(updatedTimes);
     
-        // Update unavailable dates for each selected/unselected slot immediately
-        onDateChange(index, {
-            dates:  period == 'Day'? [selectedDay] :
-                    period == 'Week' ? getDatesInRange(startDate, endDate) :
-                   getMonthRangeDates(startMonth, endMonth, new Date().getFullYear()),
-            allSelected: isAllSelected(updatedTimes),
-            times: selectedTimes(updatedTimes)
-        });
+        // Calculate unavailable dates and propagate changes
+        const dates =
+            period === 'Day'
+                ? [selectedDay]
+                : period === 'Week'
+                ? getDatesInRange(startDate, endDate)
+                : getMonthRangeDates(startMonth, endMonth, new Date().getFullYear());
+    
+        const dateUpdates = dates.reduce((acc, date) => {
+            acc[date] = {
+                allSelected: isAllSelected(updatedTimes),
+                times: selectedTimes(updatedTimes),
+            };
+            return acc;
+        }, {});
+    
+        onDateChange(index, dateUpdates);
     };
+    
+    
+//     // this is for week
+//     const handleStartDateChange = (e) => {
+//         setStartDate(e.target.value);
+//         if (period === 'Week' && endDate) {
+//             onDateChange(index, { dates: getDatesInRange(e.target.value, endDate), allSelected: isAllSelected(), times: selectedTimes() });
+//         }
+//     };
+
+// //    this is for the week change
+//     const handleEndDateChange = (e) => {
+//         setEndDate(e.target.value);
+//         if (period === 'Week' && startDate) {
+//             onDateChange(index, { dates: getDatesInRange(startDate, e.target.value), allSelected: isAllSelected(), times: selectedTimes() });
+//         }
+//     };
 
     // Day-specific handler
     const handleDayChange = (e) => {
         setSelectedDay(e.target.value);
         onDateChange(index, { dates: [e.target.value], allSelected: isAllSelected(), times: selectedTimes() });
+    };
+    
+    // // Month-specific handlers for start and end months
+    // const handleStartMonthChange = (e) => {
+    //     const monthIndex = months.indexOf(e.target.value);
+    //     setStartMonth(monthIndex);
+    //     if (monthIndex !== '' && endMonth !== '') {
+    //         const dates = getMonthRangeDates(monthIndex, endMonth, new Date().getFullYear());
+    //         onDateChange(index, {
+    //             dates,
+    //             allSelected: isAllSelected(),
+    //             times: selectedTimes()
+    //         });
+    //     }
+    // };
+    
+    const handleEndMonthChange = (e) => {
+        const monthIndex = months.indexOf(e.target.value);
+        setEndMonth(monthIndex);
+        if (startMonth !== '' && monthIndex !== '' && startMonth <= monthIndex) {
+            const dates = getMonthRangeDates(startMonth, monthIndex, new Date().getFullYear());
+            onDateChange(index, {
+                dates,
+                allSelected: isAllSelected(),
+                times: selectedTimes()
+            });
+        }
     };
 
   return (
@@ -125,6 +178,16 @@ function Availability({ index, onDateChange }) {
                     </div>
                 </div>
                  ))}
+                {/* <div class = "col-6  p-2" style={{ width: 'fit-content' }}>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="checkbox" value="8am-10am"></input>
+                        <label class="form-check-label" style={{ fontSize: '12.5px' }}>12PM-2PM</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="checkbox" value="8am-10am"></input>
+                        <label class="form-check-label" style={{ fontSize: '12.5px' }}>2PM-4PM</label>
+                    </div>f
+                </div> */}
             </div>
             
         </td>
@@ -143,6 +206,7 @@ function GenerateCalender({ unavailableDates }) {
     const [selectedYear, setSelectedYear] = useState(currentYear);
 
     const daysInMonth = (month, year) => new Date(year, month + 1, 0).getDate();
+    
     const showCalendar = (month, year) => {
         const firstDay = new Date(year, month, 1).getDay();
         const daysCount = daysInMonth(month, year);
@@ -159,16 +223,20 @@ function GenerateCalender({ unavailableDates }) {
                 } else {
                     const formattedDate = `${year}-${String(month + 1).padStart(2, '0')}-${String(date).padStart(2, '0')}`;
                     const dateInfo = unavailableDates[formattedDate];
+
+                    // Determine the background color based on time slots
                     const backgroundColor = dateInfo
-                    ? dateInfo.allSelected
-                        ? 'red'
-                        : dateInfo.times && dateInfo.times.length > 0
-                            ? 'orange' // Apply orange when some time slots are selected
-                            : 'white'
-                    : '';
-                
+                        ? dateInfo.allSelected
+                            ? 'red'  // Completely unavailable
+                            : dateInfo.times && dateInfo.times.length > 0
+                                ? 'orange'  // Partially available (some time slots are selected)
+                                : 'white'  // Available (no time slots selected)
+                        : 'white';  // Default to white if no data
+
                     week.push(
-                        <td key={j} style={{ backgroundColor }}>{date}</td>
+                        <td key={j} style={{ backgroundColor }}>
+                            {date}
+                        </td>
                     );
                     date++;
                 }
@@ -194,8 +262,8 @@ function GenerateCalender({ unavailableDates }) {
         } else {
             setCurrentMonth(currentMonth - 1);
         }
-        
     };
+
     const handleMonthChange = (e) => {
         const monthIndex = months.indexOf(e.target.value);
         setSelectedMonth(monthIndex);
@@ -215,25 +283,21 @@ function GenerateCalender({ unavailableDates }) {
     return (
         <div>
             <div className="row justify-content-between align-items-center">
-                {/* Month Title aligned to the left */}
                 <h3 className="mb-0">{months[currentMonth]} {currentYear}</h3>
-                
-                {/* Navigation Arrows aligned to the right and side-by-side */}
                 <div className="d-flex justify-content-end">
                     <button
-                    className="btn btn-warning bi bi-chevron-left me-2"
-                    onClick={previousMonth}
-                    aria-label="Previous Month"
+                        className="btn btn-warning bi bi-chevron-left me-2"
+                        onClick={previousMonth}
+                        aria-label="Previous Month"
                     ></button>
                     <button
-                    className="btn btn-warning bi bi-chevron-right"
-                    onClick={nextMonth}
-                    aria-label="Next Month"
+                        className="btn btn-warning bi bi-chevron-right"
+                        onClick={nextMonth}
+                        aria-label="Next Month"
                     ></button>
                 </div>
             </div>
-            
-     
+
             <table className="table table-bordered text-center mt-3">
                 <thead>
                     <tr>
@@ -246,6 +310,7 @@ function GenerateCalender({ unavailableDates }) {
                     {showCalendar(currentMonth, currentYear)}
                 </tbody>
             </table>
+
             <div className="d-flex justify-content-center mb-3">
                 <select value={months[selectedMonth]} onChange={handleMonthChange} className="form-select me-2" style={{ width: '150px' }}>
                     <option value="">Select Month</option>
@@ -260,49 +325,51 @@ function GenerateCalender({ unavailableDates }) {
                     ))}
                 </select>
             </div>
-            <div class='my-legend'>
-                <div class='legend-title'>Availability Legend</div>
-                    <div class='legend-scale'>
-                        <ul class='legend-labels text-start'>
-                            <li><span style ={{ backgroundColor: 'red'}}></span>Unavailable</li>
-                            <li><span style={{ backgroundColor: 'orange'}} ></span>Partially available</li>
-                            <li><span style={{ backgroundColor: 'white'}} ></span>Available</li>
-                            
-                            {/* <li><span style='background:#FFFFB3;'></span>Two</li> */}
-                        </ul>
+
+            <div className="my-legend">
+                <div className="legend-title">Availability Legend</div>
+                <div className="legend-scale">
+                    <ul className="legend-labels text-start">
+                        <li><span style={{ backgroundColor: 'red' }}></span>Unavailable</li>
+                        <li><span style={{ backgroundColor: 'orange' }} ></span>Partially available</li>
+                        <li><span style={{ backgroundColor: 'white' }} ></span>Available</li>
+                    </ul>
                 </div>
             </div>
         </div>
     );
-};
+}
+
 
 
 
 function Book_Equipment() {
-    const [availabilityList, setAvailabilityList] = useState([]);
     const [unavailableDates, setUnavailableDates] = useState({});
 
-    // const handleAddSection = () => setAvailabilityList([...availabilityList, { key: availabilityList.length }]);
-
     const updateUnavailableDates = (index, dates) => {
+        console.log("Index1:", ([index]))
         setUnavailableDates(prev => ({ ...prev, [index]: dates }));
+        console.log("Index2:", dates)
     };
+    
 
     const flattenedUnavailableDates = Object.values(unavailableDates).reduce((acc, dateInfo) => {
         const dates = dateInfo.dates || []; // Default to an empty array if dates is undefined
         dates.forEach(date => {
             acc[date] = { allSelected: dateInfo.allSelected, times: dateInfo.times };
+            console.log(acc[date]);
         });
         return acc;
     }, {});
+    
 
     return (
         <div className="container">
             <div className='row'>
-                <div className = "col-7 text-start mt-4">
+                <div className = "col-7 text-start">
                 <h2>Book Equipment</h2>
                 <p className="text-danger" style={{ fontSize: '18px' }}>
-                        *You can select only one day and book in two-hour incremements
+                        *Select a day and a 2-hour increment time slot to book the selected device
                 </p>
                 </div>
             </div>
@@ -313,13 +380,15 @@ function Book_Equipment() {
                             <tr>
                                 <th>Period</th>
                                 <th>Date(s)</th>
-                                <th>Time(s) Available</th>
+                                <th>Time(s) Unavailable</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <Availability
-                                onDateChange={updateUnavailableDates}
-                            />
+                        <Availability
+                            key={0}
+                            index={0}
+                            onDateChange={updateUnavailableDates}
+                        />
                         </tbody>
                     </table>
                 </div>
