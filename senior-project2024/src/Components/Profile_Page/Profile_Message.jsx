@@ -44,13 +44,13 @@ const Profile_Message = ({ show, onHide, personInChargeName, equipmentName }) =>
 
   const handleSendMessage = async () => {
     const payload = {
-      sender_email: user.email,
+      sender_email: user.user_email,
       recipient_email: profileData.user_email,
       message_content: message,
       equipment_name: equipmentName,
     };
 
-    console.log("Payload:", payload); // Debugging log
+    console.log("Payload:", payload); 
 
     try {
       const response = await fetch("http://localhost:5001/save-and-send-message", {
@@ -92,17 +92,27 @@ const Profile_Message = ({ show, onHide, personInChargeName, equipmentName }) =>
           <div className="message-form">
             <div className="header">
               <button className="back-button" onClick={handleBackToProfile}>
-                ← 
+                ←
               </button>
             </div>
             <div className="message-content">
               <h2 className="profile-name center-text">Inquiry for: {equipmentName}</h2>
               <form>
                 <label>Sender Email</label>
-                <input type="text" value={user.email || ""} readOnly className="read-only-input" />
+                <input
+                  type="text"
+                  value={user.user_email || ""}
+                  readOnly
+                  className="read-only-input"
+                />
 
                 <label>Recipient Email</label>
-                <input type="text" value={profileData.user_email || ""} readOnly className="read-only-input" />
+                <input
+                  type="text"
+                  value={profileData.user_email || ""}
+                  readOnly
+                  className="read-only-input"
+                />
 
                 <label>Message</label>
                 <textarea

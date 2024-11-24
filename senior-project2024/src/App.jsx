@@ -13,7 +13,7 @@ import ReportsPage from './Components/MyEquip_Page/Reports_Page.jsx';
 import AddPage from './Components/Add_Page/Add_Screen.jsx';
 import HistoryPage from './Components/Home_Page/History.jsx';
 import BookmarksPage from './Components/Home_Page/Bookmarks.jsx';
-import { UserProvider } from './UserContext';
+import { UserProvider } from './UserContext.js';
 import './App.css';
 
 import { Navigate } from 'react-router-dom'; // Import Navigate for redirection

@@ -4,20 +4,23 @@ import { useUser } from '../../UserContext'; // Import UserContext
 import axios from 'axios';
 
 const Profile = () => {
-    const { user, setUser } = useUser(); // Access user data from context
+    const { user, setUser } = useUser(); 
+
+    // Local state for profile fields
     const [profileImage, setProfileImage] = useState(null);
     const [phone, setPhone] = useState('');
     const [name, setName] = useState('');
 
-    // Fetch user data from context when the component loads
+    // Initialize profile fields from user context
     useEffect(() => {
-        if (user) {
-            setName(user.name || ''); // Initialize name field from user context
-            setPhone(user.phone || ''); // Initialize phone field from user context
+        if (user && user.user_id) {
+            console.log('Initializing Profile with Context Data:', user);
+            setName(user.user_name || ''); // Map user_name to name field
+            setPhone(user.phone || user.phone_number || ''); // Handle phone_number mapping
         }
     }, [user]);
 
-    // Handle file selection
+    // Handle file selection for profile image
     const handleImageChange = (event) => {
         const file = event.target.files[0];
         if (file) {
@@ -26,37 +29,37 @@ const Profile = () => {
         }
     };
 
-    // Trigger file input click
+    // Trigger file input click for profile image upload
     const handleUploadClick = () => {
         document.getElementById('fileInput').click();
     };
 
-    // Handle phone number input, allowing only numbers
+    // Restrict phone input to numbers only
     const handlePhoneChange = (event) => {
-        const value = event.target.value.replace(/\D/g, ''); // Remove any non-numeric characters
+        const value = event.target.value.replace(/\D/g, ''); // Remove non-numeric characters
         setPhone(value);
     };
 
-
-    // Handle form submission to update user data
+    // Handle form submission to update user profile
     const handleSubmit = async (event) => {
         event.preventDefault();
 
         try {
             const response = await axios.put(`http://localhost:5001/user`, {
-                user_email: user.email,
+                user_email: user.user_email, // Use user_email from context
                 user_name: name, // Send updated name
                 phone_number: phone, // Send updated phone number
             });
 
             if (response.data.message) {
                 alert('Profile updated successfully!');
-                // Update context with new data
-                setUser({
-                    ...user,
-                    name: name,
-                    phone: phone,
-                });
+
+                // Re-fetch updated user data to ensure consistency
+                const updatedUserResponse = await axios.post('http://localhost:5001/user', { email: user.user_email });
+
+                if (updatedUserResponse.data.user) {
+                    setUser(updatedUserResponse.data.user); // Update context with backend response
+                }
             }
         } catch (error) {
             console.error('Error updating profile:', error);
@@ -93,8 +96,8 @@ const Profile = () => {
                 <input
                     type="text"
                     id="Name"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)} // Allow editing the name
+                    value={name} // Dynamically linked to state
+                    onChange={(e) => setName(e.target.value)} // Allow editing
                     placeholder="Name"
                     required
                 />
@@ -104,7 +107,7 @@ const Profile = () => {
                 <input
                     type="text"
                     id="role"
-                    value={user.role_id === 1 ? 'Faculty' : 'Student'} // Display role based on role_id
+                    value={user.role_id === 1 ? 'Faculty' : 'Student'} 
                     readOnly
                 />
 
@@ -113,7 +116,7 @@ const Profile = () => {
                 <input
                     type="email"
                     id="email"
-                    value={user.email} // Display email from context
+                    value={user.user_email || ''}
                     readOnly
                 />
 
@@ -125,7 +128,7 @@ const Profile = () => {
                     value={phone}
                     onChange={handlePhoneChange}
                     placeholder="Enter your phone number"
-                    inputMode="numeric" 
+                    inputMode="numeric"
                     pattern="\d*" // Restrict input to numbers
                     required
                 />
