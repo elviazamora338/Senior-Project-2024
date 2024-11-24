@@ -4,13 +4,14 @@ const cors = require('cors');
 const path = require('path');
 const crypto = require('crypto');
 const nodemailer = require('nodemailer');
+const bodyParser = require('body-parser')
 require('dotenv').config();
 const app = express();
 const PORT = process.env.PORT || 5001;
 app.use(cors());
 app.use(express.json());
 app.use('/static', express.static(path.join(__dirname, 'static')));
-
+app.use(bodyParser.json()); 
 // Verify environment variables
 if (!process.env.EMAIL_USER || !process.env.EMAIL_PASSWORD) {
     console.error("Error: EMAIL_USER and EMAIL_PASSWORD environment variables are required.");
@@ -115,7 +116,7 @@ app.post('/verify-otp', async (req, res) => {
 // app.get('/test-email', (req, res) => {
 //     const mailOptions = {
 //         from: process.env.EMAIL_USER,
-//         to: 'amadozuniga3@yahoo.com',
+//         to: '********@yahoo.com',
 //         subject: 'Test Email',
 //         text: 'This is a test email.'
 //     };
@@ -130,7 +131,31 @@ app.post('/verify-otp', async (req, res) => {
 //     });
 // });
 
+// Endpoint to add a new lab device
+app.post('/add-device', (req, res) => {
+    const {
+        campus, department, building, room_number, person_in_charge,
+        device_name, description, application, manual_link,
+        category, model, brand, keywords, available
+    } = req.body;
 
+    const query = `INSERT INTO lab_devices (
+    campus, department, building, room_number, person_in_charge, device_name, 
+    description, application, manual_link, category, model, brand, keywords, available)
+    VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)`;
+
+    db.run(query, [
+        campus, department, building, room_number, person_in_charge, device_name, description, application,
+        manual_link, category, model, brand, keywords, available
+    ], function (err) {
+        if (err) {
+            console.error(err.message);
+            res.status(500).json({ error: "Failed to add the lab device." });
+        } else {
+            res.status(200).json({ message: "Lab device was added successfully!", id: this.lastID })
+        }
+    });
+});
 // Endpoint to add a new user in signup page
 app.post('/add-user', (req, res) => {
     const { name, email, campus_id, school_id, role_id } = req.body;

@@ -82,5 +82,13 @@ h5, .page-header {
     overflow-x: auto; /* Ensures that content is scrollable if it overflows */
 }
 
+.is-invalid {
+    border: 2px solid red;
+    background-color: #ffe6e6;
+}
 
+.invalid-feedback{
+    color: red;
+    font-size: 1em;
+}
 
