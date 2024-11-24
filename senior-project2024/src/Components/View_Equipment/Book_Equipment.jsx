@@ -275,7 +275,7 @@ function Book_Equipment() {
                 <div className = "col-7 text-start">
                 <h2>Book Equipment</h2>
                 <p className="text-danger" style={{ fontSize: '18px' }}>
-                        *Select a day and a 2-hour increment time slot to book the selected device
+                        *Select a day and a 2-hour increment time slot to book the selected device. Complete the request by adding your reason for booking.
                 </p>
                 </div>
             </div>
@@ -297,6 +297,8 @@ function Book_Equipment() {
                         />
                         </tbody>
                     </table>
+                    <h5>Reason for booking</h5>
+                    <textarea id="booking" name="booking" className="form-control resize-text" rows="4"></textarea>
                 </div>
                 <div className="col-md-5">
                     <GenerateCalender unavailableDates={flattenedUnavailableDates} />

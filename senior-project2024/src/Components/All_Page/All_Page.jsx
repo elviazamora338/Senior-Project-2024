@@ -286,7 +286,7 @@ const All_Page = () => {
                     <i className="bi bi-arrow-left"></i>
                 </Button>
                     <Button variant="primary" onClick={handleCalendarClose}>
-                        Submit Booking
+                        Submit Request
                     </Button>
                 </Modal.Footer>
             </Modal>
