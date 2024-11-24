@@ -38,7 +38,7 @@ const getMonthRangeDates = (startMonth, endMonth, year) => {
   
   
 function Availability({ index, removeSection, onDateChange }) {
-    const [period, setPeriod] = useState('Week'); // Default to Week
+    const [period, setPeriod] = useState('Day'); // Default to Day
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
     const [selectedDay, setSelectedDay] = useState('');
@@ -51,23 +51,6 @@ function Availability({ index, removeSection, onDateChange }) {
         "2pm-4pm": false
     });
     
-  
-    const handlePeriodChange = (e) => {
-        setPeriod(e.target.value);
-        // Reset fields when period changes
-        setStartDate('');
-        setEndDate('');
-        setSelectedDay('');
-        setStartMonth('');
-        setEndMonth('');
-         setTimeSelection({
-        "8am-10am": false,
-        "10am-12pm": false,
-        "12pm-2pm": false,
-        "2pm-4pm": false
-    });
-        onDateChange(index, []);
-    };
     const isAllSelected = (times = timeSelection) => Object.values(times).every(selected => selected);
     const selectedTimes = (times = timeSelection) => Object.keys(times).filter(time => times[time]);
 
@@ -77,22 +60,11 @@ function Availability({ index, removeSection, onDateChange }) {
         setTimeSelection(updatedTimes);
     
         // Calculate unavailable dates and propagate changes
-        const dates =
-            period === 'Day'
-                ? [selectedDay]
-                : period === 'Week'
-                ? getDatesInRange(startDate, endDate)
-                : getMonthRangeDates(startMonth, endMonth, new Date().getFullYear());
-    
-        const dateUpdates = dates.reduce((acc, date) => {
-            acc[date] = {
-                allSelected: isAllSelected(updatedTimes),
-                times: selectedTimes(updatedTimes),
-            };
-            return acc;
-        }, {});
-    
-        onDateChange(index, dateUpdates);
+        onDateChange(index, {
+            dates: [selectedDay],
+            allSelected: isAllSelected(updatedTimes),
+            times: selectedTimes(updatedTimes)
+        });
     };
     
     
@@ -380,7 +352,7 @@ function Book_Equipment() {
                             <tr>
                                 <th>Period</th>
                                 <th>Date(s)</th>
-                                <th>Time(s) Unavailable</th>
+                                <th>Time(s) Available</th>
                             </tr>
                         </thead>
                         <tbody>
