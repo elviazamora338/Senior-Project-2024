@@ -12,18 +12,6 @@ let months = [
   const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
   // Helper functions
-const getDatesInRange = (startDate, endDate) => {
-    const dates = [];
-    let currentDate = new Date(startDate);
-    const finalDate = new Date(endDate);
-    
-    while (currentDate <= finalDate) {
-        dates.push(currentDate.toISOString().split('T')[0]);
-        currentDate.setDate(currentDate.getDate() + 1);
-    }
-    return dates;
-};
-
 const getMonthRangeDates = (startMonth, endMonth, year) => {
     const dates = [];
     for (let month = startMonth; month <= endMonth; month++) {
@@ -66,55 +54,11 @@ function Availability({ index, removeSection, onDateChange }) {
             times: selectedTimes(updatedTimes)
         });
     };
-    
-    
-//     // this is for week
-//     const handleStartDateChange = (e) => {
-//         setStartDate(e.target.value);
-//         if (period === 'Week' && endDate) {
-//             onDateChange(index, { dates: getDatesInRange(e.target.value, endDate), allSelected: isAllSelected(), times: selectedTimes() });
-//         }
-//     };
-
-// //    this is for the week change
-//     const handleEndDateChange = (e) => {
-//         setEndDate(e.target.value);
-//         if (period === 'Week' && startDate) {
-//             onDateChange(index, { dates: getDatesInRange(startDate, e.target.value), allSelected: isAllSelected(), times: selectedTimes() });
-//         }
-//     };
 
     // Day-specific handler
     const handleDayChange = (e) => {
         setSelectedDay(e.target.value);
         onDateChange(index, { dates: [e.target.value], allSelected: isAllSelected(), times: selectedTimes() });
-    };
-    
-    // // Month-specific handlers for start and end months
-    // const handleStartMonthChange = (e) => {
-    //     const monthIndex = months.indexOf(e.target.value);
-    //     setStartMonth(monthIndex);
-    //     if (monthIndex !== '' && endMonth !== '') {
-    //         const dates = getMonthRangeDates(monthIndex, endMonth, new Date().getFullYear());
-    //         onDateChange(index, {
-    //             dates,
-    //             allSelected: isAllSelected(),
-    //             times: selectedTimes()
-    //         });
-    //     }
-    // };
-    
-    const handleEndMonthChange = (e) => {
-        const monthIndex = months.indexOf(e.target.value);
-        setEndMonth(monthIndex);
-        if (startMonth !== '' && monthIndex !== '' && startMonth <= monthIndex) {
-            const dates = getMonthRangeDates(startMonth, monthIndex, new Date().getFullYear());
-            onDateChange(index, {
-                dates,
-                allSelected: isAllSelected(),
-                times: selectedTimes()
-            });
-        }
     };
 
   return (
@@ -150,16 +94,6 @@ function Availability({ index, removeSection, onDateChange }) {
                     </div>
                 </div>
                  ))}
-                {/* <div class = "col-6  p-2" style={{ width: 'fit-content' }}>
-                    <div class="form-check form-check-inline">
-                        <input class="form-check-input" type="checkbox" value="8am-10am"></input>
-                        <label class="form-check-label" style={{ fontSize: '12.5px' }}>12PM-2PM</label>
-                    </div>
-                    <div class="form-check form-check-inline">
-                        <input class="form-check-input" type="checkbox" value="8am-10am"></input>
-                        <label class="form-check-label" style={{ fontSize: '12.5px' }}>2PM-4PM</label>
-                    </div>f
-                </div> */}
             </div>
             
         </td>
@@ -368,8 +302,6 @@ function Book_Equipment() {
                     <GenerateCalender unavailableDates={flattenedUnavailableDates} />
                 </div>
             </div>
-
-            
             </div>
     );
 }
