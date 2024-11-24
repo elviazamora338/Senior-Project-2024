@@ -65,3 +65,14 @@
     margin: 0;
     padding: 0;
 }
+
+.sidebar-logo {
+    text-align: center;
+    margin: 20px 0;
+}
+
+.logo {
+    width: 80%;
+    max-width: 150px;
+    height: auto;
+}
