@@ -50,6 +50,7 @@ const All_Page = () => {
                     ...prev,
                     [id]: response.data.newToggle === 1, // Reflect the new toggle state
                 }));
+                // window.location.reload();
             }
             else {
                 console.error("Failed to toggle bookmark");
