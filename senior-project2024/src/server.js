@@ -396,7 +396,7 @@ app.post('/bookmarked', (req, res) => {
                     }
 
                 console.log(`Bookmark saved for Device ID: ${newid} by User ID: ${userid}`);
-                res.status(200).json({ success: true, message: 'Bookmark saved successfully.', bookmarkId: this.lastID });
+                res.status(200).json({ success: true, message: 'Bookmark saved successfully.', bookmarkId: this.lastID, newToggle: 1 });
                 });
             }
         });

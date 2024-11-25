@@ -44,7 +44,7 @@ const BookmarksPage = () => {
             console.log("Bookmark toggled successfully on the server.");
             setBookmarkedItems((prev) => ({
                 ...prev,
-                [id]: !prev[id], // Toggle the bookmarked state
+                [id]: response.data.newToggle === 1, // Reflect the new toggle state
             }));
         } else {
             console.error("Failed to toggle bookmark on the server.");
