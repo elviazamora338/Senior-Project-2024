@@ -25,7 +25,7 @@ const getMonthRangeDates = (startMonth, endMonth, year) => {
 };
   
   
-function Availability({ index, removeSection, onDateChange }) {
+const Availability = ({ index, onDateChange }) => {
     const [period, setPeriod] = useState('Day'); // Default to Day
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
@@ -249,16 +249,29 @@ function GenerateCalender({ unavailableDates }) {
 
 
 
-function Book_Equipment() {
+const Book_Equipment = ( { device, handleBookingDetails, onSubmit } ) => {
     const [unavailableDates, setUnavailableDates] = useState({});
+    const [selectedDate, setSelectedDate] = useState('');
+    const [selectedTimes, setSelectedTimes] = useState('');
+    const [reason, setReason] = useState('');
+
+    // Handler to submit booking information and send it to All_Page
+    const handleSubmit = () => {
+        onSubmit({
+            selectedDate,
+            selectedTimes,
+            reason
+        });
+    };
 
     const updateUnavailableDates = (index, dates) => {
-        console.log("Index1:", ([index]))
+        if (process.env.NODE_ENV === 'development') {
+            console.log("Times:", dates);
+        }
         setUnavailableDates(prev => ({ ...prev, [index]: dates }));
-        console.log("Index2:", dates)
     };
-    
 
+    // Help ensure the calendar knows which dates are unavailable
     const flattenedUnavailableDates = Object.values(unavailableDates).reduce((acc, dateInfo) => {
         const dates = dateInfo.dates || []; // Default to an empty array if dates is undefined
         dates.forEach(date => {
@@ -267,7 +280,6 @@ function Book_Equipment() {
         });
         return acc;
     }, {});
-    
 
     return (
         <div className="container">
@@ -298,13 +310,21 @@ function Book_Equipment() {
                         </tbody>
                     </table>
                     <h5>Reason for booking</h5>
-                    <textarea id="booking" name="booking" className="form-control resize-text" rows="4"></textarea>
+                    <textarea
+                        id="booking"
+                        name="booking"
+                        className="form-control resize-text"
+                        rows="4"
+                        value={reason}
+                        onChange={(e) => setReason(e.target.value)}
+                    />
                 </div>
                 <div className="col-md-5">
                     <GenerateCalender unavailableDates={flattenedUnavailableDates} />
                 </div>
-            </div>
-            </div>
+        </div>
+        </div>
+        
     );
 }
 

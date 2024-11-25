@@ -425,6 +425,59 @@ app.get('/toggled', async (req, res) => {
     }
 });
 
+// Booking request submitted (WIP)
+app.post('/submitRequest', (req, res) => {
+    try{
+        // Step 1: Verify if the user exists in the `users` table
+       const checkQuery = `SELECT * FROM unavailable WHERE device_id = ? AND user_id = ?`;
+       db.get(checkQuery, [newid, userid], (err, schedule) => {
+           if (err) {
+               console.error('Error checking schedule:', err.message);
+               return res.status(500).json({ error: 'Failed to check schedule.' });
+           }
+             // If the schedule exists then save the information from the user's request and store it until 
+             // they hit confirm booking request
+           if (schedule) {
+               // Submit 
+               const newToggleValue = bookmark.toggle === 1 ? 0 : 1; 
+               const updateQuery = `UPDATE bookmarks SET toggle = ? WHERE device_id = ? AND user_id = ?`;
+               db.run(updateQuery, [newToggleValue, newid, userid], function (err) {
+                   if (err) {
+                       console.error('Error updating toggle value:', err.message);
+                       return res.status(500).json({ error: 'Failed to update toggle value.' });
+                   }
+
+                   res.status(200).json({
+                       success: true,
+                       message: 'Bookmark toggle updated successfully.',
+                       newToggle: newToggleValue,
+                   });
+               });
+           } 
+           else {
+               // If the bookmark doesn't exist, return a message (or optionally create one)
+               // Insert the bookmark into the `bookmarks` table
+               const toggle = 1;
+               console.log("bookmark not found, inserting bookmark")
+               const insertBookmarkQuery = `INSERT INTO bookmarks (device_id, user_id, toggle) VALUES (?, ?, ?)`;
+               db.run(insertBookmarkQuery, [newid, userid, toggle], function (err) {
+                   if (err) {
+                       console.error('Error inserting bookmark:', err.message);
+                       return res.status(500).json({ error: 'Failed to save bookmark.' });
+                   }
+
+               console.log(`Bookmark saved for Device ID: ${newid} by User ID: ${userid}`);
+               res.status(200).json({ success: true, message: 'Bookmark saved successfully.', bookmarkId: this.lastID });
+               });
+           }
+       });
+   }
+   catch (error) {
+        console.error("Error bookmarking:", error);
+        console.log("Failed to bookmark. Please try again.");
+   } 
+});
+
 
 
 // Close database connection on server close

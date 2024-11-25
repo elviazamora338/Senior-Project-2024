@@ -16,25 +16,94 @@ const All_Page = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [bookmarkedItems, setBookmarkedItems] = useState({});
+    const [requsetBooking, setRequestBooking] = useState({});
     const [searchTerm, setSearchTerm] = useState('');
     const [currentPage, setCurrentPage] = useState(1); // Current page
     const postsPerPage = 8; // Number of items per page
+    const [showConfirmationModal, setShowConfirmationModal] = useState(false);
+    // Get booking request
+    const [bookingDetails, setBookingDetails] = useState({
+        selectedDate: '',
+        selectedTimes: '',
+        reason: ''
+    });
+    // Centralizing Modal State
+    const [modalState, setModalState] = useState({
+        show: false,
+        type: '', // 'device' or 'calendar'
+        device: null,
+    });
+
+    // Handler to review booking details
+    const handleSubmitRequest = (details) => {
+        console.log('Submit Request clicked', details); // Debugging
+        setBookingDetails(details);  // Update the booking details with the passed details
+        setShowConfirmationModal(true); // Open the confirmation modal
+    };
+    
+    const handleConfirmBooking = async () => {
+        try {
+            // Send the booking request to the backend for confirmation
+            const response = await axios.post('http://localhost:5001/confirm-booking', bookingDetails);
+            if (response.data.success) {
+                console.log('Booking confirmed:', bookingDetails);
+                setShowConfirmationModal(false); // Close confirmation modal on success
+            } else {
+                console.error('Error confirming booking:', response.data.message);
+            }
+        } catch (error) {
+            console.error('Error finalizing booking:', error);
+        }
+    };
+
+    const handleBookingDetails = (details) => {
+        setBookingDetails(details);  // Update the booking details from Book_Equipment
+    };
+
+    useEffect(() => {
+        // Fetch devices and other data when component mounts
+    }, []);
+
+
+    const handleCloseConfirmationModal = () => {
+        setShowConfirmationModal(false);  // Close confirmation modal if user cancels
+    };
 
     // Modal state
     const [selectedDevice, setSelectedDevice] = useState(null);
     const [showDevice, setShowDevice] = useState(false);
     const [showCalendar, setShowCalendar] = useState(false);
- 
-    const handleShowDevice = (device) => {
-        console.log("Device to show:", device); // Debugging
-        setSelectedDevice(device);
-        setShowDevice(true);
+
+    // Open Modal Handler
+    const openModal = (type, device = null) => {
+        setModalState({ show: true, type, device });
     };
+
+    // Close Modal Handler
+    const closeModal = () => {
+        setModalState({ show: false, type: '', device: null });
+    };
+
+    // Handle showing device details
+    const handleShowDevice = (device) => {
+        openModal('device', device); // Show device details modal
+    };
+
+    // Handle showing calendar for booking
+    const handleCalendarShow = () => {
+        openModal('calendar', modalState.device); // Pass selected device to calendar modal
+    };
+
+    // const handleShowDevice = (device) => {
+    //     console.log("Device to show:", device); // Debugging
+    //     setSelectedDevice(device);
+    //     setShowDevice(true);
+    // };
 
     const handleCloseDevice = () => setShowDevice(false);
 
     const handleCalendarClose = () => setShowCalendar(false);
-    const handleCalendarShow = () => setShowCalendar(true);
+    // const handleCalendarShow = () => setShowCalendar(true);
 
     // Bookmark function
    const handleBookmarkClick =  async (e, id) => {
@@ -70,8 +139,6 @@ const All_Page = () => {
     const handleSearchChange = (e) => {
         setSearchTerm(e.target.value.toLowerCase());
     };
-
-    
 
     useEffect(() => {
         const fetchData = async () => {
@@ -232,64 +299,68 @@ const All_Page = () => {
 
             {/* Modal for Viewing Device Details */}
             <Modal
-                show={showDevice}
-                onHide={handleCloseDevice}
+                show={modalState.show}
+                onHide={closeModal}
                 centered
                 dialogClassName="custom-wide-modal"
-                size="xl" >
-                    
+                size="xl"
+            >
                 <Modal.Header closeButton>
-                    <Modal.Title>Equipment Information</Modal.Title>
+                    <Modal.Title>
+                        {modalState.type === 'device' ? 'Equipment Information' : 'Select Dates'}
+                    </Modal.Title>
                 </Modal.Header>
+
                 <Modal.Body>
-                    <ViewPage device={selectedDevice} />
+                    {modalState.type === 'device' && <ViewPage device={modalState.device} />}
+                    {modalState.type === 'calendar' && (
+                        <Book_Equipment device={modalState.device} onSubmit={handleSubmitRequest} />
+                    )}
                 </Modal.Body>
+
                 <Modal.Footer>
-                <Button 
-                    variant="secondary" 
-                    onClick={() => {
-                        handleCloseDevice();
-                        handleCalendarShow();
-                    }}
-                >
-                    <i className="bi bi-arrow-right"></i>
-                </Button>
+                    {modalState.type === 'device' && (
+                        <Button variant="secondary" onClick={handleCalendarShow}>
+                            <i className="bi bi-arrow-right"></i>
+                        </Button>
+                    )}
+                    {modalState.type === 'calendar' && (
+                        <>
+                            <Button variant="secondary" onClick={() => openModal('device', modalState.device)}>
+                                <i className="bi bi-arrow-left"></i>
+                            </Button>
+                            <Button variant="primary" onClick={handleSubmitRequest}>
+                                Submit Request
+                            </Button>
+                        </>
+                    )}
                 </Modal.Footer>
             </Modal>
 
-            {/* Calendar Modal */}
-            <Modal 
-                show={showCalendar} 
-                onHide={handleCalendarClose} 
-                centered dialogClassName="custom-wide-modal"  
-                size="xl" >
-
+            {/* Confirmation Modal */}
+            <Modal
+                show={showConfirmationModal}
+                onHide={handleCloseConfirmationModal}
+                centered
+                size="lg"
+            >
                 <Modal.Header closeButton>
-                    <Modal.Title>Select Dates</Modal.Title>
+                    <Modal.Title>Confirm Your Booking</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    {/* Render the Calendar Component */}
-                    <Book_Equipment />
+                    <p><strong>Dates:</strong> {bookingDetails.selectedDate || 'Not selected'}</p>
+                    <p><strong>Times:</strong> {bookingDetails.selectedTimes || 'Not selected'}</p>
+                    <p><strong>Reason for Booking:</strong> {bookingDetails.reason || 'Not provided'}</p>
                 </Modal.Body>
                 <Modal.Footer>
-                <Button 
-                    variant="secondary" 
-                    onClick={() => {
-                        handleCalendarClose(); // Close Calendar modal
-                        if (selectedDevice) {
-                            setShowDevice(true); // Reopen Equipment Information modal
-                        } else {
-                            console.error("No device selected to navigate back.");
-                        }
-                    }}
-                >
-                    <i className="bi bi-arrow-left"></i>
-                </Button>
-                    <Button variant="primary" onClick={handleCalendarClose}>
-                        Submit Request
-                    </Button>
+                    <Button variant="secondary" onClick={handleCloseConfirmationModal}>Cancel</Button>
+                    <Button variant="primary" onClick={handleConfirmBooking}>Confirm Booking</Button>
                 </Modal.Footer>
             </Modal>
+
+
+
+                
         </div>
     </>
     );  
