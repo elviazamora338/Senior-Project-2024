@@ -1,81 +1,182 @@
-// Import React and necessary hooks
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import './Requests_Page.css'
+import './Requests_Page.css';
+import { Modal, Button } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import "bootstrap-icons/font/bootstrap-icons.css";
+import axios from 'axios'; // For making API calls
+import { useUser } from '../../UserContext';
 
 const RequestsPage = () => {
+    const { user } = useUser(); 
+    const [requests, setRequests] = useState([]); // State to hold requests
+    const [showBookingRequestModal, setShowBookingRequestModal] = useState(false);
+    const [selectedRequest, setSelectedRequest] = useState(null); // State for selected request
+
+    // Fetch booking requests for the logged-in owner
+    useEffect(() => {
+        const fetchRequests = async () => {
+            try {
+                const response = await axios.get(`http://localhost:5001/requests?owner_id=${user.user_id}`);
+                setRequests(response.data); // Assume API returns an array of requests
+            } catch (error) {
+                console.error('Error fetching requests:', error.message);
+            }
+        };
+        fetchRequests();
+    }, [user.user_id]);
+
+    // Handle booking confirmation by the owner
+    const handleOwnerResponse = async (requestId, action) => {
+        try {
+            const status = action === 'approve' ? 'approved' : 'rejected';
+            await axios.patch(`http://localhost:5001/requests/${requestId}`, { status });
+
+            setRequests((prevRequests) =>
+                prevRequests.map((request) =>
+                    request.request_id === requestId ? { ...request, status } : request
+                )
+            );
+        } catch (error) {
+            console.error('Error updating request status:', error.message);
+        }
+    };
+
+    const handleShowBookingRequestModal = (request) => {
+        setSelectedRequest(request);
+        setShowBookingRequestModal(true);
+    };
+
+    const handleCloseBookingRequestModal = () => {
+        setShowBookingRequestModal(false);
+        setSelectedRequest(null);
+    };
+
     return (
         <>
-
-                {/* Requests and Inventory Buttons */}
-                <div className="col text-center">
-                    <div className="btn-group">
-                        <Link to="/requests">
-                            <button type="button" className="bi bi-clock btn btn-secondary text-dark btn buttons-right"> Requests</button>
-                        </Link>
-                        <Link to="/reports">
-                            <button type="button" className="bi bi-box btn text-dark btn btn-outline-dark middle-button"> Reports</button>
-                        </Link>
-                        <Link to="/inventory">
-                            <button type="button" className="bi bi-clipboard-fill btn btn-outline-dark text-dark border-secondary buttons-left"> Inventory</button>
-                        </Link>
-                    </div>
+            {/* Requests and Inventory Buttons */}
+            <div className="col text-center">
+                <div className="btn-group">
+                    <Link to="/requests">
+                        <button type="button" className="bi bi-clock btn btn-secondary text-dark btn buttons-right"> Requests</button>
+                    </Link>
+                    <Link to="/reports">
+                        <button type="button" className="bi bi-box btn text-dark btn btn-outline-dark middle-button"> Reports</button>
+                    </Link>
+                    <Link to="/inventory">
+                        <button type="button" className="bi bi-clipboard-fill btn btn-outline-dark text-dark border-secondary buttons-left"> Inventory</button>
+                    </Link>
                 </div>
+            </div>
 
-                {/* Table begins here */}
-                <div className="container">
-                    <div className="row" >
-                        <div className="col">
-                            <div className="requests">
-                                <table className="table">
-                                    <thead>
+            {/* Requests Table */}
+            <div className="container">
+                <div className="row">
+                    <div className="col">
+                        <div className="requests">
+                            <table className="table">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Email</th>
+                                        <th>Device/Equipment</th>
+                                        <th>Status</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {requests.length > 0 ? (
+                                        requests.map((request) => (
+                                            <tr key={request.request_id}>
+                                                <td>{request.student_name}</td>
+                                                <td>{request.student_email}</td>
+                                                <td>{request.device_name}</td>
+                                                <td>{request.status}</td>
+                                                <td>
+                                                    <div>
+                                                        {request.status === 'pending' && (
+                                                            <>
+                                                                <button
+                                                                    type="button"
+                                                                    className="bi bi-check2 btn btn-success btn-sm me-2"
+                                                                    onClick={() => handleOwnerResponse(request.request_id, 'approve')}
+                                                                >
+                                                                </button>
+                                                                <button
+                                                                    type="button"
+                                                                    className="bi bi-x btn btn-danger btn-sm me-2"
+                                                                    onClick={() => handleOwnerResponse(request.request_id, 'reject')}
+                                                                >
+                                                                </button>
+                                                            </>
+                                                        )}
+                                                        <button 
+                                                            type="button" 
+                                                            className="btn btn-secondary btn-sm"
+                                                            onClick={() => handleShowBookingRequestModal(request)}
+                                                        >
+                                                            View
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        ))
+                                    ) : (
                                         <tr>
-                                            <th>Name</th>
-                                            <th>Email</th>
-                                            <th>Device/Equipment</th>
-                                            <th>Status</th>
-                                            <th>Action</th>
-                                            <th></th>
+                                            <td colSpan="6">No requests available</td>
                                         </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td>Jane Doe</td>
-                                            <td>jane.doe@utrgv.edu</td>
-                                            <td>Equipment Name</td>
-                                            <td>Approved</td>
-                                            <td>
-                                                <div>
-                                                <button type="button" className="btn btn-secondary btn-sm">View</button>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>John Doe</td>
-                                            <td>john.doe@utrgv.edu</td>
-                                            <td>Equipment Name</td>
-                                            <td>Pending Approval</td>
-                                            <td>
-                                                <div>
-                                                    <button type="button" className="bi bi-x btn btn-danger btn-sm me-2"></button>
-                                                    <button type="button" className="bi bi-check2 btn btn-success btn-sm me-2"></button>
-                                                    <button type="button" className="btn btn-secondary btn-sm">View</button>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                        {/* end of table */}
-                                        
-                                    </tbody>
-                                </table>
-                            </div>
+                                    )}
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
-                </>
+            </div>
+
+            {/* Booking Request Modal */}
+            <Modal 
+                show={showBookingRequestModal} 
+                onHide={handleCloseBookingRequestModal}
+                backdrop="static" // Prevent closing on backdrop click
+                keyboard={false} // Prevent closing with Escape key
+            >
+                <Modal.Header closeButton>
+                    <Modal.Title>Booking Details</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    {selectedRequest ? (
+                        <>
+                            <p>
+                                <strong>Name:</strong> {selectedRequest.student_name}
+                            </p>
+                            <p>
+                                <strong>Email:</strong> {selectedRequest.student_email}
+                            </p>
+                            <p>
+                                <strong>Device/Equipment:</strong> {selectedRequest.device_name}
+                            </p>
+                            <p>
+                                <strong>Reason:</strong> {selectedRequest.reason}
+                            </p>
+                            <p>
+                                <strong>Date:</strong> {selectedRequest.request_date}
+                            </p>
+                            <p>
+                                <strong>Time:</strong> {selectedRequest.request_time}
+                            </p>
+                        </>
+                    ) : (
+                        <p>Loading...</p>
+                    )}
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={handleCloseBookingRequestModal}>
+                        Close
+                    </Button>
+                </Modal.Footer>
+            </Modal>
+        </>
     );
 };
 
 export default RequestsPage;
-

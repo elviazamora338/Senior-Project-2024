@@ -56,6 +56,52 @@ app.post('/submitBookingRequest', (req, res) => {
     });
 });
 
+// Fetch requests for the owner
+app.get('/requests', (req, res) => {
+    const { owner_id } = req.query;
+
+    const query = `
+        SELECT 
+            br.schedule_id, 
+            br.status, 
+            br.reason,
+            br.request_time,
+            br.request_date,
+            u.user_name AS student_name, 
+            u.user_email AS student_email, 
+            d.device_name AS device_name
+        FROM booking_requests br
+        JOIN users u ON br.student_id = u.user_id
+        JOIN lab_devices d ON br.device_id = d.device_id
+        WHERE br.owner_id = ?
+    `;
+
+    db.all(query, [owner_id], (err, rows) => {
+        if (err) {
+            console.error('Error fetching requests:', err.message);
+            return res.status(500).json({ error: 'Failed to fetch requests' });
+        }
+        res.json(rows);
+    });
+});
+
+// Handle approving/rejecting requests
+app.patch('/requests/:id', (req, res) => {
+    const { id } = req.params;
+    const { status } = req.body;
+
+    const query = `UPDATE booking_requests SET status = ? WHERE request_id = ?`;
+
+    db.run(query, [status, id], function (err) {
+        if (err) {
+            console.error('Error updating request status:', err.message);
+            return res.status(500).json({ error: 'Failed to update request status' });
+        }
+        res.json({ message: 'Request status updated successfully' });
+    });
+});
+
+
 // Start the server
 app.listen(PORT, () => {
     console.log(`Server running at http://localhost:${PORT}`);

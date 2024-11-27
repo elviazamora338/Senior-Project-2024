@@ -44,50 +44,37 @@ const Availability = ({ index, onDateChange }) => {
     const isAllSelected = (times = timeSelection) => Object.values(times).every(selected => selected);
     const selectedTimes = (times = timeSelection) => Object.keys(times).filter(time => times[time]);
 
-    //  // times chosen
-    //  const handleTimeSelection = (timeSlot) => {
-    //     const updatedTimes = {
-    //         "8am-10am": false,
-    //         "10am-12pm": false,
-    //         "12pm-2pm": false,
-    //         "2pm-4pm": false,
-    //         [timeSlot]: !timeSelection[timeSlot],
-    //     };
+    // Time selection handler (select only one time slot)
+     const handleTimeSelection = (timeSlot) => {
+        const updatedTimes = {
+            "8am-10am": false,
+            "10am-12pm": false,
+            "12pm-2pm": false,
+            "2pm-4pm": false,
+            [timeSlot]: !timeSelection[timeSlot],
+        };
     
-    //     setTimeSelection(updatedTimes);
-    
-    //     // Propagate changes
-    //     onDateChange(index, {
-    //         dates: [selectedDay],
-    //         allSelected: false, // Only one slot is selected
-    //         times: selectedTimes(updatedTimes),
-    //     });
-    // };
-    // Time selection handler
-    const handleTimeSelection = (timeSlot) => {
-        const updatedTimes = { ...timeSelection, [timeSlot]: !timeSelection[timeSlot] };
         setTimeSelection(updatedTimes);
-
+    
+        // Propagate changes
         onDateChange(index, {
             dates: [selectedDay],
-            allSelected: Object.values(updatedTimes).every(selected => selected),
-            times: selectedTimes(updatedTimes)
+            allSelected: false, // Only one slot is selected
+            times: selectedTimes(updatedTimes),
         });
     };
+    // Time selection handler (select multiple time slots)
+    // const handleTimeSelection = (timeSlot) => {
+    //     const updatedTimes = { ...timeSelection, [timeSlot]: !timeSelection[timeSlot] };
+    //     setTimeSelection(updatedTimes);
 
-    
+    //     onDateChange(index, {
+    //         dates: [selectedDay],
+    //         allSelected: Object.values(updatedTimes).every(selected => selected),
+    //         times: selectedTimes(updatedTimes)
+    //     });
+    // };
 
-    // Day-specific handler
-    // const handleDayChange = (e) => {
-    //     setSelectedDay(e.target.value);
-    //     onDateChange(index, { dates: [e.target.value], allSelected: isAllSelected(), times: selectedTimes() });
-    // };
-    // const handleDayChange = (e) => {
-    //     const newSelectedDay = e.target.value;
-    //     setSelectedDay(newSelectedDay);
-    
-    //     onDateChange(index, { dates: [newSelectedDay], allSelected: isAllSelected(), times: selectedTimes() });
-    // };
     const handleDayChange = (e) => {
         const newSelectedDay = e.target.value;
         console.log('Selected day:', newSelectedDay);  // Log to see the value
@@ -309,20 +296,6 @@ const Book_Equipment = ( {device, ownerId} ) => {
     const [bookingDetails, setBookingDetails] = useState({});
     const handleShowConfirmationModal = () => setShowConfirmationModal(true);
 
-
-    // Handler to review booking details
-    // const handleSubmitRequest = (details) => {
-    //     console.log('Final Booking Details:', details); // Debugging
-    //     setShowConfirmationModal(true); // Open the confirmation modal
-    // };
-
-    // const handleBookingDetails = (details) => {
-    //     setBookingDetails(details);  // Update the booking details from Book_Equipment
-    //     console.log('Updated Booking Details:', details); // Debugging
-    // };
-
-    // Fetch owner id
-
     const handleSubmitBookingRequest = async () => {
         try {
             const { dates, reason, times } = bookingDetails;
@@ -346,6 +319,7 @@ const Book_Equipment = ( {device, ownerId} ) => {
             if (response.data.message) {
                 console.log("Booking request submitted successfully:", response.data);
                 alert('Booking request submitted successfully!');
+                handleCloseConfirmationModal();
             } else {
                 console.error('Error from server:', response.data);
                 alert(`Error: ${response.data.error || 'Failed to submit booking request.'}`);
@@ -353,36 +327,6 @@ const Book_Equipment = ( {device, ownerId} ) => {
         } catch (error) {
             console.error('Error submitting booking request:', error.message);
             alert('An unexpected error occurred while submitting your booking request.');
-        }
-    };
-    
-    
-    
-    // Handle booking confirmation by the owner
-    const handleOwnerResponse = async (status) => {
-        const { schedule_id } = bookingDetails; // Assume this is available from the booking details
-
-        try {
-            const response = await fetch('/api/handle-owner-response', {
-                method: 'POST',
-                body: JSON.stringify({
-                    schedule_id: schedule_id,
-                    status: status, // 'accepted' or 'declined'
-                }),
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            });
-
-            const data = await response.json();
-            if (data.success) {
-                console.log('Booking status updated');
-                setShowConfirmationModal(false); // Close modal or update UI
-            } else {
-                console.error('Failed to update booking status');
-            }
-        } catch (err) {
-            console.error('Error handling owner response:', err);
         }
     };
     
@@ -441,9 +385,6 @@ const Book_Equipment = ( {device, ownerId} ) => {
         setShowConfirmationModal(false);
     };
 
-    // const updateUnavailableDates = (index, dates) => {
-    //     setUnavailableDates(prev => ({ ...prev, [index]: dates }));
-    // };
     const updateUnavailableDates = (index, { dates, allSelected, times }) => {
         setUnavailableDates(prev => ({
             ...prev,
@@ -454,13 +395,6 @@ const Book_Equipment = ( {device, ownerId} ) => {
     
 
     // Help ensure the calendar knows which dates are unavailable
-    // const flattenedUnavailableDates = Object.values(unavailableDates).reduce((acc, dateInfo) => {
-    //     const dates = dateInfo.dates || []; // Default to an empty array if dates is undefined
-    //     dates.forEach(date => {
-    //         acc[date] = { allSelected: dateInfo.allSelected, times: dateInfo.times };
-    //     });
-    //     return acc;
-    // }, {});
     const flattenedUnavailableDates = Object.values(unavailableDates).reduce((acc, { dates, allSelected, times }) => {
         dates.forEach(date => {
             acc[date] = { allSelected, times };
