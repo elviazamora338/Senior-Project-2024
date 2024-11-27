@@ -1,8 +1,10 @@
-import React from 'react';
-import { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { Modal, Button } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css'; 
 import 'bootstrap-icons/font/bootstrap-icons.css'
 import './Book_Equipment.css'; 
+import { useUser } from '../../UserContext'; // Imports the custom hook
+import axios from 'axios';
 
 
 let months = [
@@ -42,24 +44,62 @@ const Availability = ({ index, onDateChange }) => {
     const isAllSelected = (times = timeSelection) => Object.values(times).every(selected => selected);
     const selectedTimes = (times = timeSelection) => Object.keys(times).filter(time => times[time]);
 
-     // times chosen
-     const handleTimeSelection = (timeSlot) => {
+    //  // times chosen
+    //  const handleTimeSelection = (timeSlot) => {
+    //     const updatedTimes = {
+    //         "8am-10am": false,
+    //         "10am-12pm": false,
+    //         "12pm-2pm": false,
+    //         "2pm-4pm": false,
+    //         [timeSlot]: !timeSelection[timeSlot],
+    //     };
+    
+    //     setTimeSelection(updatedTimes);
+    
+    //     // Propagate changes
+    //     onDateChange(index, {
+    //         dates: [selectedDay],
+    //         allSelected: false, // Only one slot is selected
+    //         times: selectedTimes(updatedTimes),
+    //     });
+    // };
+    // Time selection handler
+    const handleTimeSelection = (timeSlot) => {
         const updatedTimes = { ...timeSelection, [timeSlot]: !timeSelection[timeSlot] };
         setTimeSelection(updatedTimes);
-    
-        // Calculate unavailable dates and propagate changes
+
         onDateChange(index, {
             dates: [selectedDay],
-            allSelected: isAllSelected(updatedTimes),
+            allSelected: Object.values(updatedTimes).every(selected => selected),
             times: selectedTimes(updatedTimes)
         });
     };
 
+    
+
     // Day-specific handler
+    // const handleDayChange = (e) => {
+    //     setSelectedDay(e.target.value);
+    //     onDateChange(index, { dates: [e.target.value], allSelected: isAllSelected(), times: selectedTimes() });
+    // };
+    // const handleDayChange = (e) => {
+    //     const newSelectedDay = e.target.value;
+    //     setSelectedDay(newSelectedDay);
+    
+    //     onDateChange(index, { dates: [newSelectedDay], allSelected: isAllSelected(), times: selectedTimes() });
+    // };
     const handleDayChange = (e) => {
-        setSelectedDay(e.target.value);
-        onDateChange(index, { dates: [e.target.value], allSelected: isAllSelected(), times: selectedTimes() });
+        const newSelectedDay = e.target.value;
+        console.log('Selected day:', newSelectedDay);  // Log to see the value
+        setSelectedDay(newSelectedDay);
+
+        onDateChange(index, {
+            dates: [newSelectedDay],
+            allSelected: Object.values(timeSelection).every(selected => selected),
+            times: selectedTimes()
+        });
     };
+    
 
   return (
     <tr>
@@ -86,14 +126,21 @@ const Availability = ({ index, onDateChange }) => {
         <td>
             {/* Can make this simpler -E need to work on this */}
             <div class = "row justify-content-center">
-            {Object.keys(timeSelection).map(time => (
-                <div class = "col-6 p-2" style={{ width: 'fit-content' }}>
-                    <div class="form-check form-check-inline">
-                        <input class="form-check-input" type="checkbox" checked={timeSelection[time]} onChange={() => handleTimeSelection(time)} />
-                        <label class="form-check-label" style={{ fontSize: '12.5px' }}>{time}</label>
+            {Object.keys(timeSelection).map((time) => (
+                <div key={time} className="col-6 p-2" style={{ width: 'fit-content' }}>
+                    <div className="form-check form-check-inline">
+                        <input
+                            className="form-check-input"
+                            type="checkbox"
+                            checked={timeSelection[time]}
+                            onChange={() => handleTimeSelection(time)}
+                        />
+                        <label className="form-check-label" style={{ fontSize: '12.5px' }}>
+                            {time}
+                        </label>
                     </div>
                 </div>
-                 ))}
+            ))}
             </div>
             
         </td>
@@ -249,34 +296,174 @@ function GenerateCalender({ unavailableDates }) {
 
 
 
-const Book_Equipment = ( { device, handleBookingDetails, onSubmit } ) => {
-    const [unavailableDates, setUnavailableDates] = useState({});
-    const [selectedDate, setSelectedDate] = useState('');
-    const [selectedTimes, setSelectedTimes] = useState('');
+const Book_Equipment = ( {device, ownerId} ) => {
+    const { user } = useUser(); // Access user from context
+    const [selectedDay, setSelectedDay] = useState(null);  // Initialize selectedDay
+    const [selectedTimes, setSelectedTimes] = useState([]);  // Initialize selectedTimes
     const [reason, setReason] = useState('');
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
+    const [errorMessage, setErrorMessage] = useState(''); // State for the error message
+    const [unavailableDates, setUnavailableDates] = useState({});
+    const [showConfirmationModal, setShowConfirmationModal] = useState(false);
+    const [bookingDetails, setBookingDetails] = useState({});
+    const handleShowConfirmationModal = () => setShowConfirmationModal(true);
 
-    // Handler to submit booking information and send it to All_Page
-    const handleSubmit = () => {
-        onSubmit({
-            selectedDate,
-            selectedTimes,
-            reason
-        });
-    };
 
-    const updateUnavailableDates = (index, dates) => {
-        if (process.env.NODE_ENV === 'development') {
-            console.log("Times:", dates);
+    // Handler to review booking details
+    // const handleSubmitRequest = (details) => {
+    //     console.log('Final Booking Details:', details); // Debugging
+    //     setShowConfirmationModal(true); // Open the confirmation modal
+    // };
+
+    // const handleBookingDetails = (details) => {
+    //     setBookingDetails(details);  // Update the booking details from Book_Equipment
+    //     console.log('Updated Booking Details:', details); // Debugging
+    // };
+
+    // Fetch owner id
+
+    const handleSubmitBookingRequest = async () => {
+        try {
+            const { dates, reason, times } = bookingDetails;
+            if (!dates || !reason || !times) {
+                alert('Please fill in all booking details before submitting.');
+                return;
+            }            
+
+            const payload = {
+                device_id: device.device_id,
+                user_id: user.user_id,
+                requested_date: dates[0],
+                requested_time: times[0], // Ensure this is properly selected
+                reason: reason, // State `reason` should already have a value
+                owner_id: ownerId, 
+            };
+            console.log('Payload:', payload); // Debugging
+    
+            const response = await axios.post('http://localhost:5001/submitBookingRequest', payload);
+    
+            if (response.data.message) {
+                console.log("Booking request submitted successfully:", response.data);
+                alert('Booking request submitted successfully!');
+            } else {
+                console.error('Error from server:', response.data);
+                alert(`Error: ${response.data.error || 'Failed to submit booking request.'}`);
+            }
+        } catch (error) {
+            console.error('Error submitting booking request:', error.message);
+            alert('An unexpected error occurred while submitting your booking request.');
         }
-        setUnavailableDates(prev => ({ ...prev, [index]: dates }));
     };
+    
+    
+    
+    // Handle booking confirmation by the owner
+    const handleOwnerResponse = async (status) => {
+        const { schedule_id } = bookingDetails; // Assume this is available from the booking details
+
+        try {
+            const response = await fetch('/api/handle-owner-response', {
+                method: 'POST',
+                body: JSON.stringify({
+                    schedule_id: schedule_id,
+                    status: status, // 'accepted' or 'declined'
+                }),
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            const data = await response.json();
+            if (data.success) {
+                console.log('Booking status updated');
+                setShowConfirmationModal(false); // Close modal or update UI
+            } else {
+                console.error('Failed to update booking status');
+            }
+        } catch (err) {
+            console.error('Error handling owner response:', err);
+        }
+    };
+    
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setLoading(true);
+        setError(null);
+
+        try {
+            // Flatten the unavailable dates with times
+            const flattenedDates = Object.keys(flattenedUnavailableDates || {})
+                .map((key) => ({
+                    date: key,
+                    ...flattenedUnavailableDates[key],
+                }))
+                .filter(
+                    (dateInfo) =>
+                        dateInfo.times &&
+                        Array.isArray(dateInfo.times) &&
+                        dateInfo.times.length > 0
+                );
+            console.log('Flattened Dates:', flattenedDates);
+    
+            // Prepare booking details
+            const newBookingDetails = {
+                dates: flattenedDates.map((d) => d.date),
+                times: flattenedDates.flatMap((d) => d.times),
+                reason: reason || 'No reason provided',
+            };
+    
+            console.log('New Booking Details:', newBookingDetails);
+    
+            // Validate the booking details
+            if (
+                newBookingDetails.dates.length > 0 && // Check dates are selected
+                newBookingDetails.times.length > 0 && // Check times are selected
+                newBookingDetails.reason !== 'No reason provided' // Ensure reason is provided
+            ) {
+                setBookingDetails(newBookingDetails); // Update state with valid booking details
+                setErrorMessage(''); // Clear any error messages
+                setShowConfirmationModal(true); // Show the modal
+            } else {
+                setErrorMessage('All fields are required. Please fill them out.');
+            }
+        } catch (err) {
+            setErrorMessage(`An unexpected error occurred: ${err.message}`);
+            console.error('Error details:', err);
+        } finally {
+            setLoading(false);
+        }
+    };
+    
+
+    // Close modal
+    const handleCloseConfirmationModal = () => {
+        setShowConfirmationModal(false);
+    };
+
+    // const updateUnavailableDates = (index, dates) => {
+    //     setUnavailableDates(prev => ({ ...prev, [index]: dates }));
+    // };
+    const updateUnavailableDates = (index, { dates, allSelected, times }) => {
+        setUnavailableDates(prev => ({
+            ...prev,
+            [index]: { dates, allSelected, times }
+        }));
+    };
+    
+    
 
     // Help ensure the calendar knows which dates are unavailable
-    const flattenedUnavailableDates = Object.values(unavailableDates).reduce((acc, dateInfo) => {
-        const dates = dateInfo.dates || []; // Default to an empty array if dates is undefined
+    // const flattenedUnavailableDates = Object.values(unavailableDates).reduce((acc, dateInfo) => {
+    //     const dates = dateInfo.dates || []; // Default to an empty array if dates is undefined
+    //     dates.forEach(date => {
+    //         acc[date] = { allSelected: dateInfo.allSelected, times: dateInfo.times };
+    //     });
+    //     return acc;
+    // }, {});
+    const flattenedUnavailableDates = Object.values(unavailableDates).reduce((acc, { dates, allSelected, times }) => {
         dates.forEach(date => {
-            acc[date] = { allSelected: dateInfo.allSelected, times: dateInfo.times };
-            console.log(acc[date]);
+            acc[date] = { allSelected, times };
         });
         return acc;
     }, {});
@@ -322,7 +509,51 @@ const Book_Equipment = ( { device, handleBookingDetails, onSubmit } ) => {
                 <div className="col-md-5">
                     <GenerateCalender unavailableDates={flattenedUnavailableDates} />
                 </div>
+                <div className="text-end">
+                {errorMessage && <p className="error-message">{errorMessage}</p>}
+                <button
+                    type="button"
+                    className="btn btn-primary mt-3"
+                    onClick={handleSubmit}
+                    disabled={loading}
+                >
+                    {loading ? 'Submitting...' : 'Submit'}
+                </button>
+            </div>
         </div>
+
+         {/* Confirmation Modal */}
+         <Modal 
+         show={showConfirmationModal} 
+         onHide={handleCloseConfirmationModal}
+         backdrop="static" // Prevent closing on backdrop click
+         keyboard={false} // Prevent closing with Escape key
+         >
+                <Modal.Header>
+                    <Modal.Title>Confirm Booking</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <p>Are you sure you want to book <strong>{device.device_name}</strong>?</p>
+                    <p>
+                        Date: <strong>{bookingDetails.dates?.join(', ') || 'No dates selected'}</strong>
+                    </p>
+                    <p>
+                        Time(s): <strong>{bookingDetails.times?.join(', ') || 'No time slots selected'}</strong>
+                    </p>
+                    <p>
+                        Reason: <strong>{bookingDetails.reason}</strong>
+                    </p>
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="danger" onClick={handleCloseConfirmationModal}>
+                        Cancel
+                    </Button>
+                    <Button variant="primary" onClick={handleSubmitBookingRequest}>
+                        Confirm Booking
+                    </Button>
+                </Modal.Footer>
+            </Modal>
+
         </div>
         
     );

@@ -21,12 +21,7 @@ const All_Page = () => {
     const [currentPage, setCurrentPage] = useState(1); // Current page
     const postsPerPage = 8; // Number of items per page
     const [showConfirmationModal, setShowConfirmationModal] = useState(false);
-    // Get booking request
-    const [bookingDetails, setBookingDetails] = useState({
-        selectedDate: '',
-        selectedTimes: '',
-        reason: ''
-    });
+
     // Centralizing Modal State
     const [modalState, setModalState] = useState({
         show: false,
@@ -34,40 +29,15 @@ const All_Page = () => {
         device: null,
     });
 
-    // Handler to review booking details
-    const handleSubmitRequest = (details) => {
-        console.log('Submit Request clicked', details); // Debugging
-        setBookingDetails(details);  // Update the booking details with the passed details
-        setShowConfirmationModal(true); // Open the confirmation modal
-    };
-    
-    const handleConfirmBooking = async () => {
-        try {
-            // Send the booking request to the backend for confirmation
-            const response = await axios.post('http://localhost:5001/confirm-booking', bookingDetails);
-            if (response.data.success) {
-                console.log('Booking confirmed:', bookingDetails);
-                setShowConfirmationModal(false); // Close confirmation modal on success
-            } else {
-                console.error('Error confirming booking:', response.data.message);
-            }
-        } catch (error) {
-            console.error('Error finalizing booking:', error);
-        }
-    };
-
-    const handleBookingDetails = (details) => {
-        setBookingDetails(details);  // Update the booking details from Book_Equipment
-    };
 
     useEffect(() => {
         // Fetch devices and other data when component mounts
     }, []);
 
-
     const handleCloseConfirmationModal = () => {
         setShowConfirmationModal(false);  // Close confirmation modal if user cancels
     };
+
 
     // Modal state
     const [selectedDevice, setSelectedDevice] = useState(null);
@@ -93,17 +63,9 @@ const All_Page = () => {
     const handleCalendarShow = () => {
         openModal('calendar', modalState.device); // Pass selected device to calendar modal
     };
-
-    // const handleShowDevice = (device) => {
-    //     console.log("Device to show:", device); // Debugging
-    //     setSelectedDevice(device);
-    //     setShowDevice(true);
-    // };
-
     const handleCloseDevice = () => setShowDevice(false);
 
     const handleCalendarClose = () => setShowCalendar(false);
-    // const handleCalendarShow = () => setShowCalendar(true);
 
     // Bookmark function
    const handleBookmarkClick =  async (e, id) => {
@@ -198,7 +160,6 @@ const All_Page = () => {
     const indexOfLastPost = currentPage * postsPerPage;
     const indexOfFirstPost = indexOfLastPost - postsPerPage;
     const currentDevices = filteredDevices.slice(indexOfFirstPost, indexOfLastPost);
-
     
 
     return (
@@ -260,6 +221,7 @@ const All_Page = () => {
                                                     <div className="description-item">
                                                         <span className="description-label">Person In Charge:</span>
                                                         <span className="description-value">{device.person_in_charge}</span>
+
                                                     </div>
                                                     <div className="description-item">
                                                         <span className="description-label">Building:</span>
@@ -301,6 +263,8 @@ const All_Page = () => {
             <Modal
                 show={modalState.show}
                 onHide={closeModal}
+                backdrop="static" // Prevent closing on backdrop click
+                keyboard={false} // Prevent closing with Escape key
                 centered
                 dialogClassName="custom-wide-modal"
                 size="xl"
@@ -314,7 +278,8 @@ const All_Page = () => {
                 <Modal.Body>
                     {modalState.type === 'device' && <ViewPage device={modalState.device} />}
                     {modalState.type === 'calendar' && (
-                        <Book_Equipment device={modalState.device} onSubmit={handleSubmitRequest} />
+                        <Book_Equipment device={modalState.device} ownerId={modalState.device?.owner_id}/>
+
                     )}
                 </Modal.Body>
 
@@ -329,36 +294,10 @@ const All_Page = () => {
                             <Button variant="secondary" onClick={() => openModal('device', modalState.device)}>
                                 <i className="bi bi-arrow-left"></i>
                             </Button>
-                            <Button variant="primary" onClick={handleSubmitRequest}>
-                                Submit Request
-                            </Button>
                         </>
                     )}
                 </Modal.Footer>
             </Modal>
-
-            {/* Confirmation Modal */}
-            <Modal
-                show={showConfirmationModal}
-                onHide={handleCloseConfirmationModal}
-                centered
-                size="lg"
-            >
-                <Modal.Header closeButton>
-                    <Modal.Title>Confirm Your Booking</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                    <p><strong>Dates:</strong> {bookingDetails.selectedDate || 'Not selected'}</p>
-                    <p><strong>Times:</strong> {bookingDetails.selectedTimes || 'Not selected'}</p>
-                    <p><strong>Reason for Booking:</strong> {bookingDetails.reason || 'Not provided'}</p>
-                </Modal.Body>
-                <Modal.Footer>
-                    <Button variant="secondary" onClick={handleCloseConfirmationModal}>Cancel</Button>
-                    <Button variant="primary" onClick={handleConfirmBooking}>Confirm Booking</Button>
-                </Modal.Footer>
-            </Modal>
-
-
 
                 
         </div>

@@ -26,6 +26,35 @@ const db = new sqlite3.Database('SchedulerDB.db', (err) => {
     }
 });
 
+// Student submits a booking request to the owner of the device
+app.post('/submitBookingRequest', (req, res) => {
+    const { device_id, user_id, requested_date, requested_time, reason, owner_id } = req.body;
+    console.log('Received a request at /submitBookingRequest');
+
+    // Validate required fields
+    if (!device_id || !user_id || !requested_date || !requested_time || !reason || !owner_id) {
+        return res.status(400).json({ error: 'All fields are required' });
+    }
+
+    console.log("Booking request received for Device ID:", device_id, "and User ID:", user_id);
+
+    // Insert booking request into the "booking_requests" table
+    const query = `
+        INSERT INTO booking_requests (student_id, device_id, owner_id, request_time, request_date, status, reason)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+    `;
+    const status = 'pending'; // Initial status is 'pending'
+
+    db.run(query, [user_id, device_id, owner_id, requested_time, requested_date, status, reason], function(err) {
+        if (err) {
+            console.error('Error saving booking request:', err.message);
+            return res.status(500).json({ error: 'Failed to save booking request' });
+        }
+    
+        console.log('Booking request saved with Request ID:', this.lastID);
+        res.json({ message: 'Booking request submitted successfully', requestId: this.lastID });
+    });
+});
 
 // Start the server
 app.listen(PORT, () => {
@@ -477,8 +506,6 @@ app.post('/submitRequest', (req, res) => {
         console.log("Failed to bookmark. Please try again.");
    } 
 });
-
-
 
 // Close database connection on server close
 process.on('SIGINT', () => {
