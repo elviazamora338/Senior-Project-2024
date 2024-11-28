@@ -280,9 +280,6 @@ function GenerateCalender({ unavailableDates }) {
     );
 }
 
-
-
-
 const Book_Equipment = ( {device, ownerId} ) => {
     const { user } = useUser(); // Access user from context
     const [selectedDay, setSelectedDay] = useState(null);  // Initialize selectedDay
