@@ -12,6 +12,7 @@ const RequestsPage = () => {
     const [requests, setRequests] = useState([]); // State to hold requests
     const [showBookingRequestModal, setShowBookingRequestModal] = useState(false);
     const [selectedRequest, setSelectedRequest] = useState(null); // State for selected request
+    const [deleteButton, setShowDeleteButton] = useState(false);
 
     // Fetch booking requests for the logged-in owner
     useEffect(() => {
@@ -48,20 +49,20 @@ const RequestsPage = () => {
                     student_id: approvedRequest.student_id,
                     date: approvedRequest.request_date, // Ensure this exists in request data
                     time_range: approvedRequest.request_time, // Ensure this exists in request data
-                };
+                }; 
 
 
                 console.log('Data:', unavailabilityData);
                 // Insert into unavailable table
                 await axios.post('http://localhost:5001/unavailable', unavailabilityData);
             }
-    
             // Update UI after response
             setRequests((prevRequests) =>
                 prevRequests.map((request) =>
                     request.schedule_id === requestId ? { ...request, status } : request
                 )
             );
+            handleShowDeleteButton(true);
         } catch (error) {
             console.error('Error updating request status or adding unavailability:', error.message);
         }
@@ -77,6 +78,25 @@ const RequestsPage = () => {
         setShowBookingRequestModal(false);
         setSelectedRequest(null);
     };
+
+    const handleShowDeleteButton = () => {
+        setShowDeleteButton(true);
+    }
+
+    const handleDeleteButton = async (scheduleId) => {
+        const confirmDelete = window.confirm('Are you sure you want to delete this item?');
+        if (!confirmDelete) return;
+
+        try {
+            await axios.delete(`http://localhost:5001/requests/${scheduleId}`);
+            setRequests((prevItems) =>
+                prevItems.filter((item) => item.schedule_id !== scheduleId)
+            );
+            console.log('Item deleted successfully');
+        } catch (error) {
+            console.error('Error deleting request:', error.message);
+        }
+    }
 
     return (
         <>
@@ -143,6 +163,13 @@ const RequestsPage = () => {
                                                         >
                                                             View
                                                         </button>
+                                                        {['approved', 'rejected'].includes(request.status) && (
+                                                        <button 
+                                                            type="button" 
+                                                            className="btn btn-danger btn-sm bi bi-trash deleteButton"
+                                                            onClick={() => handleDeleteButton(request.schedule_id)}
+                                                        ></button>
+                                                    )}
                                                     </div>
                                                 </td>
                                             </tr>

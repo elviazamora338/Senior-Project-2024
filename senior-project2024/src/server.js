@@ -165,6 +165,20 @@ app.delete('/unavailable/:id', async (req, res) => {
     }
 });
 
+// Delete requests from my equipment page (owner page)
+app.delete('/requests/:id', async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        const query = `DELETE FROM booking_requests WHERE schedule_id = ?`;
+        await db.run(query, [id]);
+        res.status(200).send({ message: 'Booking request deleted successfully' });
+    } catch (error) {
+        console.error('Error deleting booking request:', error.message);
+        res.status(500).send({ error: 'Failed to delete booking request' });
+    }
+});
+
 
 // Start the server
 app.listen(PORT, () => {
