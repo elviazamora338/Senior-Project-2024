@@ -18,29 +18,55 @@ const RequestsPage = () => {
         const fetchRequests = async () => {
             try {
                 const response = await axios.get(`http://localhost:5001/requests?owner_id=${user.user_id}`);
-                setRequests(response.data); // Assume API returns an array of requests
+                console.log('Requests Data:', response.data); // Log the data from the API
+                setRequests(response.data);
             } catch (error) {
                 console.error('Error fetching requests:', error.message);
             }
         };
         fetchRequests();
     }, [user.user_id]);
+    
 
     // Handle booking confirmation by the owner
     const handleOwnerResponse = async (requestId, action) => {
         try {
             const status = action === 'approve' ? 'approved' : 'rejected';
+    
+            // Update booking request status
             await axios.patch(`http://localhost:5001/requests/${requestId}`, { status });
+    
+            if (action === 'approve') {
+                // Find the approved request details
+                const approvedRequest = requests.find((request) => request.schedule_id === requestId);
+                console.log('Approved Request:', approvedRequest);
+                
+                // Prepare unavailability data
+                const unavailabilityData = {
+                    device_id: approvedRequest.device_id,
+                    owner_id: user.user_id,
+                    student_id: approvedRequest.student_id,
+                    date: approvedRequest.request_date, // Ensure this exists in request data
+                    time_range: approvedRequest.request_time, // Ensure this exists in request data
+                };
 
+
+                console.log('Data:', unavailabilityData);
+                // Insert into unavailable table
+                await axios.post('http://localhost:5001/unavailable', unavailabilityData);
+            }
+    
+            // Update UI after response
             setRequests((prevRequests) =>
                 prevRequests.map((request) =>
-                    request.request_id === requestId ? { ...request, status } : request
+                    request.schedule_id === requestId ? { ...request, status } : request
                 )
             );
         } catch (error) {
-            console.error('Error updating request status:', error.message);
+            console.error('Error updating request status or adding unavailability:', error.message);
         }
     };
+    
 
     const handleShowBookingRequestModal = (request) => {
         setSelectedRequest(request);
@@ -87,7 +113,7 @@ const RequestsPage = () => {
                                 <tbody>
                                     {requests.length > 0 ? (
                                         requests.map((request) => (
-                                            <tr key={request.request_id}>
+                                            <tr key={request.schedule_id}>
                                                 <td>{request.student_name}</td>
                                                 <td>{request.student_email}</td>
                                                 <td>{request.device_name}</td>
@@ -99,13 +125,13 @@ const RequestsPage = () => {
                                                                 <button
                                                                     type="button"
                                                                     className="bi bi-check2 btn btn-success btn-sm me-2"
-                                                                    onClick={() => handleOwnerResponse(request.request_id, 'approve')}
+                                                                    onClick={() => handleOwnerResponse(request.schedule_id, 'approve')}
                                                                 >
                                                                 </button>
                                                                 <button
                                                                     type="button"
                                                                     className="bi bi-x btn btn-danger btn-sm me-2"
-                                                                    onClick={() => handleOwnerResponse(request.request_id, 'reject')}
+                                                                    onClick={() => handleOwnerResponse(request.schedule_id, 'reject')}
                                                                 >
                                                                 </button>
                                                             </>
@@ -140,7 +166,7 @@ const RequestsPage = () => {
                 backdrop="static" // Prevent closing on backdrop click
                 keyboard={false} // Prevent closing with Escape key
             >
-                <Modal.Header closeButton>
+                <Modal.Header>
                     <Modal.Title>Booking Details</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>

@@ -61,19 +61,22 @@ app.get('/requests', (req, res) => {
     const { owner_id } = req.query;
 
     const query = `
-        SELECT 
+    SELECT 
             br.schedule_id, 
+            br.student_id, 
+            br.device_id, 
+            br.owner_id, 
+            br.request_time, 
+            br.request_date, 
             br.status, 
             br.reason,
-            br.request_time,
-            br.request_date,
-            u.user_name AS student_name, 
-            u.user_email AS student_email, 
-            d.device_name AS device_name
+            ld.device_name, -- Join to fetch device_name if needed
+            u.user_name AS student_name, -- Join to fetch student details
+            u.user_email AS student_email -- Join to fetch student email
         FROM booking_requests br
-        JOIN users u ON br.student_id = u.user_id
-        JOIN lab_devices d ON br.device_id = d.device_id
-        WHERE br.owner_id = ?
+        LEFT JOIN lab_devices ld ON br.device_id = ld.device_id
+        LEFT JOIN users u ON br.student_id = u.user_id
+        WHERE br.owner_id = ?;
     `;
 
     db.all(query, [owner_id], (err, rows) => {
@@ -90,7 +93,7 @@ app.patch('/requests/:id', (req, res) => {
     const { id } = req.params;
     const { status } = req.body;
 
-    const query = `UPDATE booking_requests SET status = ? WHERE request_id = ?`;
+    const query = `UPDATE booking_requests SET status = ? WHERE schedule_id = ?`;
 
     db.run(query, [status, id], function (err) {
         if (err) {
@@ -99,6 +102,23 @@ app.patch('/requests/:id', (req, res) => {
         }
         res.json({ message: 'Request status updated successfully' });
     });
+});
+
+// Insert into unavailable table in the database to update the calendar
+app.post('/unavailable', async (req, res) => {
+    const { time_range, student_id, device_id, owner_id, date } = req.body;
+
+    try {
+        const query = `
+            INSERT INTO unavailable (time_range, student_id, device_id, owner_id, date)
+            VALUES (?, ?, ?, ?, ?)
+        `;
+        await db.run(query, [time_range, student_id, device_id, owner_id, date]);
+        res.status(201).send({ message: 'Unavailability recorded successfully' });
+    } catch (error) {
+        console.error('Error inserting into unavailable table:', error.message);
+        res.status(500).send({ error: 'Failed to add unavailability' });
+    }
 });
 
 
