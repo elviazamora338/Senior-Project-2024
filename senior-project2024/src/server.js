@@ -121,6 +121,50 @@ app.post('/unavailable', async (req, res) => {
     }
 });
 
+// Handle scheduled devices for student (or user) that booked the equipment 
+app.get('/scheduled', async (req, res) => {
+    const { student_id } = req.query; // Pass student_id as a query parameter
+
+
+        const query = `
+            SELECT 
+                u.unavailability_id, 
+                u.device_id, 
+                d.image_path,
+                d.device_name, 
+                u.time_range, 
+                u.date,
+                u.owner_id,
+                o.user_name AS owner_name
+            FROM unavailable u
+            JOIN lab_devices d ON u.device_id = d.device_id
+            JOIN users o ON u.owner_id = o.user_id
+            WHERE u.student_id = ?;
+        `;
+        
+        db.all(query, [student_id], (err, rows) => {
+        if (err) {
+            console.error('Error fetching scheduled data:', error.message);
+            res.status(500).send({ error: 'Failed to fetch scheduled data' });
+        }
+        res.json(rows);
+    });
+});
+
+// Cancel scheduled
+app.delete('/unavailable/:id', async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        const query = `DELETE FROM unavailable WHERE unavailability_id = ?`;
+        await db.run(query, [id]);
+        res.status(200).send({ message: 'Unavailability canceled successfully' });
+    } catch (error) {
+        console.error('Error deleting unavailability:', error.message);
+        res.status(500).send({ error: 'Failed to cancel unavailability' });
+    }
+});
+
 
 // Start the server
 app.listen(PORT, () => {
