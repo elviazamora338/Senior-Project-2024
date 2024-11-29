@@ -115,7 +115,7 @@ const ViewPage = ({ device }) => {
                         </div>
 
                         <div className="col right-col">
-                            <div className="title">
+                            <div>
                                 <h2 className="fw-bold">{device.device_name}</h2>
                                 <h6 className="text-success">Available: {device.available || 'N/A'}</h6>
                             </div>
@@ -169,56 +169,6 @@ const ViewPage = ({ device }) => {
                                         className="form-control deviceDetails"
                                         value={device.brand || ''}
                                     />
-                                </div>
-                            </div>
-
-                            <div className="scheduleContainer">
-                                <div className="sub-title">
-                                    <h5 className="schedule-text fw-bold">Schedule Equipment</h5>
-                                    <i className="bi bi-info-circle" data-toggle="tooltip" data-placement="right" 
-                                    title="Only 2 hour increments allowed"></i>
-                                </div>
-                                <div className="row">
-                                    <div className="container-fluid uploadCalendar"></div>
-
-                                    <div className="message-row">
-                                        <div className="col-8">
-                                            <h6>Reason for booking</h6>
-                                            <textarea type="message" name="message" className="form-control" rows="3" ></textarea>
-                                        </div>
-
-                                        <div className="time-row">
-                                            <div className="time-col">
-                                                <div>
-                                                    <input type="checkbox" id="time1" name="time1" value="time1"></input>
-                                                    <label htmlFor="time1">8 AM - 10 AM</label><br></br>
-
-                                                    <input type="checkbox" id="time2" name="time2" value="time2"></input>
-                                                    <label htmlFor="time2">10 AM - 12 PM</label><br></br>
-
-                                                    <input type="checkbox" id="time3" name="time3" value="time3"></input>
-                                                    <label htmlFor="time3">12 PM - 2 PM</label><br></br>
-                                                </div>
-                                            </div>
-
-                                            <div className="time-col">
-                                                <div>
-                                                    <input type="checkbox" id="time4" name="time4" value="time4"></input>
-                                                    <label htmlFor="time4">2 PM - 4 PM</label><br></br>
-
-                                                    <input type="checkbox" id="time5" name="time5" value="time5"></input>
-                                                    <label htmlFor="time5">4 PM - 6 PM</label><br></br>
-
-                                                    <input type="checkbox" id="time6" name="time6" value="time6"></input>
-                                                    <label htmlFor="time6">6 PM - 8 PM</label><br></br>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div className="text-center mt-3">
-                                        <button type="button" className="btn schedule-button">Schedule</button>
-                                    </div>
                                 </div>
                             </div>
                         </div>

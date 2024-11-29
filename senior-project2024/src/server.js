@@ -26,6 +26,159 @@ const db = new sqlite3.Database('SchedulerDB.db', (err) => {
     }
 });
 
+// Student submits a booking request to the owner of the device
+app.post('/submitBookingRequest', (req, res) => {
+    const { device_id, user_id, requested_date, requested_time, reason, owner_id } = req.body;
+    console.log('Received a request at /submitBookingRequest');
+
+    // Validate required fields
+    if (!device_id || !user_id || !requested_date || !requested_time || !reason || !owner_id) {
+        return res.status(400).json({ error: 'All fields are required' });
+    }
+
+    console.log("Booking request received for Device ID:", device_id, "and User ID:", user_id);
+
+    // Insert booking request into the "booking_requests" table
+    const query = `
+        INSERT INTO booking_requests (student_id, device_id, owner_id, request_time, request_date, status, reason)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+    `;
+    const status = 'pending'; // Initial status is 'pending'
+
+    db.run(query, [user_id, device_id, owner_id, requested_time, requested_date, status, reason], function(err) {
+        if (err) {
+            console.error('Error saving booking request:', err.message);
+            return res.status(500).json({ error: 'Failed to save booking request' });
+        }
+    
+        console.log('Booking request saved with Request ID:', this.lastID);
+        res.json({ message: 'Booking request submitted successfully', requestId: this.lastID });
+    });
+});
+
+// Fetch requests for the owner
+app.get('/requests', (req, res) => {
+    const { owner_id } = req.query;
+
+    const query = `
+    SELECT 
+            br.schedule_id, 
+            br.student_id, 
+            br.device_id, 
+            br.owner_id, 
+            br.request_time, 
+            br.request_date, 
+            br.status, 
+            br.reason,
+            ld.device_name, -- Join to fetch device_name if needed
+            u.user_name AS student_name, -- Join to fetch student details
+            u.user_email AS student_email -- Join to fetch student email
+        FROM booking_requests br
+        LEFT JOIN lab_devices ld ON br.device_id = ld.device_id
+        LEFT JOIN users u ON br.student_id = u.user_id
+        WHERE br.owner_id = ?;
+    `;
+
+    db.all(query, [owner_id], (err, rows) => {
+        if (err) {
+            console.error('Error fetching requests:', err.message);
+            return res.status(500).json({ error: 'Failed to fetch requests' });
+        }
+        res.json(rows);
+    });
+});
+
+// Handle approving/rejecting requests
+app.patch('/requests/:id', (req, res) => {
+    const { id } = req.params;
+    const { status } = req.body;
+
+    const query = `UPDATE booking_requests SET status = ? WHERE schedule_id = ?`;
+
+    db.run(query, [status, id], function (err) {
+        if (err) {
+            console.error('Error updating request status:', err.message);
+            return res.status(500).json({ error: 'Failed to update request status' });
+        }
+        res.json({ message: 'Request status updated successfully' });
+    });
+});
+
+// Insert into unavailable table in the database to update the calendar
+app.post('/unavailable', async (req, res) => {
+    const { time_range, student_id, device_id, owner_id, date } = req.body;
+
+    try {
+        const query = `
+            INSERT INTO unavailable (time_range, student_id, device_id, owner_id, date)
+            VALUES (?, ?, ?, ?, ?)
+        `;
+        await db.run(query, [time_range, student_id, device_id, owner_id, date]);
+        res.status(201).send({ message: 'Unavailability recorded successfully' });
+    } catch (error) {
+        console.error('Error inserting into unavailable table:', error.message);
+        res.status(500).send({ error: 'Failed to add unavailability' });
+    }
+});
+
+// Handle scheduled devices for student (or user) that booked the equipment 
+app.get('/scheduled', async (req, res) => {
+    const { student_id } = req.query; // Pass student_id as a query parameter
+
+
+        const query = `
+            SELECT 
+                u.unavailability_id, 
+                u.device_id, 
+                d.image_path,
+                d.device_name, 
+                u.time_range, 
+                u.date,
+                u.owner_id,
+                o.user_name AS owner_name
+            FROM unavailable u
+            JOIN lab_devices d ON u.device_id = d.device_id
+            JOIN users o ON u.owner_id = o.user_id
+            WHERE u.student_id = ?;
+        `;
+        
+        db.all(query, [student_id], (err, rows) => {
+        if (err) {
+            console.error('Error fetching scheduled data:', error.message);
+            res.status(500).send({ error: 'Failed to fetch scheduled data' });
+        }
+        res.json(rows);
+    });
+});
+
+// Cancel scheduled
+app.delete('/unavailable/:id', async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        const query = `DELETE FROM unavailable WHERE unavailability_id = ?`;
+        await db.run(query, [id]);
+        res.status(200).send({ message: 'Unavailability canceled successfully' });
+    } catch (error) {
+        console.error('Error deleting unavailability:', error.message);
+        res.status(500).send({ error: 'Failed to cancel unavailability' });
+    }
+});
+
+// Delete requests from my equipment page (owner page)
+app.delete('/requests/:id', async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        const query = `DELETE FROM booking_requests WHERE schedule_id = ?`;
+        await db.run(query, [id]);
+        res.status(200).send({ message: 'Booking request deleted successfully' });
+    } catch (error) {
+        console.error('Error deleting booking request:', error.message);
+        res.status(500).send({ error: 'Failed to delete booking request' });
+    }
+});
+
 
 // Start the server
 app.listen(PORT, () => {
@@ -425,7 +578,58 @@ app.get('/toggled', async (req, res) => {
     }
 });
 
+// Booking request submitted (WIP)
+app.post('/submitRequest', (req, res) => {
+    try{
+        // Step 1: Verify if the user exists in the `users` table
+       const checkQuery = `SELECT * FROM unavailable WHERE device_id = ? AND user_id = ?`;
+       db.get(checkQuery, [newid, userid], (err, schedule) => {
+           if (err) {
+               console.error('Error checking schedule:', err.message);
+               return res.status(500).json({ error: 'Failed to check schedule.' });
+           }
+             // If the schedule exists then save the information from the user's request and store it until 
+             // they hit confirm booking request
+           if (schedule) {
+               // Submit 
+               const newToggleValue = bookmark.toggle === 1 ? 0 : 1; 
+               const updateQuery = `UPDATE bookmarks SET toggle = ? WHERE device_id = ? AND user_id = ?`;
+               db.run(updateQuery, [newToggleValue, newid, userid], function (err) {
+                   if (err) {
+                       console.error('Error updating toggle value:', err.message);
+                       return res.status(500).json({ error: 'Failed to update toggle value.' });
+                   }
 
+                   res.status(200).json({
+                       success: true,
+                       message: 'Bookmark toggle updated successfully.',
+                       newToggle: newToggleValue,
+                   });
+               });
+           } 
+           else {
+               // If the bookmark doesn't exist, return a message (or optionally create one)
+               // Insert the bookmark into the `bookmarks` table
+               const toggle = 1;
+               console.log("bookmark not found, inserting bookmark")
+               const insertBookmarkQuery = `INSERT INTO bookmarks (device_id, user_id, toggle) VALUES (?, ?, ?)`;
+               db.run(insertBookmarkQuery, [newid, userid, toggle], function (err) {
+                   if (err) {
+                       console.error('Error inserting bookmark:', err.message);
+                       return res.status(500).json({ error: 'Failed to save bookmark.' });
+                   }
+
+               console.log(`Bookmark saved for Device ID: ${newid} by User ID: ${userid}`);
+               res.status(200).json({ success: true, message: 'Bookmark saved successfully.', bookmarkId: this.lastID });
+               });
+           }
+       });
+   }
+   catch (error) {
+        console.error("Error bookmarking:", error);
+        console.log("Failed to bookmark. Please try again.");
+   } 
+});
 
 // Close database connection on server close
 process.on('SIGINT', () => {

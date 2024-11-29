@@ -1,10 +1,45 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import axios from 'axios';
 import './Home_Page.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import "bootstrap-icons/font/bootstrap-icons.css";
+import { useUser } from '../../UserContext';
 
 const HomePage = () => {
+    const { user } = useUser(); 
+    const [scheduledItems, setScheduledItems] = useState([]);
+
+    useEffect(() => {
+        const fetchScheduledData = async () => {
+            try {
+                const response = await axios.get(`http://localhost:5001/scheduled?student_id=${user.user_id}`);
+                console.log('Scheduled Items:', response.data); // Log the API response
+                setScheduledItems(response.data);
+            } catch (error) {
+                console.error('Error fetching scheduled data:', error.message);
+            }
+        };
+
+        fetchScheduledData();
+    }, [user.user_id]);
+
+    const handleCancel = async (unavailabilityId) => {
+        const confirmCancel = window.confirm('Are you sure you want to cancel this item?');
+        if (!confirmCancel) return;
+    
+        try {
+            await axios.delete(`http://localhost:5001/unavailable/${unavailabilityId}`);
+            setScheduledItems((prevItems) =>
+                prevItems.filter((item) => item.unavailability_id !== unavailabilityId)
+            );
+            console.log('Item canceled successfully');
+        } catch (error) {
+            console.error('Error canceling scheduled item:', error.message);
+        }
+    };
+    
+
     return (
         <>
                 <div className="col text-center">
@@ -31,41 +66,43 @@ const HomePage = () => {
                                         <tr>
                                             <th>Image</th>
                                             <th>Item</th>
-                                            <th>Description</th>
                                             <th>Time</th>
-                                            <th>
+                                            <th></th>
+                                            {/* <th className="cancel-button">
                                                 <button type="button" className="rounded-pill text-white cancel-button border-secondary">Cancel</button>
-                                            </th>
+                                            </th> */}
                                         </tr>
                                     </thead>
                                     <tbody>
+                                    {scheduledItems.length > 0 ? (
+                                        scheduledItems.map((item) => (
+                                            <tr key={item.unavailability_id}>
+                                                <td>
+                                                    <img src={`http://localhost:5001/static/equipment_photos/${item.image_path}`} className="item-image" />
+                                                </td>
+                                                <td>{item.device_name}</td>
+                                                <td>
+                                                    {item.date} @ {item.time_range}
+                                                </td>
+                                                <td className="checkbox-cell">
+                                                    <button className="cancel-button" onClick={() => handleCancel(item.unavailability_id)}>Cancel</button>
+                                                </td>
+                                            </tr>
+                                        ))
+                                    ) : (
                                         <tr>
-                                            <td>
-                                                <div>
-                                                    <i className="bi bi-image item-image me-2"></i>
-                                                </div>
-                                            </td>
-                                            <td>ITEM 1</td>
-                                            <td>
-                                                <div>
-                                                    Model Info
-                                                    <span className="bi bi-dot"></span>
-                                                    <span className="bi bi-clock"></span>
-                                                    <span className="bi bi-dot"></span>
-                                                    Building
-                                                </div>
-                                            </td>
-                                            <td>Data @ Time</td>
-                                            <td className="checkbox-cell">
-                                                <input className="checkbox" type="checkbox" value="" id="flexCheckDefault" />
+                                            <td colSpan="5" className="text-center">
+                                                No scheduled items found.
                                             </td>
                                         </tr>
-                                    </tbody>
-                                </table>
-                            </div>
+                                    )}
+                                </tbody>
+
+                            </table>
                         </div>
                     </div>
                 </div>
+            </div>
         </>
     );
 };

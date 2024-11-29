@@ -38,12 +38,16 @@
 }
 
 .cancel-button {
-    width: 80px; 
+    width: 30px; 
     height: 30px; 
     padding: 0;
     margin: 0;
+    align-items: end;
     background-color:#79747E;
-    border: none;
+    border: black;
+    border-radius: 5px;
+    border-width: 5px;
+    color: white;
 }
 
 .table-height {

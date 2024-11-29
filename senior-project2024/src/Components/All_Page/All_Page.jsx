@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Modal, Button } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import ViewPage from '../View_Equipment/View_Equipment.jsx';
+import Book_Equipment from '../View_Equipment/Book_Equipment.jsx';
 import './All_Page.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import "bootstrap-icons/font/bootstrap-icons.css";
@@ -15,23 +16,56 @@ const All_Page = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [bookmarkedItems, setBookmarkedItems] = useState({});
+    const [requsetBooking, setRequestBooking] = useState({});
     const [searchTerm, setSearchTerm] = useState('');
     const [currentPage, setCurrentPage] = useState(1); // Current page
     const postsPerPage = 8; // Number of items per page
+    const [showConfirmationModal, setShowConfirmationModal] = useState(false);
+
+    // Centralizing Modal State
+    const [modalState, setModalState] = useState({
+        show: false,
+        type: '', // 'device' or 'calendar'
+        device: null,
+    });
+
+
+    useEffect(() => {
+        // Fetch devices and other data when component mounts
+    }, []);
+
+    const handleCloseConfirmationModal = () => {
+        setShowConfirmationModal(false);  // Close confirmation modal if user cancels
+    };
+
 
     // Modal state
     const [selectedDevice, setSelectedDevice] = useState(null);
     const [showDevice, setShowDevice] = useState(false);
- 
-    const handleShowDevice = (device) => {
-        setSelectedDevice(device);
-        setShowDevice(true);
+    const [showCalendar, setShowCalendar] = useState(false);
+
+    // Open Modal Handler
+    const openModal = (type, device = null) => {
+        setModalState({ show: true, type, device });
     };
 
-    const handleCloseDevice = () => {
-        setSelectedDevice(null);
-        setShowDevice(false);
+    // Close Modal Handler
+    const closeModal = () => {
+        setModalState({ show: false, type: '', device: null });
     };
+
+    // Handle showing device details
+    const handleShowDevice = (device) => {
+        openModal('device', device); // Show device details modal
+    };
+
+    // Handle showing calendar for booking
+    const handleCalendarShow = () => {
+        openModal('calendar', modalState.device); // Pass selected device to calendar modal
+    };
+    const handleCloseDevice = () => setShowDevice(false);
+
+    const handleCalendarClose = () => setShowCalendar(false);
 
     // Bookmark function
    const handleBookmarkClick =  async (e, id) => {
@@ -68,8 +102,6 @@ const All_Page = () => {
     const handleSearchChange = (e) => {
         setSearchTerm(e.target.value.toLowerCase());
     };
-
-    
 
     useEffect(() => {
         const fetchData = async () => {
@@ -129,7 +161,6 @@ const All_Page = () => {
     const indexOfLastPost = currentPage * postsPerPage;
     const indexOfFirstPost = indexOfLastPost - postsPerPage;
     const currentDevices = filteredDevices.slice(indexOfFirstPost, indexOfLastPost);
-
     
 
     return (
@@ -191,6 +222,7 @@ const All_Page = () => {
                                                     <div className="description-item">
                                                         <span className="description-label">Person In Charge:</span>
                                                         <span className="description-value">{device.person_in_charge}</span>
+
                                                     </div>
                                                     <div className="description-item">
                                                         <span className="description-label">Building:</span>
@@ -230,21 +262,45 @@ const All_Page = () => {
 
             {/* Modal for Viewing Device Details */}
             <Modal
-                show={showDevice}
-                onHide={handleCloseDevice}
+                show={modalState.show}
+                onHide={closeModal}
+                backdrop="static" // Prevent closing on backdrop click
+                keyboard={false} // Prevent closing with Escape key
                 centered
                 dialogClassName="custom-wide-modal"
                 size="xl"
             >
+                <Modal.Header closeButton>
+                    <Modal.Title>
+                        {modalState.type === 'device' ? 'Equipment Information' : 'Select Dates'}
+                    </Modal.Title>
+                </Modal.Header>
+
                 <Modal.Body>
-                    <ViewPage device={selectedDevice} />
+                    {modalState.type === 'device' && <ViewPage device={modalState.device} />}
+                    {modalState.type === 'calendar' && (
+                        <Book_Equipment device={modalState.device} ownerId={modalState.device?.owner_id}/>
+
+                    )}
                 </Modal.Body>
+
                 <Modal.Footer>
-                    <Button variant="secondary" onClick={handleCloseDevice}>
-                        Close
-                    </Button>
+                    {modalState.type === 'device' && (
+                        <Button variant="secondary" onClick={handleCalendarShow}>
+                            <i className="bi bi-arrow-right"></i>
+                        </Button>
+                    )}
+                    {modalState.type === 'calendar' && (
+                        <>
+                            <Button variant="secondary" onClick={() => openModal('device', modalState.device)}>
+                                <i className="bi bi-arrow-left"></i>
+                            </Button>
+                        </>
+                    )}
                 </Modal.Footer>
             </Modal>
+
+                
         </div>
     </>
     );  
