@@ -3,6 +3,7 @@ import { Modal, Button } from 'react-bootstrap'; // Added Button for close and n
 import axios from 'axios';
 import './Report_Equipment.css';
 import Profile_Message from "../Profile_Page/Profile_Message.jsx";
+import { useUser } from '../../UserContext.js'; // Import the useUser hook
 
 const ReportEquipment = ({ device_id, onHide }) => { 
     const [device, setDevice] = useState(null); // State to store fetched device data
@@ -10,6 +11,8 @@ const ReportEquipment = ({ device_id, onHide }) => {
     const [showProfilePopup, setShowProfilePopup] = useState(false);
     const [showReportProblemModal, setShowReportProblemModal] = useState(false); // State for report problem modal
     const [personInChargeName, setPersonInChargeName] = useState('');
+
+    const { user } = useUser(); // Access user details from UserContext
 
     useEffect(() => {
         const fetchDeviceData = async () => {
@@ -242,11 +245,21 @@ const ReportEquipment = ({ device_id, onHide }) => {
                         </div>
                         <div className="mb-3">
                             <label className="form-label">Reporter Name</label>
-                            <input type="text" className="form-control" />
+                            <input
+                                type="text"
+                                className="form-control"
+                                value={user.user_name || ''}
+                                readOnly // Make the field read-only
+                            />
                         </div>
                         <div className="mb-3">
                             <label className="form-label">Reporter Email</label>
-                            <input type="email" className="form-control" />
+                            <input
+                                type="email"
+                                className="form-control"
+                                value={user.user_email || ''}
+                                readOnly // Make the field read-only
+                            />
                         </div>
                         <div className="mb-3">
                             <label className="form-label">Issue Description</label>

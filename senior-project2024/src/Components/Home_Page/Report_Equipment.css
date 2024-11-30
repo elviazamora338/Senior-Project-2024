@@ -30,3 +30,16 @@
     margin: 0 auto;
     text-align: left;
 }
+
+/* Style input fields to match */
+form .form-control[readonly] {
+    background-color: #f8f9fa; /* Match other input fields */
+    opacity: 1; /* Ensure consistent visibility */
+    border: 1px solid #ced4da; /* Keep consistent border styling */
+    color: #495057; /* Ensure readable text */
+}
+
+/* Increase the height of the Issue Description text area */
+form textarea.form-control {
+    height: 150px; /* Adjust height as needed */
+}
