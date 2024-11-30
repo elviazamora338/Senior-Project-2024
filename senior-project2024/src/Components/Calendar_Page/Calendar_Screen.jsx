@@ -3,6 +3,8 @@ import { useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css'; 
 import 'bootstrap-icons/font/bootstrap-icons.css'
 import './Calendar.css'; 
+import axios from 'axios';
+import { useUser } from '../../UserContext';
 
 
 let months = [
@@ -370,7 +372,8 @@ function GenerateCalender({ unavailableDates }) {
 
 
 
-function Calendar_Screen() {
+function Calendar_Screen({device_id}) {
+    const { user } = useUser(); // Access user from context
     const [availabilityList, setAvailabilityList] = useState([]);
     const [unavailableDates, setUnavailableDates] = useState({});
 
@@ -395,6 +398,39 @@ function Calendar_Screen() {
         return acc;
     }, {});
     
+    const saveUnavailableDates = async () => {
+        // Check if there are any unavailable dates selected
+    if (Object.keys(flattenedUnavailableDates).length === 0) {
+        alert("Please select at least one unavailable date and time.");
+        return; // Exit early if no unavailable dates are selected
+    }
+        // Transform flattenedUnavailableDates into the required format for the backend
+    const unavailableEntries = Object.entries(flattenedUnavailableDates).map(([date, info]) => ({
+        date: date,                          // Pass the date
+        time_range: info.times.join(', '),   // Convert times array into a string (e.g., "8am-10am, 10am-12pm")
+        //device_id: device_id,                      // Example device ID (replace with dynamic value)
+        owner_id: user.user_id,                       // Example owner ID (replace with dynamic value)
+    }));
+    try {
+        console.log("Saving unavailable dates:", unavailableEntries); // Debug log
+        const response = await axios.post('http://localhost:5001/unavailable', unavailableEntries, {
+            headers: {
+                "Content-Type": "application/json",
+            },
+        });
+        if (response.status === 201) {
+            alert("Unavailable dates saved successfully!");
+        } else {
+            console.error("Failed to save unavailable dates:", response.statusText);
+            alert("Error saving unavailable dates.");
+        }
+    } catch (error) {
+        console.error("Error:", error);
+        alert("An error occurred while saving unavailable dates.");
+    }
+        
+};
+
 
     return (
         <div className="container">
@@ -435,6 +471,14 @@ function Calendar_Screen() {
                 </div>
                 <div className="col-md-5">
                     <GenerateCalender unavailableDates={flattenedUnavailableDates} />
+                </div>
+            </div>
+            <div className='row mt-3'>
+                <div className='col-md-12 text-end'>
+                    {/* Save button */}
+                    <button onClick={saveUnavailableDates} className='btn btn-success'>
+                        Save Unavailable Dates
+                    </button>
                 </div>
             </div>
 

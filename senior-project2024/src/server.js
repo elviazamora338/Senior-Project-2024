@@ -4,12 +4,16 @@ const cors = require('cors');
 const path = require('path');
 const crypto = require('crypto');
 const nodemailer = require('nodemailer');
+const bodyParser = require('body-parser');
+const multer = require('multer');  
+const { timeEnd } = require('console');
 require('dotenv').config();
 const app = express();
 const PORT = process.env.PORT || 5001;
 app.use(cors());
 app.use(express.json());
 app.use('/static', express.static(path.join(__dirname, 'static')));
+app.use(bodyParser.json()); 
 
 // Verify environment variables
 if (!process.env.EMAIL_USER || !process.env.EMAIL_PASSWORD) {
@@ -106,20 +110,40 @@ app.patch('/requests/:id', (req, res) => {
 
 // Insert into unavailable table in the database to update the calendar
 app.post('/unavailable', async (req, res) => {
-    const { time_range, student_id, device_id, owner_id, date } = req.body;
+    const unavailableItems = req.body;
+
+    if (!Array.isArray(unavailableItems)) {
+        return res.status(400).send({ error: 'Invalid data format. Expected an array of objects.' });
+    }
 
     try {
         const query = `
-            INSERT INTO unavailable (time_range, student_id, device_id, owner_id, date)
-            VALUES (?, ?, ?, ?, ?)
+            INSERT INTO unavailable (time_range, owner_id, date)
+            VALUES (?, ?, ?)
         `;
-        await db.run(query, [time_range, student_id, device_id, owner_id, date]);
+
+        for (const item of unavailableItems) {
+            const { time_range, owner_id, date } = item;
+
+            if (!time_range || !owner_id || !date) {
+                console.error('Missing fields in item:', item);
+                continue; // Skip if required fields are missing
+            }
+
+            console.log("Values being inserted into database:", [time_range, owner_id, date]);
+
+            await db.run(query, [time_range, owner_id, date]);
+        }
+
         res.status(201).send({ message: 'Unavailability recorded successfully' });
     } catch (error) {
         console.error('Error inserting into unavailable table:', error.message);
         res.status(500).send({ error: 'Failed to add unavailability' });
     }
 });
+
+
+
 
 // Handle scheduled devices for student (or user) that booked the equipment 
 app.get('/scheduled', async (req, res) => {
@@ -268,7 +292,7 @@ app.post('/verify-otp', async (req, res) => {
 // app.get('/test-email', (req, res) => {
 //     const mailOptions = {
 //         from: process.env.EMAIL_USER,
-//         to: 'amadozuniga3@yahoo.com',
+//         to: '********@yahoo.com',
 //         subject: 'Test Email',
 //         text: 'This is a test email.'
 //     };
@@ -283,6 +307,63 @@ app.post('/verify-otp', async (req, res) => {
 //     });
 // });
 
+// Endpoint to add a new lab device
+app.post('/add-device', (req, res) => {
+    const {
+        campus, department, building, room_number, person_in_charge,
+        device_name, description, application, manual_link,
+        category, model, brand, keywords, available, image_path
+    } = req.body;
+
+    const query = `INSERT INTO lab_devices (
+    campus, department, building, room_number, person_in_charge, device_name, 
+    description, application, manual_link, category, model, brand, keywords, available, image_path)
+    VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`;
+
+    db.run(query, [
+        campus, department, building, room_number, person_in_charge, device_name, description, application,
+        manual_link, category, model, brand, keywords, available, image_path
+    ], function (err) {
+        if (err) {
+            console.error(err.message);
+            res.status(500).json({ error: "Failed to add the lab device." });
+        } else {
+            res.status(200).json({ message: "Lab device was added successfully!", id: this.lastID })
+        }
+    });
+});
+
+// Configure Multer
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, path.join(__dirname, "static/equipment_photos")); // Save in static folder
+    },
+    filename: (req, file, cb) => {
+        const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+        const fileExtension = path.extname(file.originalname);
+        cb(null, file.fieldname + "-" + uniqueSuffix + fileExtension); // Custom filename
+    },
+});
+
+const upload = multer({ storage });
+
+// File upload endpoint
+app.post("/upload", upload.single("image"), (req, res) => {
+    // Check if the file was uploaded
+    if (!req.file) {
+        return res.status(400).json({ error: "No file uploaded." });
+    }
+
+    // Extract the file path
+    const filePath = `/${req.file.filename}`;
+
+
+        // Respond with success
+        res.status(200).json({
+            message: "File uploaded and path saved successfully!",
+            path: filePath,
+        });
+    });
 
 // Endpoint to add a new user in signup page
 app.post('/add-user', (req, res) => {
