@@ -1,0 +1,32 @@
+/* Styles for the red report problem button in the footer */
+.report-problem-button {
+    background-color: #dc3545;
+    border: none;
+    color: white;
+    font-size: 1rem;
+    font-weight: bold;
+    padding: 0.5rem 1.5rem;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.report-problem-button:hover {
+    background-color: #c82333;
+    color: #fff;
+}
+
+/* Center the modal content */
+.modal-body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+/* Style the form to ensure it's responsive and centered */
+.report-problem-form {
+    width: 100%;
+    max-width: 400px; /* Adjust this width as needed */
+    margin: 0 auto;
+    text-align: left;
+}

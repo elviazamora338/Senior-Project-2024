@@ -1,16 +1,16 @@
 import React, { useEffect, useState } from 'react';
-import { Modal } from 'react-bootstrap';
+import { Modal, Button } from 'react-bootstrap'; // Added Button for close and new modal
 import axios from 'axios';
 import './Report_Equipment.css';
 import Profile_Message from "../Profile_Page/Profile_Message.jsx";
 
-const ReportEquipment = ({ device_id }) => {
+const ReportEquipment = ({ device_id, onHide }) => { 
     const [device, setDevice] = useState(null); // State to store fetched device data
     const [loading, setLoading] = useState(true); // Loading state
     const [showProfilePopup, setShowProfilePopup] = useState(false);
+    const [showReportProblemModal, setShowReportProblemModal] = useState(false); // State for report problem modal
     const [personInChargeName, setPersonInChargeName] = useState('');
 
-    // Fetch device data when component mounts or device_id changes
     useEffect(() => {
         const fetchDeviceData = async () => {
             try {
@@ -190,6 +190,12 @@ const ReportEquipment = ({ device_id }) => {
                 </div>
             </div>
 
+            <div className="d-flex justify-content-end p-3">
+                <Button variant="danger" onClick={() => setShowReportProblemModal(true)}>
+                    Report Problem
+                </Button>
+            </div>
+
             {/* Profile_Message modal */}
             <Profile_Message
                 show={showProfilePopup}
@@ -197,8 +203,67 @@ const ReportEquipment = ({ device_id }) => {
                 personInChargeName={personInChargeName}
                 equipmentName={device.device_name} // Pass the equipment name
             />
+
+            {/* Report Problem Modal */}
+            <Modal
+                show={showReportProblemModal}
+                onHide={() => setShowReportProblemModal(false)}
+                centered
+            >
+                <Modal.Header>
+                    <Modal.Title>
+                        Report Problem
+                    </Modal.Title>
+                    <Button
+                        variant="link"
+                        className="btn-close"
+                        onClick={() => setShowReportProblemModal(false)}
+                    />
+                </Modal.Header>
+                <Modal.Body>
+                    <form>
+                        <div className="mb-3">
+                            <label className="form-label">Equipment ID/Name</label>
+                            <input
+                                type="text"
+                                className="form-control"
+                                value={device.device_name || ''}
+                                readOnly
+                            />
+                        </div>
+                        <div className="mb-3">
+                            <label className="form-label">Person In-Charge</label>
+                            <input
+                                type="text"
+                                className="form-control"
+                                value={device.person_in_charge || ''}
+                                readOnly
+                            />
+                        </div>
+                        <div className="mb-3">
+                            <label className="form-label">Reporter Name</label>
+                            <input type="text" className="form-control" />
+                        </div>
+                        <div className="mb-3">
+                            <label className="form-label">Reporter Email</label>
+                            <input type="email" className="form-control" />
+                        </div>
+                        <div className="mb-3">
+                            <label className="form-label">Issue Description</label>
+                            <textarea
+                                className="form-control"
+                                rows="3"
+                            ></textarea>
+                        </div>
+                        <Button variant="danger" type="submit">
+                            Report Problem
+                        </Button>
+                    </form>
+                </Modal.Body>
+            </Modal>
         </>
     );
 };
 
 export default ReportEquipment;
+

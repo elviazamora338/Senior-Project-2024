@@ -119,21 +119,27 @@ const HomePage = () => {
 
             {/* Modal for displaying device details */}
             <Modal
-    show={showDeviceModal}
-    onHide={() => setShowDeviceModal(false)}
-    centered
-    dialogClassName="custom-wide-modal"
-    size="xl"
->
-    <Modal.Body>
-        {selectedDevice && <ReportEquipment device_id={selectedDevice} />} {/* Pass device_id */}
-    </Modal.Body>
-    <Modal.Footer>
-        <Button variant="secondary" onClick={() => setShowDeviceModal(false)}>
-            Close
-        </Button>
-    </Modal.Footer>
-</Modal>
+                show={showDeviceModal}
+                onHide={() => setShowDeviceModal(false)}
+                centered
+                dialogClassName="custom-wide-modal"
+                size="xl"
+            >
+                <Modal.Header>
+                    <Modal.Title>
+                        Equipment Information
+                    </Modal.Title>
+                    <Button
+                        variant="link"
+                        className="btn-close"
+                        onClick={() => setShowDeviceModal(false)}
+                    />
+                </Modal.Header>   
+                <Modal.Body>
+                    {selectedDevice && <ReportEquipment device_id={selectedDevice} />} {/* Pass device_id */}
+                </Modal.Body>
+                
+            </Modal>
 
         </>
     );
