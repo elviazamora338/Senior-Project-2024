@@ -220,6 +220,56 @@ app.delete('/requests/:id', async (req, res) => {
 });
 
 
+// Endpoint to save a report in the reports table
+app.post('/reports', (req, res) => {
+    const {
+        device_id,
+        device_name,
+        owner_name,
+        reporter_id,
+        reporter_name,
+        reporter_email,
+        issue_description,
+        status,
+    } = req.body;
+
+    // Validate required fields
+    if (!device_id || !device_name || !owner_name || !reporter_id || !reporter_name || !reporter_email || !issue_description) {
+        return res.status(400).json({ error: 'All fields are required.' });
+    }
+
+    const defaultStatus = status || 'pending'; // Default to 'pending' if not provided
+
+    const query = `
+        INSERT INTO reports (device_id, device_name, owner_name, reporter_id, reporter_name, reporter_email, issue_description, status)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    `;
+
+    db.run(
+        query,
+        [
+            device_id,
+            device_name,
+            owner_name,
+            reporter_id,
+            reporter_name,
+            reporter_email,
+            issue_description,
+            defaultStatus,
+        ],
+        function (err) {
+            if (err) {
+                console.error('Error inserting report:', err.message);
+                return res.status(500).json({ error: 'Failed to save report.' });
+            }
+            res.json({ message: 'Report saved successfully.', reportId: this.lastID });
+        }
+    );
+});
+
+
+
+
 // Start the server
 app.listen(PORT, () => {
     console.log(`Server running at http://localhost:${PORT}`);
