@@ -268,6 +268,58 @@ app.post('/reports', (req, res) => {
 });
 
 
+// Endpoint to fetch reports based on owner_name
+app.get('/reports', (req, res) => {
+    const { owner_name } = req.query;
+
+    if (!owner_name) {
+        return res.status(400).json({ error: 'Owner name is required.' });
+    }
+
+    const query = `
+        SELECT reporter_name, reporter_email, device_name, status, issue_description, report_id
+        FROM reports
+        WHERE owner_name = ?;
+    `;
+
+    db.all(query, [owner_name], (err, rows) => {
+        if (err) {
+            console.error('Error fetching reports:', err.message);
+            return res.status(500).json({ error: 'Failed to fetch reports.' });
+        }
+
+        res.json(rows);
+    });
+});
+
+
+
+// Update the status of a report
+app.patch('/reports/:id', (req, res) => {
+    const { id } = req.params;
+    const { status } = req.body;
+
+    if (!status) {
+        return res.status(400).json({ error: 'Status is required.' });
+    }
+
+    const query = `
+        UPDATE reports
+        SET status = ?
+        WHERE report_id = ?
+    `;
+
+    db.run(query, [status, id], function (err) {
+        if (err) {
+            console.error('Error updating report status:', err.message);
+            return res.status(500).json({ error: 'Failed to update report status.' });
+        }
+
+        res.json({ message: 'Report status updated successfully.' });
+    });
+});
+
+
 
 
 // Start the server

@@ -1,0 +1,13 @@
+/* Center the buttons in the modal footer */
+.modal-footer {
+    display: flex;
+    justify-content: center;
+    align-items: center; 
+    gap: 1rem; 
+    padding: 1rem; 
+}
+
+.modal-footer .btn {
+    min-width: 120px; 
+    text-align: center; 
+}
