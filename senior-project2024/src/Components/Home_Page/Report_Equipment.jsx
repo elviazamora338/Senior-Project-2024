@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { Modal, Button } from 'react-bootstrap'; // Added Button for close and new modal
+import { Modal, Button } from 'react-bootstrap';
 import axios from 'axios';
 import './Report_Equipment.css';
 import Profile_Message from "../Profile_Page/Profile_Message.jsx";
-import { useUser } from '../../UserContext.js'; // Import the useUser hook
+import { useUser } from '../../UserContext.js';
 
 const ReportEquipment = ({ device_id, onHide }) => { 
     const [device, setDevice] = useState(null); // State to store fetched device data

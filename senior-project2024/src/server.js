@@ -320,6 +320,23 @@ app.patch('/reports/:id', (req, res) => {
 });
 
 
+// Delete a report
+app.delete('/reports/:id', (req, res) => {
+    const { id } = req.params;
+
+    const query = `DELETE FROM reports WHERE report_id = ?`;
+
+    db.run(query, [id], function (err) {
+        if (err) {
+            console.error('Error deleting report:', err.message);
+            return res.status(500).json({ error: 'Failed to delete report' });
+        }
+
+        res.json({ message: 'Report deleted successfully' });
+    });
+});
+
+
 
 
 // Start the server

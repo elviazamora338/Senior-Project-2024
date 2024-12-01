@@ -11,3 +11,31 @@
     min-width: 120px; 
     text-align: center; 
 }
+
+
+/* Flashing red button for pending reports */
+.btn-flash {
+    background-color: red !important;
+    animation: flash 1s infinite;
+    color: white !important;
+    border: none;
+}
+
+/* Flash animation keyframes */
+@keyframes flash {
+    0% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+/* Flexbox layout for Action buttons */
+.action-buttons {
+    display: flex;
+    align-items: center;
+}

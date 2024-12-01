@@ -47,14 +47,32 @@ const ReportsPage = () => {
             const response = await axios.patch(`http://localhost:5001/reports/${selectedReport.report_id}`, { status });
             alert(response.data.message || `Report status updated to ${status}.`);
             setShowModal(false); // Close the modal
+
+            // Update the local state
             setReports((prevReports) =>
                 prevReports.map((r) =>
                     r.report_id === selectedReport.report_id ? { ...r, status } : r
                 )
-            ); // Update the status in the local state
+            );
         } catch (error) {
             console.error('Error updating report status:', error.message);
             alert('Failed to update status. Please try again.');
+        }
+    };
+
+    const handleDeleteReport = async (reportId) => {
+        const confirmDelete = window.confirm('Are you sure you want to delete this report?');
+        if (!confirmDelete) return;
+
+        try {
+            await axios.delete(`http://localhost:5001/reports/${reportId}`);
+            setReports((prevReports) =>
+                prevReports.filter((report) => report.report_id !== reportId)
+            );
+            alert('Report deleted successfully.');
+        } catch (error) {
+            console.error('Error deleting report:', error.message);
+            alert('Failed to delete report. Please try again.');
         }
     };
 
@@ -68,17 +86,31 @@ const ReportsPage = () => {
 
     return (
         <>
-            {/* Requests and Inventory Buttons */}
             <div className="col text-center">
                 <div className="btn-group">
                     <Link to="/requests">
-                        <button type="button" className="bi bi-clock btn btn-outline-dark text-dark btn buttons-right"> Requests</button>
+                        <button
+                            type="button"
+                            className="bi bi-clock btn btn-outline-dark text-dark btn buttons-right"
+                        >
+                            Requests
+                        </button>
                     </Link>
                     <Link to="/reports">
-                        <button type="button" className="bi bi-box btn text-dark btn btn-secondary middle-button"> Reports</button>
+                        <button
+                            type="button"
+                            className="bi bi-box btn text-dark btn middle-button btn-secondary"
+                        >
+                            Reports
+                        </button>
                     </Link>
                     <Link to="/inventory">
-                        <button type="button" className="bi bi-clipboard-fill btn btn-outline-dark text-dark border-secondary buttons-left"> Inventory</button>
+                        <button
+                            type="button"
+                            className="bi bi-clipboard-fill btn btn-outline-dark text-dark border-secondary buttons-left"
+                        >
+                            Inventory
+                        </button>
                     </Link>
                 </div>
             </div>
@@ -106,13 +138,22 @@ const ReportsPage = () => {
                                             <td>{report.device_name}</td>
                                             <td>{report.status}</td>
                                             <td>
-                                                <button
-                                                    type="button"
-                                                    className="btn btn-secondary btn-sm"
-                                                    onClick={() => handleViewClick(report)}
-                                                >
-                                                    View
-                                                </button>
+                                                <div className="action-buttons">
+                                                    <button
+                                                        type="button"
+                                                        className="btn btn-secondary btn-sm"
+                                                        onClick={() => handleViewClick(report)}
+                                                    >
+                                                        View
+                                                    </button>
+                                                    {report.status === 'Resolved' && (
+                                                        <button
+                                                            type="button"
+                                                            className="btn btn-danger btn-sm bi bi-trash ms-2"
+                                                            onClick={() => handleDeleteReport(report.report_id)}
+                                                        ></button>
+                                                    )}
+                                                </div>
                                             </td>
                                         </tr>
                                     ))}
@@ -167,15 +208,15 @@ const ReportsPage = () => {
                     </div>
                 </Modal.Body>
                 <Modal.Footer>
-                <Button variant="danger" onClick={() => handleStatusUpdate('Unresolved')}>
-                    Unresolve
-                </Button>
-                <Button variant="warning" onClick={() => handleStatusUpdate('In Progress')}>
-                    In Progress
-                </Button>
-                <Button variant="success" onClick={() => handleStatusUpdate('Resolved')}>
-                    Resolve
-                </Button>
+                    <Button variant="danger" onClick={() => handleStatusUpdate('Unresolved')}>
+                        Unresolve
+                    </Button>
+                    <Button variant="warning" onClick={() => handleStatusUpdate('In Progress')}>
+                        In Progress
+                    </Button>
+                    <Button variant="success" onClick={() => handleStatusUpdate('Resolved')}>
+                        Resolve
+                    </Button>
                 </Modal.Footer>
             </Modal>
         </>
