@@ -40,7 +40,7 @@ const ReportEquipment = ({ device_id, onHide }) => {
     // Handle Report Problem submission
     const handleReportProblem = async (e) => {
         e.preventDefault();
-
+    
         const reportData = {
             device_id: device.device_id,
             device_name: device.device_name,
@@ -51,18 +51,37 @@ const ReportEquipment = ({ device_id, onHide }) => {
             issue_description: issueDescription,
             status: 'pending', // Default status
         };
-
+    
         try {
+            // Submit the report
             const response = await axios.post('http://localhost:5001/reports', reportData);
             alert(response.data.message || 'Report submitted successfully.');
+    
+            // Fetch the unavailability_id using device_id
+            const unavailabilityResponse = await axios.get(
+                `http://localhost:5001/unavailable/by-device/${device.device_id}`
+            );
+            const unavailabilityId = unavailabilityResponse.data.unavailability_id;
+    
+            if (unavailabilityId) {
+                // Delete the unavailability record
+                await axios.delete(`http://localhost:5001/unavailable/${unavailabilityId}`);
+                alert('Scheduled booking removed successfully.');
+
+                // Refresh the page
+                window.location.reload();
+            } else {
+                alert('No scheduled booking found to remove.');
+            }
+    
             setShowReportProblemModal(false); // Close the modal on success
             setIssueDescription(''); // Reset the issue description field
         } catch (error) {
-            console.error('Error submitting report:', error.message);
-            alert('Failed to submit report. Please try again.');
+            console.error('Error submitting report or deleting booking:', error.message);
+            alert('Failed to submit report or delete scheduled booking. Please try again.');
         }
     };
-
+    
     if (loading) return <p>Loading device data...</p>;
     if (!device) return <p>No device data available</p>;
 
@@ -308,3 +327,4 @@ const ReportEquipment = ({ device_id, onHide }) => {
 };
 
 export default ReportEquipment;
+

@@ -76,6 +76,9 @@ const ReportsPage = () => {
         }
     };
 
+    // Check if there are any "pending" reports
+    const hasPendingReports = reports.some((report) => report.status === 'pending');
+
     if (loading) {
         return <p>Loading reports...</p>;
     }
@@ -99,7 +102,9 @@ const ReportsPage = () => {
                     <Link to="/reports">
                         <button
                             type="button"
-                            className="bi bi-box btn text-dark btn middle-button btn-secondary"
+                            className={`bi bi-box btn text-dark btn middle-button ${
+                                hasPendingReports ? 'btn-flash' : 'btn-secondary'
+                            }`}
                         >
                             Reports
                         </button>

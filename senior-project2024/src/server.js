@@ -205,6 +205,32 @@ app.get('/device/:device_id', (req, res) => {
     });
 });
 
+
+app.get('/unavailable/by-device/:device_id', (req, res) => {
+    const { device_id } = req.params;
+
+    const query = `
+        SELECT unavailability_id
+        FROM unavailable
+        WHERE device_id = ?
+    `;
+
+    db.get(query, [device_id], (err, row) => {
+        if (err) {
+            console.error('Error fetching unavailability_id:', err.message);
+            return res.status(500).json({ error: 'Failed to fetch unavailability_id.' });
+        }
+
+        if (!row) {
+            return res.status(404).json({ error: 'No unavailability record found for this device.' });
+        }
+
+        res.json(row);
+    });
+});
+
+
+
 // Delete requests from my equipment page (owner page)
 app.delete('/requests/:id', async (req, res) => {
     const { id } = req.params;
