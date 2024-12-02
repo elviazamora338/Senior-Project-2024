@@ -10,20 +10,41 @@ import { useUser } from '../../UserContext';
 const InventoryPage = () => {
     const { user } = useUser(); 
     const [inventory, setInventory] = useState([]);
-    const [currentPage, setCurrentPage] = useState(1); 
+    const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 8; 
 
     useEffect(() => {
         if (user && user.user_name) {
-            axios.get('http://localhost:5001/inventory', { params: { person_in_charge: user.user_name } })
-                .then((response) => {
-                    setInventory(response.data);
-                })
-                .catch((error) => {
-                    console.error('Error fetching inventory:', error);
-                });
+            fetchInventory();
         }
     }, [user]);
+
+    // Fetch inventory data
+    const fetchInventory = () => {
+        axios.get('http://localhost:5001/inventory', { params: { person_in_charge: user.user_name } })
+            .then((response) => {
+                setInventory(response.data);
+            })
+            .catch((error) => {
+                console.error('Error fetching inventory:', error);
+            });
+    };
+
+    // Handle delete row
+    const handleDelete = (device_id) => {
+        if (window.confirm(`Are you sure you want to delete this item?`)) {
+            axios
+                .delete(`http://localhost:5001/inventory/${device_id}`)
+                .then((response) => {
+                    console.log(response.data.message);
+                    // Refresh the inventory list after deletion
+                    fetchInventory();
+                })
+                .catch((error) => {
+                    console.error('Error deleting device:', error);
+                });
+        }
+    };
 
     // Get current items for the current page
     const indexOfLastItem = currentPage * itemsPerPage;
@@ -99,6 +120,11 @@ const InventoryPage = () => {
                                                 >
                                                     View
                                                 </button>
+                                                <i
+                                                    className="bi bi-trash-fill text-danger ms-3 delete-icon"
+                                                    onClick={() => handleDelete(item.device_id)}
+                                                    style={{ cursor: 'pointer' }}
+                                                ></i>
                                             </td>
                                         </tr>
                                     ))}
