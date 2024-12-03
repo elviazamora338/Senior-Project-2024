@@ -499,7 +499,7 @@ app.post('/send-otp', async (req, res) => {
                 attachments: [
                     {
                         filename: 'logo.png', 
-                        path: '/Users/owner/Desktop/Senior Project/Senior-Project-2024/senior-project2024/src/static/logo/bookem-high-resolution-logo-transparent.png', 
+                        path: 'static/logo/bookem-high-resolution-logo-transparent.png', 
                         cid: 'websiteLogo'
                     }
                 ]
