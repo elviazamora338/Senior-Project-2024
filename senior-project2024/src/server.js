@@ -473,8 +473,36 @@ app.post('/send-otp', async (req, res) => {
                 to: email,
                 subject: 'Your OTP Code',
                 text: `Your OTP code is: ${otp}`, 
-                html: `<p>Your OTP code is: <strong>${otp}</strong></p>`, 
-                replyTo: process.env.EMAIL_USER
+                html:
+                    `
+    <div style="font-family: Arial, sans-serif; color: #333; line-height: 1.6; padding: 20px; border: 1px solid #ddd; border-radius: 8px; max-width: 600px; margin: 0 auto; background-color: #f9f9f9;">
+        <div style="text-align: center; margin-bottom: 20px;">
+            <img src="cid:websiteLogo" alt="Website Logo" style="width: 150px; height: auto; display: inline-block;"/>
+        </div>
+        <h2 style="color: #4CAF50; text-align: center; margin-top: 0;">Your OTP Code</h2>
+        <p style="font-size: 16px; text-align: center;">
+            Please use the following OTP code to complete your verification:
+        </p>
+        <p style="font-size: 24px; font-weight: bold; text-align: center; color: #333; margin: 10px 0;">
+            ${otp}
+        </p>
+        <p style="font-size: 14px; text-align: center; color: #666;">
+            This code is valid for 10 minutes. If you didn’t request this code, please ignore this email.
+        </p>
+        <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
+        <p style="font-size: 14px; text-align: center; color: #999;">
+            Thank you for using <strong>BOOK'EM</strong>! If you have any questions, feel free to contact us.
+        </p>
+    </div>
+`, 
+                replyTo: process.env.EMAIL_USER,
+                attachments: [
+                    {
+                        filename: 'logo.png', 
+                        path: '/Users/owner/Desktop/Senior Project/Senior-Project-2024/senior-project2024/src/static/logo/bookem-high-resolution-logo-transparent.png', 
+                        cid: 'websiteLogo'
+                    }
+                ]
             };
 
             transporter.sendMail(mailOptions, (error, info) => {
