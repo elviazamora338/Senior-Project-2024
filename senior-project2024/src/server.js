@@ -123,34 +123,18 @@ app.patch('/requests/:id', (req, res) => {
                     return res.status(500).json({ error: 'Failed to fetch booking details' });
                 }
 
+                // for history 
                 if (booking) {
-                    const insertHistoryQuery = `
-                        INSERT INTO history (schedule_id, student_id, device_id, owner_id, booking_time, booking_date, reason, image_path)
-                        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-                    `;
-
-                    db.run(
-                        insertHistoryQuery,
-                        [
-                            booking.schedule_id,
-                            booking.student_id,
-                            booking.device_id,
-                            booking.owner_id,
-                            booking.request_time,
-                            booking.request_date,
-                            booking.reason,
-                            booking.image_path || null
-                        ],
-                        function (historyErr) {
-                            if (historyErr) {
-                                console.error('Error adding to history:', historyErr.message);
-                                return res.status(500).json({ error: 'Failed to add to history' });
-                            }
-
-                            console.log('Booking added to history with History ID:', this.lastID);
-                            res.json({ message: 'Request approved and added to history successfully' });
+                    repeatedHistory(booking, (historyErr, action) => {
+                        if (historyErr) {
+                            return res.status(500).json({ error: 'Failed to process history' });
                         }
-                    );
+                        const message =
+                            action === 'updated'
+                                ? 'Request approved and history updated successfully'
+                                : 'Request approved and added to history successfully';
+                        res.json({ message });
+                    });
                 } else {
                     res.status(404).json({ error: 'Booking request not found' });
                 }
@@ -161,6 +145,90 @@ app.patch('/requests/:id', (req, res) => {
     });
 });
 
+
+// Function to handle repeated history and FIFO
+function repeatedHistory(booking, callback) {
+    const checkQuery = `
+        SELECT history_id 
+        FROM history 
+        WHERE student_id = ? AND device_id = ?
+    `;
+
+    db.get(checkQuery, [booking.student_id, booking.device_id], (err, row) => {
+        if (err) {
+            console.error('Error checking history:', err.message);
+            return callback(err);
+        }
+
+        if (row) {
+            // If record exists, update the booking_time and booking_date
+            const updateQuery = `
+                UPDATE history 
+                SET booking_time = ?, booking_date = ? 
+                WHERE history_id = ?
+            `;
+            db.run(updateQuery, [booking.request_time, booking.request_date, row.history_id], (updateErr) => {
+                if (updateErr) {
+                    console.error('Error updating history:', updateErr.message);
+                    return callback(updateErr);
+                }
+                console.log('History updated successfully');
+                return callback(null, 'updated');
+            });
+        } else {
+            // If record doesn't exist, insert a new entry
+            const insertQuery = `
+                INSERT INTO history (schedule_id, student_id, device_id, owner_id, booking_time, booking_date, reason, image_path)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            `;
+            db.run(
+                insertQuery,
+                [
+                    booking.schedule_id,
+                    booking.student_id,
+                    booking.device_id,
+                    booking.owner_id,
+                    booking.request_time,
+                    booking.request_date,
+                    booking.reason,
+                    booking.image_path || null,
+                ],
+                function (insertErr) {
+                    if (insertErr) {
+                        console.error('Error adding to history:', insertErr.message);
+                        return callback(insertErr);
+                    }
+                    console.log('Booking added to history with History ID:', this.lastID);
+                  // Enforce FIFO limit (delete oldest entry if count exceeds 10)
+                    const countQuery = `SELECT COUNT(*) AS count FROM history`;
+                    db.get(countQuery, (countErr, result) => {
+                        if (countErr) {
+                            console.error('Error counting history entries:', countErr.message);
+                            return callback(countErr);
+                        }
+
+                        if (result.count > 10) {
+                            const deleteQuery = `
+                                DELETE FROM history 
+                                WHERE history_id = (SELECT history_id FROM history ORDER BY history_id ASC LIMIT 1)
+                            `;
+                            db.run(deleteQuery, (deleteErr) => {
+                                if (deleteErr) {
+                                    console.error('Error deleting oldest history:', deleteErr.message);
+                                    return callback(deleteErr);
+                                }
+                                console.log('Oldest history record deleted to maintain FIFO limit');
+                                return callback(null, 'inserted');
+                            });
+                        } else {
+                            return callback(null, 'inserted');
+                        }
+                  });
+                }
+            );
+        }
+    });
+}
 
 // Insert into unavailable table in the database to update the calendar
 app.post('/unavailable', async (req, res) => {
