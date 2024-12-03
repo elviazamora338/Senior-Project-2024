@@ -61,13 +61,13 @@ const HistoryPage = () => {
     };
 
     // Show loading spinner or error message
-    if (loading) {
-        return <p>Loading history...</p>;
-    }
+   // if (loading) {
+        //return <p>Loading history...</p>;
+   // }
 
-    if (error) {
-        return <p>{error}</p>;
-    }
+   // if (error) {
+     //   return <p>{error}</p>;
+   // }
 
     return (
         <>
