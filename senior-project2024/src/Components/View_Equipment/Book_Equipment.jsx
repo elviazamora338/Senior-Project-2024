@@ -293,6 +293,44 @@ const Book_Equipment = ( {device, ownerId} ) => {
     const [bookingDetails, setBookingDetails] = useState({});
     const handleShowConfirmationModal = () => setShowConfirmationModal(true);
 
+    // Fetch unavailable dates
+    useEffect(() => {
+        const fetchUnavailableDates = async () => {
+            try {
+                const response = await axios.get(`http://localhost:5001/api/unavailableDates/${device.device_id}`);
+                console.log('API Response:', response.data); // Add this line
+                const unavailableData = response.data.reduce((acc, { date, time_slot }) => {
+                    if (!acc[date]) acc[date] = { times: [] };
+                    acc[date].times.push(time_slot);
+                    return acc;
+                }, {});
+                setUnavailableDates(unavailableData);
+            } catch (error) {
+                console.error('Error fetching unavailable dates:', error);
+            }
+        };
+    
+        fetchUnavailableDates();
+    }, [device.device_id]);
+    
+    // // Refresh calendar after booking confirmation
+    // const refreshUnavailableDates = async () => {
+    //     try {
+    //         const response = await axios.get(`/api/unavailableDates/${device.device_id}`);
+    //         const updatedData = response.data.reduce((acc, { date, time_slot }) => {
+    //             if (!acc[date]) acc[date] = { times: [] };
+    //             acc[date].times.push(time_slot);
+    //             return acc;
+    //         }, {});
+    //         setUnavailableDates(updatedData);
+    //     } catch (error) {
+    //         console.error('Error refreshing unavailable dates:', error);
+    //     }
+    // };
+    
+    // Call this after confirmation
+    // refreshUnavailableDates();
+    
     const handleSubmitBookingRequest = async () => {
         try {
             const { dates, reason, times } = bookingDetails;
@@ -392,12 +430,11 @@ const Book_Equipment = ( {device, ownerId} ) => {
     
 
     // Help ensure the calendar knows which dates are unavailable
-    const flattenedUnavailableDates = Object.values(unavailableDates).reduce((acc, { dates, allSelected, times }) => {
-        dates.forEach(date => {
-            acc[date] = { allSelected, times };
-        });
+    const flattenedUnavailableDates = Object.keys(unavailableDates).reduce((acc, date) => {
+        acc[date] = unavailableDates[date];
         return acc;
     }, {});
+    
 
     return (
         <div className="container">
