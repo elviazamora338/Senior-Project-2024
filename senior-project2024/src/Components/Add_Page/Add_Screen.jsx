@@ -8,18 +8,21 @@ import Calendar from '../Calendar_Page/Calendar_Screen.jsx'; // Import the Calen
 import 'bootstrap/dist/css/bootstrap.min.css';
 import "bootstrap-icons/font/bootstrap-icons.css";
 import axios from 'axios';
+import { useUser } from '../../UserContext.js';
 const AddPage = () => {
+    const { user } = useUser()
     const [showCalendar, setShowCalendar] = useState(false);
     // Calendar Modal toggle handlers
     const handleCalendarClose = () => setShowCalendar(false);
     const handleCalendarShow = () => setShowCalendar(true);
+
 
     const [formData, setFormData] = useState({
         campus: "",
         department: "",
         building: "",
         room_number: "",
-        person_in_charge: "",
+        person_in_charge: user.user_name,
         device_name: "",
         description: "",
         application: "",
@@ -119,7 +122,6 @@ const handleImage = (e) => {
     if (!formData.campus) missingFields.push("Campus");
     if (!formData.department) missingFields.push("Department");
     if (!formData.device_name) missingFields.push("Equipment Name");
-    if (!formData.person_in_charge) missingFields.push("Person in Charge");
     if (!formData.category) missingFields.push("Category");
     if (!formData.building) missingFields.push("Building");
     if (!formData.application) missingFields.push("Application"); 
@@ -158,7 +160,7 @@ const handleImage = (e) => {
             campus: "",
             department: "",
             device_name: "",
-            person_in_charge: "",
+            person_in_charge:"",
             category: "",
             building: "",
             application: "", 
@@ -250,8 +252,12 @@ const handleImage = (e) => {
                                 </div>
                             </div>
 
-                            <h5>Person in Charge</h5>
-                            <input type="text" id="person_in_charge" name="person_in_charge" className="form-control" value={formData.person_in_charge} onChange={handleChange} />
+                        <h5>Person in Charge</h5>
+                        
+                            <input type="text" id="person_in_charge" name="person_in_charge" className="form-control"
+                            value={user.user_name || ''}
+                            disabled
+                            />
                             <br></br>
                         </div>
 
