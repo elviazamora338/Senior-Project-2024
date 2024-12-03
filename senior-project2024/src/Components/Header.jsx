@@ -129,11 +129,6 @@ const Header = () => {
                 <Modal.Body>
                     <Profile /> {/* Render Profile component in the modal */}
                 </Modal.Body>
-                <Modal.Footer>
-                    <Button variant="secondary" onClick={handleProfileClose}>
-                        Close
-                    </Button>
-                </Modal.Footer>
             </Modal>
         </>
     );

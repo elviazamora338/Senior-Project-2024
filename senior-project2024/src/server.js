@@ -30,6 +30,11 @@ const db = new sqlite3.Database('SchedulerDB.db', (err) => {
     }
 });
 
+// Start the server
+app.listen(PORT, () => {
+    console.log(`Server running at http://localhost:${PORT}`);
+});
+
 // Student submits a booking request to the owner of the device
 app.post('/submitBookingRequest', (req, res) => {
     const { device_id, user_id, requested_date, requested_time, reason, owner_id } = req.body;
@@ -189,6 +194,72 @@ app.delete('/unavailable/:id', async (req, res) => {
     }
 });
 
+// Fetch device details by device_id for Report_Equipment.jsx page
+app.get('/device/:device_id', (req, res) => {
+    const { device_id } = req.params;
+
+    const query = `
+        SELECT 
+            ld.device_id,
+            ld.device_name,
+            ld.brand,
+            ld.model,
+            ld.description,
+            ld.application,
+            ld.category,
+            ld.building,
+            ld.room_number,
+            ld.person_in_charge,
+            ld.manual_link,
+            ld.image_path,
+            u.date,
+            u.time_range,
+            u.student_id,
+            u.owner_id
+        FROM lab_devices ld
+        JOIN unavailable u ON ld.device_id = u.device_id
+        WHERE ld.device_id = ?;
+    `;
+
+    db.get(query, [device_id], (err, row) => {
+        if (err) {
+            console.error('Error fetching device data:', err.message);
+            return res.status(500).json({ error: 'Failed to fetch device data' });
+        }
+        if (!row) {
+            console.log('No device found for ID:', device_id);
+            return res.status(404).json({ error: 'Device not found' });
+        }
+        res.json(row);
+    });
+});
+
+
+app.get('/unavailable/by-device/:device_id', (req, res) => {
+    const { device_id } = req.params;
+
+    const query = `
+        SELECT unavailability_id
+        FROM unavailable
+        WHERE device_id = ?
+    `;
+
+    db.get(query, [device_id], (err, row) => {
+        if (err) {
+            console.error('Error fetching unavailability_id:', err.message);
+            return res.status(500).json({ error: 'Failed to fetch unavailability_id.' });
+        }
+
+        if (!row) {
+            return res.status(404).json({ error: 'No unavailability record found for this device.' });
+        }
+
+        res.json(row);
+    });
+});
+
+
+
 // Delete requests from my equipment page (owner page)
 app.delete('/requests/:id', async (req, res) => {
     const { id } = req.params;
@@ -204,10 +275,170 @@ app.delete('/requests/:id', async (req, res) => {
 });
 
 
-// Start the server
-app.listen(PORT, () => {
-    console.log(`Server running at http://localhost:${PORT}`);
+// Endpoint to save a report in the reports table
+app.post('/reports', (req, res) => {
+    const {
+        device_id,
+        device_name,
+        owner_name,
+        reporter_id,
+        reporter_name,
+        reporter_email,
+        issue_description,
+        status,
+    } = req.body;
+
+    // Validate required fields
+    if (!device_id || !device_name || !owner_name || !reporter_id || !reporter_name || !reporter_email || !issue_description) {
+        return res.status(400).json({ error: 'All fields are required.' });
+    }
+
+    const defaultStatus = status || 'pending'; // Default to 'pending' if not provided
+
+    const query = `
+        INSERT INTO reports (device_id, device_name, owner_name, reporter_id, reporter_name, reporter_email, issue_description, status)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    `;
+
+    db.run(
+        query,
+        [
+            device_id,
+            device_name,
+            owner_name,
+            reporter_id,
+            reporter_name,
+            reporter_email,
+            issue_description,
+            defaultStatus,
+        ],
+        function (err) {
+            if (err) {
+                console.error('Error inserting report:', err.message);
+                return res.status(500).json({ error: 'Failed to save report.' });
+            }
+            res.json({ message: 'Report saved successfully.', reportId: this.lastID });
+        }
+    );
 });
+
+
+// Endpoint to fetch reports based on owner_name
+app.get('/reports', (req, res) => {
+    const { owner_name } = req.query;
+
+    if (!owner_name) {
+        return res.status(400).json({ error: 'Owner name is required.' });
+    }
+
+    const query = `
+        SELECT reporter_name, reporter_email, device_name, status, issue_description, report_id
+        FROM reports
+        WHERE owner_name = ?;
+    `;
+
+    db.all(query, [owner_name], (err, rows) => {
+        if (err) {
+            console.error('Error fetching reports:', err.message);
+            return res.status(500).json({ error: 'Failed to fetch reports.' });
+        }
+
+        res.json(rows);
+    });
+});
+
+
+
+// Update the status of a report
+app.patch('/reports/:id', (req, res) => {
+    const { id } = req.params;
+    const { status } = req.body;
+
+    if (!status) {
+        return res.status(400).json({ error: 'Status is required.' });
+    }
+
+    const query = `
+        UPDATE reports
+        SET status = ?
+        WHERE report_id = ?
+    `;
+
+    db.run(query, [status, id], function (err) {
+        if (err) {
+            console.error('Error updating report status:', err.message);
+            return res.status(500).json({ error: 'Failed to update report status.' });
+        }
+
+        res.json({ message: 'Report status updated successfully.' });
+    });
+});
+
+
+// Delete a report
+app.delete('/reports/:id', (req, res) => {
+    const { id } = req.params;
+
+    const query = `DELETE FROM reports WHERE report_id = ?`;
+
+    db.run(query, [id], function (err) {
+        if (err) {
+            console.error('Error deleting report:', err.message);
+            return res.status(500).json({ error: 'Failed to delete report' });
+        }
+
+        res.json({ message: 'Report deleted successfully' });
+    });
+});
+
+// Gets and displays person in charge inventory under Inventory page
+app.get('/inventory', (req, res) => {
+    const { person_in_charge } = req.query;
+
+    if (!person_in_charge) {
+        return res.status(400).json({ error: 'Person in charge is required.' });
+    }
+
+    const query = `
+        SELECT device_id, device_name, image_path, description, available
+        FROM lab_devices
+        WHERE person_in_charge = ?
+    `;
+
+    db.all(query, [person_in_charge], (err, rows) => {
+        if (err) {
+            console.error('Error fetching inventory:', err.message);
+            return res.status(500).json({ error: 'Failed to fetch inventory.' });
+        }
+        res.json(rows);
+    });
+});
+
+
+// Delete device from lab_devices by device_id
+app.delete('/inventory/:device_id', (req, res) => {
+    const { device_id } = req.params;
+
+    if (!device_id) {
+        return res.status(400).json({ error: 'Device ID is required.' });
+    }
+
+    const query = `DELETE FROM lab_devices WHERE device_id = ?`;
+
+    db.run(query, [device_id], function (err) {
+        if (err) {
+            console.error('Error deleting device:', err.message);
+            return res.status(500).json({ error: 'Failed to delete device.' });
+        }
+
+        if (this.changes === 0) {
+            return res.status(404).json({ error: 'Device not found.' });
+        }
+
+        res.json({ message: 'Device deleted successfully.' });
+    });
+});
+
 
 
 // Nodemailer setup
