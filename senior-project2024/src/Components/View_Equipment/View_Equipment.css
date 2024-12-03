@@ -129,3 +129,11 @@ input[type="checkbox"] {
     outline: 2px solid #ffcc00; /* Optional focus effect */
   }
   
+.img-preview {
+    max-width: 100%;
+    /* Ensure it doesn't exceed container width */
+    max-height: 400px;
+    /* Set a max height */
+    object-fit: contain;
+    /* Ensures the image scales while maintaining its aspect ratio */
+}

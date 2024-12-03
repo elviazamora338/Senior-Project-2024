@@ -11,6 +11,7 @@
 
 .image-height {
     min-height: 150px;
+    width:150px; 
 }
 
 .cancel-button {
@@ -140,5 +141,3 @@ tr {
     color: #fff;
     border-color: #CB4900;
 }
-
-
