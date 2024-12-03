@@ -170,7 +170,7 @@ app.delete('/unavailable/:id', async (req, res) => {
     }
 });
 
-// Endpoint to fetch unavailble dates
+
 // Endpoint to fetch unavailable dates
 app.get('/api/unavailableDates/:deviceId', (req, res) => {
     const { deviceId } = req.params;
