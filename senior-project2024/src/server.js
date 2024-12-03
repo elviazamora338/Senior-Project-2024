@@ -883,6 +883,8 @@ function getAllHistory(id){
                 h.booking_date, 
                 h.booking_time, 
                 h.reason, 
+                h.device_id,  -- Ensure this column is selected from the history table
+                ld.device_id AS lab_device_id, -- Include device_id explicitly from lab_devices
                 ld.device_name, 
                 ld.description, 
                 ld.person_in_charge, 
