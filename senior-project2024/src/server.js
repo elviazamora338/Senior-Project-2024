@@ -539,7 +539,6 @@ app.delete('/inventory/:device_id', (req, res) => {
     });
 });
 
-
 // Nodemailer setup
 const transporter = nodemailer.createTransport({
     service: 'gmail',
