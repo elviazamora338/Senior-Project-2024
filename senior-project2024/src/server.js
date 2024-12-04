@@ -98,16 +98,142 @@ app.patch('/requests/:id', (req, res) => {
     const { id } = req.params;
     const { status } = req.body;
 
-    const query = `UPDATE booking_requests SET status = ? WHERE schedule_id = ?`;
+    const updateQuery = `UPDATE booking_requests SET status = ? WHERE schedule_id = ?`;
 
-    db.run(query, [status, id], function (err) {
+    db.run(updateQuery, [status, id], function (err) {
         if (err) {
             console.error('Error updating request status:', err.message);
             return res.status(500).json({ error: 'Failed to update request status' });
         }
-        res.json({ message: 'Request status updated successfully' });
+
+        if (status === 'approved') {
+            const fetchQuery = `
+                SELECT 
+                    br.schedule_id,
+                    br.student_id,
+                    br.device_id,
+                    br.owner_id,
+                    br.request_time,
+                    br.request_date,
+                    br.reason,
+                    ld.image_path
+                FROM booking_requests br
+                JOIN lab_devices ld ON br.device_id = ld.device_id
+                WHERE br.schedule_id = ?
+            `;
+
+            db.get(fetchQuery, [id], (fetchErr, booking) => {
+                if (fetchErr) {
+                    console.error('Error fetching booking details:', fetchErr.message);
+                    return res.status(500).json({ error: 'Failed to fetch booking details' });
+                }
+
+                // for history 
+                if (booking) {
+                    repeatedHistory(booking, (historyErr, action) => {
+                        if (historyErr) {
+                            return res.status(500).json({ error: 'Failed to process history' });
+                        }
+                        const message =
+                            action === 'updated'
+                                ? 'Request approved and history updated successfully'
+                                : 'Request approved and added to history successfully';
+                        res.json({ message });
+                    });
+                } else {
+                    res.status(404).json({ error: 'Booking request not found' });
+                }
+            });
+        } else {
+            res.json({ message: 'Request status updated successfully' });
+        }
     });
 });
+
+
+// Function to handle repeated history and FIFO
+function repeatedHistory(booking, callback) {
+    const checkQuery = `
+        SELECT history_id 
+        FROM history 
+        WHERE student_id = ? AND device_id = ?
+    `;
+
+    db.get(checkQuery, [booking.student_id, booking.device_id], (err, row) => {
+        if (err) {
+            console.error('Error checking history:', err.message);
+            return callback(err);
+        }
+
+        if (row) {
+            // If record exists, update the booking_time and booking_date
+            const updateQuery = `
+                UPDATE history 
+                SET booking_time = ?, booking_date = ? 
+                WHERE history_id = ?
+            `;
+            db.run(updateQuery, [booking.request_time, booking.request_date, row.history_id], (updateErr) => {
+                if (updateErr) {
+                    console.error('Error updating history:', updateErr.message);
+                    return callback(updateErr);
+                }
+                console.log('History updated successfully');
+                return callback(null, 'updated');
+            });
+        } else {
+            // If record doesn't exist, insert a new entry
+            const insertQuery = `
+                INSERT INTO history (schedule_id, student_id, device_id, owner_id, booking_time, booking_date, reason, image_path)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            `;
+            db.run(
+                insertQuery,
+                [
+                    booking.schedule_id,
+                    booking.student_id,
+                    booking.device_id,
+                    booking.owner_id,
+                    booking.request_time,
+                    booking.request_date,
+                    booking.reason,
+                    booking.image_path || null,
+                ],
+                function (insertErr) {
+                    if (insertErr) {
+                        console.error('Error adding to history:', insertErr.message);
+                        return callback(insertErr);
+                    }
+                    console.log('Booking added to history with History ID:', this.lastID);
+                  // Enforce FIFO limit (delete oldest entry if count exceeds 10)
+                    const countQuery = `SELECT COUNT(*) AS count FROM history`;
+                    db.get(countQuery, (countErr, result) => {
+                        if (countErr) {
+                            console.error('Error counting history entries:', countErr.message);
+                            return callback(countErr);
+                        }
+
+                        if (result.count > 10) {
+                            const deleteQuery = `
+                                DELETE FROM history 
+                                WHERE history_id = (SELECT history_id FROM history ORDER BY history_id ASC LIMIT 1)
+                            `;
+                            db.run(deleteQuery, (deleteErr) => {
+                                if (deleteErr) {
+                                    console.error('Error deleting oldest history:', deleteErr.message);
+                                    return callback(deleteErr);
+                                }
+                                console.log('Oldest history record deleted to maintain FIFO limit');
+                                return callback(null, 'inserted');
+                            });
+                        } else {
+                            return callback(null, 'inserted');
+                        }
+                  });
+                }
+            );
+        }
+    });
+}
 
 // Insert into unavailable table in the database to update the calendar
 app.post('/unavailable', async (req, res) => {
@@ -370,6 +496,49 @@ app.delete('/reports/:id', (req, res) => {
 // Gets and displays person in charge inventory under Inventory page
 app.get('/inventory', (req, res) => {
     const { person_in_charge } = req.query;
+    if (!person_in_charge) {
+        return res.status(400).json({ error: 'Person in charge is required.' });
+    }
+
+    const query = `
+        SELECT device_id, device_name, image_path, description, available
+        FROM lab_devices
+        WHERE person_in_charge = ?
+    `;
+
+    db.all(query, [person_in_charge], (err, rows) => {
+        if (err) {
+            console.error('Error fetching inventory:', err.message);
+            return res.status(500).json({ error: 'Failed to fetch inventory.' });
+        }
+        res.json(rows);
+    });
+});
+
+
+// Delete device from lab_devices by device_id
+app.delete('/inventory/:device_id', (req, res) => {
+    const { device_id } = req.params;
+
+    if (!device_id) {
+        return res.status(400).json({ error: 'Device ID is required.' });
+    }
+
+    const query = `DELETE FROM lab_devices WHERE device_id = ?`;
+
+    db.run(query, [device_id], function (err) {
+        if (err) {
+            console.error('Error deleting device:', err.message);
+            return res.status(500).json({ error: 'Failed to delete device.' });
+        }
+
+        if (this.changes === 0) {
+            return res.status(404).json({ error: 'Device not found.' });
+        }
+
+        res.json({ message: 'Device deleted successfully.' });
+    });
+});
 
     if (!person_in_charge) {
         return res.status(400).json({ error: 'Person in charge is required.' });
@@ -860,6 +1029,54 @@ app.post('/submitRequest', (req, res) => {
         console.error("Error bookmarking:", error);
         console.log("Failed to bookmark. Please try again.");
    } 
+});
+
+function getAllHistory(id){
+    return new Promise((resolve, reject)  => {
+        const query = `
+            SELECT 
+                h.history_id, 
+                h.schedule_id, 
+                h.booking_date, 
+                h.booking_time, 
+                h.reason, 
+                h.device_id,  -- Ensure this column is selected from the history table
+                ld.device_id AS lab_device_id, -- Include device_id explicitly from lab_devices
+                ld.device_name, 
+                ld.description, 
+                ld.person_in_charge, 
+                ld.building, 
+                ld.image_path 
+            FROM history h
+            JOIN lab_devices ld ON h.device_id = ld.device_id
+            WHERE h.student_id = ?
+        `;
+        db.all(query,[id], [], (err, rows) => {
+            if (err) {
+                reject(err);
+            } else {
+                resolve(rows);
+            }
+        });
+    });
+}
+
+// getting the history
+app.get('/myhistory', async(req, res) =>  {
+    const userId = req.query.userId; // Use query parameters for GET request
+    if (!userId) {
+        return res.status(400).json({ error: 'User ID is required' });
+    }
+    try {
+        const rows = await getAllHistory(userId);
+        if (rows.length === 0) {
+            return res.json({ message: 'No history found' });
+        }
+        res.json(rows);
+    } catch (error) {
+        console.error('Error fetching history:', error.message);
+        res.status(500).send("Error fetching data");
+    }
 });
 
 // Close database connection on server close
