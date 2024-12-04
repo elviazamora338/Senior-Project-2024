@@ -26,6 +26,11 @@ const db = new sqlite3.Database('SchedulerDB.db', (err) => {
     }
 });
 
+// Start the server
+app.listen(PORT, () => {
+    console.log(`Server running at http://localhost:${PORT}`);
+});
+
 // Student submits a booking request to the owner of the device
 app.post('/submitBookingRequest', (req, res) => {
     const { device_id, user_id, requested_date, requested_time, reason, owner_id } = req.body;
@@ -491,6 +496,49 @@ app.delete('/reports/:id', (req, res) => {
 // Gets and displays person in charge inventory under Inventory page
 app.get('/inventory', (req, res) => {
     const { person_in_charge } = req.query;
+    if (!person_in_charge) {
+        return res.status(400).json({ error: 'Person in charge is required.' });
+    }
+
+    const query = `
+        SELECT device_id, device_name, image_path, description, available
+        FROM lab_devices
+        WHERE person_in_charge = ?
+    `;
+
+    db.all(query, [person_in_charge], (err, rows) => {
+        if (err) {
+            console.error('Error fetching inventory:', err.message);
+            return res.status(500).json({ error: 'Failed to fetch inventory.' });
+        }
+        res.json(rows);
+    });
+});
+
+
+// Delete device from lab_devices by device_id
+app.delete('/inventory/:device_id', (req, res) => {
+    const { device_id } = req.params;
+
+    if (!device_id) {
+        return res.status(400).json({ error: 'Device ID is required.' });
+    }
+
+    const query = `DELETE FROM lab_devices WHERE device_id = ?`;
+
+    db.run(query, [device_id], function (err) {
+        if (err) {
+            console.error('Error deleting device:', err.message);
+            return res.status(500).json({ error: 'Failed to delete device.' });
+        }
+
+        if (this.changes === 0) {
+            return res.status(404).json({ error: 'Device not found.' });
+        }
+
+        res.json({ message: 'Device deleted successfully.' });
+    });
+});
 
     if (!person_in_charge) {
         return res.status(400).json({ error: 'Person in charge is required.' });
@@ -536,12 +584,6 @@ app.delete('/inventory/:device_id', (req, res) => {
     });
 });
 
-
-
-// Start the server
-app.listen(PORT, () => {
-    console.log(`Server running at http://localhost:${PORT}`);
-});
 
 
 // Nodemailer setup
