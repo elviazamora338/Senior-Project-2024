@@ -515,7 +515,6 @@ app.get('/inventory', (req, res) => {
     });
 });
 
-
 // Delete device from lab_devices by device_id
 app.delete('/inventory/:device_id', (req, res) => {
     const { device_id } = req.params;
@@ -539,51 +538,6 @@ app.delete('/inventory/:device_id', (req, res) => {
         res.json({ message: 'Device deleted successfully.' });
     });
 });
-
-    if (!person_in_charge) {
-        return res.status(400).json({ error: 'Person in charge is required.' });
-    }
-
-    const query = `
-        SELECT device_id, device_name, image_path, description, available
-        FROM lab_devices
-        WHERE person_in_charge = ?
-    `;
-
-    db.all(query, [person_in_charge], (err, rows) => {
-        if (err) {
-            console.error('Error fetching inventory:', err.message);
-            return res.status(500).json({ error: 'Failed to fetch inventory.' });
-        }
-        res.json(rows);
-    });
-});
-
-
-// Delete device from lab_devices by device_id
-app.delete('/inventory/:device_id', (req, res) => {
-    const { device_id } = req.params;
-
-    if (!device_id) {
-        return res.status(400).json({ error: 'Device ID is required.' });
-    }
-
-    const query = `DELETE FROM lab_devices WHERE device_id = ?`;
-
-    db.run(query, [device_id], function (err) {
-        if (err) {
-            console.error('Error deleting device:', err.message);
-            return res.status(500).json({ error: 'Failed to delete device.' });
-        }
-
-        if (this.changes === 0) {
-            return res.status(404).json({ error: 'Device not found.' });
-        }
-
-        res.json({ message: 'Device deleted successfully.' });
-    });
-});
-
 
 
 // Nodemailer setup
