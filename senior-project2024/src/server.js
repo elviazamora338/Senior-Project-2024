@@ -123,21 +123,21 @@ app.post('/unavailable', async (req, res) => {
 
     try {
         const query = `
-            INSERT INTO unavailable (time_range, owner_id, date)
-            VALUES (?, ?, ?)
+            INSERT INTO unavailable (time_range, owner_id, date, device_id)
+            VALUES (?, ?, ?, ?)
         `;
 
         for (const item of unavailableItems) {
-            const { time_range, owner_id, date } = item;
+            const { time_range, owner_id, date, device_id} = item;
 
-            if (!time_range || !owner_id || !date) {
+            if (!time_range || !owner_id || !date || !device_id) {
                 console.error('Missing fields in item:', item);
                 continue; // Skip if required fields are missing
             }
 
-            console.log("Values being inserted into database:", [time_range, owner_id, date]);
+            console.log("Values being inserted into database:", [time_range, owner_id, date, device_id]);
 
-            await db.run(query, [time_range, owner_id, date]);
+            await db.run(query, [time_range, owner_id, date, device_id]);
         }
 
         res.status(201).send({ message: 'Unavailability recorded successfully' });

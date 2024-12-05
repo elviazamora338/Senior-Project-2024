@@ -376,6 +376,7 @@ function Calendar_Screen({device_id}) {
     const { user } = useUser(); // Access user from context
     const [availabilityList, setAvailabilityList] = useState([]);
     const [unavailableDates, setUnavailableDates] = useState({});
+    
 
     const handleAddSection = () => setAvailabilityList([...availabilityList, { key: availabilityList.length }]);
 
@@ -398,6 +399,7 @@ function Calendar_Screen({device_id}) {
         return acc;
     }, {});
     
+    console.log("received device_id in Calendar screen:", device_id);
     const saveUnavailableDates = async () => {
         // Check if there are any unavailable dates selected
     if (Object.keys(flattenedUnavailableDates).length === 0) {
@@ -408,9 +410,10 @@ function Calendar_Screen({device_id}) {
     const unavailableEntries = Object.entries(flattenedUnavailableDates).map(([date, info]) => ({
         date: date,                          // Pass the date
         time_range: info.times.join(', '),   // Convert times array into a string (e.g., "8am-10am, 10am-12pm")
-        //device_id: device_id,                      // Example device ID (replace with dynamic value)
+        device_id: device_id,                      // Example device ID (replace with dynamic value)
         owner_id: user.user_id,                       // Example owner ID (replace with dynamic value)
     }));
+        console.log("unavailable entries:", unavailableEntries)
     try {
         console.log("Saving unavailable dates:", unavailableEntries); // Debug log
         const response = await axios.post('http://localhost:5001/unavailable', unavailableEntries, {

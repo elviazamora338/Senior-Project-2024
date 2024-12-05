@@ -1,5 +1,5 @@
 // Import React and necessary hooks
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import { Form, isRouteErrorResponse, Link } from 'react-router-dom';
 import { Modal, Button } from 'react-bootstrap';
 import './Add_Screen.css'
@@ -62,52 +62,6 @@ const handleImage = (e) => {
     }
 };
 
-
-//     const handleImageUpload = async () => {
-//     if (!image) {
-//         alert("Please select an image before uploading.");
-//         return;
-//     }
-//     try {
-//         const fd = new FormData();
-//         fd.append("image", image);
-//         const res = await axios.post("http://localhost:5001/upload", fd);
-//         const imagePath = res.data.path;
-//         setFormData((prevData) => ({ ...prevData, image_path: imagePath }));
-//         alert("Image uploaded successfully.");
-//     } catch (err) {
-//         console.error("Image upload failed:", err);
-//         alert("Failed to upload image.");
-//     }
-// };
-    // const [calendarData, setCalendarData] = useState({
-    //     time_range: "",
-    //     device_id: "",
-    //     owner_id: "",
-    //     date: ""
-    // })
-
-    // const handleCalendarChange = (e) => {
-    //     const { name, value } = e.target;
-    //     setCalendarData((prevData) => ({
-    //         ...prevData,
-    //         [name]: value
-    //     }))
-    // };
-
-    // const handleCalendarSave = async () => {
-    //     try {
-            
-    //         const response = await axios.post('http://localhost:5001/unavailable', postData);
-    //         alert(response.data.message || "Unavailable dates saved successfully.");
-    //         handleCalendarClose
-            
-    //         handleCalendarClose();
-    //     } catch (error) {
-    //         console.error("Error saving unavailable dates:", error);
-    //         alert("Failed to save unavailable dates.");
-    //     }
-    // }
     const [unavailableDates, setUnavailableDates] = useState([]);
     const [deviceId, setDeviceId] = useState(null); 
     // function to handle saving dates
@@ -116,60 +70,60 @@ const handleImage = (e) => {
         setUnavailableDates(dates); 
     }
     const handleSave = async (e) => {
-        e.preventDefault(); 
-    
+    e.preventDefault();
+
     const missingFields = [];
     if (!formData.campus) missingFields.push("Campus");
     if (!formData.department) missingFields.push("Department");
     if (!formData.device_name) missingFields.push("Equipment Name");
     if (!formData.category) missingFields.push("Category");
     if (!formData.building) missingFields.push("Building");
-    if (!formData.application) missingFields.push("Application"); 
-    if (!formData.description) missingFields.push("Description"); 
+    if (!formData.application) missingFields.push("Application");
+    if (!formData.description) missingFields.push("Description");
 
-    // Show alert if there are missing fields
     if (missingFields.length > 0) {
         alert(`Please fill out the following required fields: ${missingFields.join(", ")}`);
-        return; // Stop execution if validation fails
+        return;
     }
 
     try {
-        // First, upload the image if one is selected
         let imagePath = formData.image_path || "";
-        if (image) {           
+        if (image) {
             const fd = new FormData();
             fd.append("image", image);
             const uploadResponse = await axios.post("http://localhost:5001/upload", fd);
-            imagePath = uploadResponse.data.path; // Get the image path from the response
+            imagePath = uploadResponse.data.path;
         }
 
-        // Include the imagePath in the formData
         const updatedFormData = { ...formData, image_path: imagePath };
 
-        // Save the form data
         const response = await axios.post("http://localhost:5001/add-device", updatedFormData);
-        setDeviceId(response.data.device_id); // Save the device_id
+        console.log("Backend response:", response.data);
 
-        // After saving the device, pass the device_id to handleSaveUnavailableDates
-        handleSaveUnavailableDates(response.data.device_id); // Pass device_id to save unavailable dates
+        const newDeviceId = response.data.id; // Updated to use "id"
+        if (newDeviceId) {
+            setDeviceId(newDeviceId);
+            handleSaveUnavailableDates(newDeviceId);
+            alert(response.data.message);
+        } else {
+            alert("Device ID not received from server.");
+            console.error("Device ID missing in response:", response.data);
+        }
 
-        alert(response.data.message);
-
-        // Optionally reset the form and image state
         setFormData({
             campus: "",
             department: "",
             device_name: "",
-            person_in_charge:"",
+            person_in_charge: "",
             category: "",
             building: "",
-            application: "", 
-            description: "", 
+            application: "",
+            description: "",
             image_path: "",
-            model: "", 
-            keywords: "", 
-            room_number: "", 
-            available: "", 
+            model: "",
+            keywords: "",
+            room_number: "",
+            available: "",
             manual_link: "",
             brand: "",
         });
@@ -180,7 +134,17 @@ const handleImage = (e) => {
     }
 };
 
+    // Effect to trigger modal visibility after deviceId is set
+    useEffect(() => {
+        if (deviceId) {
+            const timer = setTimeout(() => {
+                setShowCalendar(true); // Show the calendar after the deviceId is set
+            }, 1000); // Adjust this delay as necessary
 
+            // Clean up the timer
+            return () => clearTimeout(timer);
+        }
+    }, [deviceId]); 
     return (
         <>
                 {/* Adding Equipment */}
@@ -320,7 +284,7 @@ const handleImage = (e) => {
                                         {/* <label for="availability" className="form-check-label ms-2">Available</label> */}
                                     </div>
                                     {/* Calendar Button */}
-                                    <button type="button" className="bi bi-calendar4 btn-light btn-sm cal-button d-flex" onClick={handleCalendarShow}></button>
+                                    {/* <button type="button" className="bi bi-calendar4 btn-light btn-sm cal-button d-flex" onClick={handleCalendarShow}></button> */}
                                 </div>
                             </div>
 
@@ -329,24 +293,30 @@ const handleImage = (e) => {
                             </div>
 
 
-                            {/* Calendar Modal */}
-                            <Modal show={showCalendar} onHide={handleCalendarClose} centered dialogClassName="custom-wide-modal"  size="xl" >
-                                <Modal.Header closeButton>
-                                    <Modal.Title>Select Dates</Modal.Title>
-                                </Modal.Header>
-                                <Modal.Body>
-                                    {/* Render the Calendar Component */}
-                                <Calendar device_id={deviceId} />
-                                </Modal.Body>
-                                <Modal.Footer>
-                                    <Button variant="secondary" onClick={handleCalendarClose}>
-                                        Close
-                                    </Button>
-                                    <Button variant="primary" onClick={handleCalendarClose}>
-                                        Save Changes
-                                    </Button>
-                                </Modal.Footer>
-                            </Modal>
+                           {/* Calendar Modal */}
+            <Modal
+                show={showCalendar}
+                onHide={() => setShowCalendar(false)}
+                centered
+                dialogClassName="custom-wide-modal"
+                size="xl"
+            >
+                <Modal.Header closeButton>
+                    <Modal.Title>Select Dates</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    {/* Only render Calendar when deviceId is available */}
+                    {deviceId && <Calendar device_id={deviceId} />}
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={() => setShowCalendar(false)}>
+                        Close
+                    </Button>
+                    <Button variant="primary" onClick={() => setShowCalendar(false)}>
+                        Save Changes
+                    </Button>
+                </Modal.Footer>
+            </Modal>
                             <br></br>
 
                         </div>
