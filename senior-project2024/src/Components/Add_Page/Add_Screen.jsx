@@ -31,7 +31,8 @@ const AddPage = () => {
         model: "",
         brand: "",
         keywords: "",
-        available: 0
+        available: 1,
+        owner_id: user.user_id
 
     }); 
 
@@ -208,8 +209,8 @@ const handleImage = (e) => {
                                 </div>
                                 <div className="col-md-6">
                                     <h5>Room #</h5>
-                                    <input type="number" id="room_number" name="room_number"
-                                    className={`form-select form-select-sm ${!formData.room_number && 'is-invalid'}`} step="any" 
+                                    <input type="text" id="room_number" name="room_number"
+                                    className={`form-control ${!formData.room_number && 'is-invalid'}`} step="any" 
                                         value={formData.room_number} onChange={(e) => setFormData({...formData, room_number: e.target.value})}
                                 />
                                 {!formData.room_number && <div className='invalid-feedback'>Room is Required</div>}
@@ -275,7 +276,7 @@ const handleImage = (e) => {
                             <div className="row mt-3">
                                 <div className="col-md-6">
                                     <h5>Number Available</h5>
-                                    <input type="number" id="available" name="available" className="form-control" value={formData.available} onChange={handleChange}></input>
+                                    <input type="number" id="available" name="available" className="form-control" value={formData.available} onChange={handleChange} min="1" placeholder="1"></input>
                                 </div>
                                 {/* Checkbox and label */}
                                 <div className="col-md-6 align-items-center">

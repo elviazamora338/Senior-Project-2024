@@ -241,10 +241,14 @@ function repeatedHistory(booking, callback) {
 
 // Insert into unavailable table in the database to update the calendar
 app.post('/unavailable', async (req, res) => {
-    const unavailableItems = req.body;
+    let unavailableItems = req.body;
 
     if (!Array.isArray(unavailableItems)) {
-        return res.status(400).send({ error: 'Invalid data format. Expected an array of objects.' });
+        if (typeof unavailableItems === 'object' && unavailableItems !== null) {
+            unavailableItems = [unavailableItems]; 
+        } else {
+            return res.status(400).send({ error: 'Invalid data format. Expected an array of objects or a single object.' });
+        }
     }
 
     try {
@@ -693,17 +697,17 @@ app.post('/add-device', (req, res) => {
     const {
         campus, department, building, room_number, person_in_charge,
         device_name, description, application, manual_link,
-        category, model, brand, keywords, available, image_path
+        category, model, brand, keywords, available, image_path,owner_id
     } = req.body;
 
     const query = `INSERT INTO lab_devices (
     campus, department, building, room_number, person_in_charge, device_name, 
-    description, application, manual_link, category, model, brand, keywords, available, image_path)
-    VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`;
+    description, application, manual_link, category, model, brand, keywords, available, image_path, owner_id)
+    VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`;
 
     db.run(query, [
         campus, department, building, room_number, person_in_charge, device_name, description, application,
-        manual_link, category, model, brand, keywords, available, image_path
+        manual_link, category, model, brand, keywords, available, image_path,owner_id
     ], function (err) {
         if (err) {
             console.error(err.message);
