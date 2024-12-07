@@ -474,7 +474,6 @@ app.get('/reports', (req, res) => {
 });
 
 
-
 // Update the status of a report
 app.patch('/reports/:id', (req, res) => {
     const { id } = req.params;
@@ -1277,5 +1276,3 @@ process.on('SIGINT', () => {
         process.exit(0);
     });
 });
-
-

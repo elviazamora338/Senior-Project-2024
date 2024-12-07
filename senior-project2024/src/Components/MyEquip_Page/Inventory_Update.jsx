@@ -60,6 +60,7 @@ const InventoryUpdate = () => {
                     brand: data.brand || "",
                     keywords: data.keywords || "",
                     available: data.available || 1,
+                    image_path: data.image_path || "",
                     owner_id: data.owner_id || user.user_id
                 });
 
@@ -120,39 +121,50 @@ const InventoryUpdate = () => {
         }
     
         try {
-            let imagePath = formData.image_path || ""; // Existing image path
-            if (image && typeof image !== 'string') {
-                // If a new image is uploaded, delete the old image and upload the new one
+            let imagePath = formData.image_path || ""; // Retain the existing image path
+    
+            if (image && typeof image !== "string") {
+                // Upload a new image only if one is selected
                 const fd = new FormData();
                 fd.append("image", image);
-                fd.append("device_id", device_id); // Pass the device ID for deleting the old image
+                fd.append("device_id", device_id);
                 const uploadResponse = await axios.post("http://localhost:5001/upload", fd);
-                imagePath = uploadResponse.data.path; // Get the new image path from the server
+                imagePath = uploadResponse.data.path; // Get the new image path
             }
     
             // Add the updated image path to the form data
             const updatedFormData = { ...formData, image_path: imagePath };
             const response = await axios.put(`http://localhost:5001/inventory/${device_id}`, updatedFormData);
+    
             alert(response.data.message || "Device updated successfully!");
-            navigate("/inventory");
+            setShowCalendar(true);
         } catch (error) {
             console.error("Error updating device:", error);
             alert("Failed to update the device.");
         }
     };
 
+    const handleSaveCalendarChanges = () => {
+        // Logic to save calendar changes, if any
+        setShowCalendar(false);
+        navigate("/inventory"); // Navigate back to the inventory page
+    };
+    
+    // Fetch unavailable dates for the device
+    useEffect(() => {
+        const fetchUnavailableDates = async () => {
+            try {
+                const response = await axios.get(`http://localhost:5001/unavailable/device/${device_id}`);
+                setUnavailableDates(response.data.unavailableDates || []);
+            } catch (error) {
+                console.error("Error fetching unavailable dates:", error);
+            }
+        };
 
-    // // Effect to trigger modal visibility after deviceId is set
-    // useEffect(() => {
-    //     if (device_id) {
-    //         const timer = setTimeout(() => {
-    //             setShowCalendar(true); // Show the calendar after the deviceId is set
-    //         }, 1000); // Adjust this delay as necessary
-
-    //         // Clean up the timer
-    //         return () => clearTimeout(timer);
-    //     }
-    // }, [device_id]); 
+        if (device_id) {
+            fetchUnavailableDates();
+        }
+    }, [device_id]);
 
     if (isLoading) {
         return <div>Loading...</div>;
@@ -319,35 +331,43 @@ const InventoryUpdate = () => {
                             </div>
 
                             <div class="text-center mt-3">
+                                {/* <button 
+                                    type="button" 
+                                    className="btn btn-secondary update-button" 
+                                    onClick={(e) => {
+                                        handleSave(e);
+                                        setShowCalendar(true);
+                                    }}
+                                    >
+                                        Update
+                                </button> */}
                                 <button type="button" className="btn btn-secondary update-button" onClick={handleSave}>Update</button>
                             </div>
 
 
                            {/* Calendar Modal */}
-            {/* <Modal
-                show={showCalendar}
-                onHide={() => setShowCalendar(false)}
-                centered
-                dialogClassName="custom-wide-modal"
-                size="xl"
-            >
-                <Modal.Header closeButton>
-                    <Modal.Title>Select Dates</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                    {deviceId && <Calendar device_id={deviceId} />}
-                </Modal.Body>
-                <Modal.Footer>
-                    <Button variant="secondary" onClick={() => setShowCalendar(false)}>
-                        Close
-                    </Button>
-                    <Button variant="primary" onClick={() => setShowCalendar(false)}>
-                        Save Changes
-                    </Button>
-                </Modal.Footer>
-            </Modal> */}
-                            <br></br>
-
+                            <Modal
+                                show={showCalendar}
+                                onHide={() => setShowCalendar(false)}
+                                centered
+                                dialogClassName="custom-wide-modal"
+                                size="xl"
+                            >
+                                <Modal.Header closeButton>
+                                    <Modal.Title>Select Dates</Modal.Title>
+                                </Modal.Header>
+                                <Modal.Body>
+                                    {device_id && <Calendar device_id={device_id} unavailableDates={unavailableDates} />}
+                                </Modal.Body>
+                                <Modal.Footer>
+                                    <Button variant="secondary" onClick={() => setShowCalendar(false)}>
+                                        Close
+                                    </Button>
+                                    <Button variant="primary" onClick={handleSaveCalendarChanges}>
+                                    Save Changes
+                                    </Button>
+                                </Modal.Footer>
+                            </Modal>
                         </div>
                     </div>
                 </div>
