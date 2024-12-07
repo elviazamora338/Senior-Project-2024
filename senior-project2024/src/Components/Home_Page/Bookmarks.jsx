@@ -131,7 +131,7 @@ const BookmarksPage = () => {
                                             <th>Image</th>
                                             <th>Item</th>
                                             <th>Description</th>
-                                            <th>Time</th>
+                                            <th>Bookmark</th>
                                             <th></th>
                                         </tr>
                                     </thead>

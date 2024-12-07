@@ -180,9 +180,6 @@ const All_Page = () => {
                         <i className="bi bi-search"></i>
                     </button>
                 </div>
-                <button type="button" className="btn btn-outline-secondary filter">
-                    <i className="bi bi-funnel-fill"></i> Filter
-                </button>
             </div>
     
             {/* Table */}

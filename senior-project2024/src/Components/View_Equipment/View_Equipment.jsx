@@ -44,7 +44,7 @@ const ViewPage = ({ device }) => {
                                 <div className="container-fluid">
                                     <img
                                         src={`http://localhost:5001/static/equipment_photos/${device.image_path}`}
-                                        className="item-image me-2"
+                                        className="img-preview"
                                     />
                                 </div>
 
