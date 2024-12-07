@@ -253,21 +253,21 @@ app.post('/unavailable', async (req, res) => {
 
     try {
         const query = `
-            INSERT INTO unavailable (time_range, owner_id, date, device_id)
-            VALUES (?, ?, ?, ?)
+            INSERT INTO unavailable (time_range, owner_id, date, device_id, student_id)
+            VALUES (?, ?, ?, ?, ?)
         `;
 
         for (const item of unavailableItems) {
-            const { time_range, owner_id, date, device_id} = item;
+            const { time_range, owner_id, date, device_id, student_id} = item;
 
             if (!time_range || !owner_id || !date || !device_id) {
                 console.error('Missing fields in item:', item);
                 continue; // Skip if required fields are missing
             }
 
-            console.log("Values being inserted into database:", [time_range, owner_id, date, device_id]);
+            console.log("Values being inserted into database:", [time_range, owner_id, date, device_id, student_id || null]);
 
-            await db.run(query, [time_range, owner_id, date, device_id]);
+            await db.run(query, [time_range, owner_id, date, device_id,student_id]);
         }
 
         res.status(201).send({ message: 'Unavailability recorded successfully' });
@@ -303,7 +303,7 @@ app.get('/scheduled', async (req, res) => {
         
         db.all(query, [student_id], (err, rows) => {
         if (err) {
-            console.error('Error fetching scheduled data:', error.message);
+            console.error('Error fetching scheduled data:', err.message);
             res.status(500).send({ error: 'Failed to fetch scheduled data' });
         }
         res.json(rows);
