@@ -6,6 +6,7 @@ const crypto = require('crypto');
 const nodemailer = require('nodemailer');
 const bodyParser = require('body-parser');
 const multer = require('multer');  
+const fs = require("fs");
 const { timeEnd } = require('console');
 require('dotenv').config();
 const app = express();
@@ -277,9 +278,6 @@ app.post('/unavailable', async (req, res) => {
     }
 });
 
-
-
-
 // Handle scheduled devices for student (or user) that booked the equipment 
 app.get('/scheduled', async (req, res) => {
     const { student_id } = req.query; // Pass student_id as a query parameter
@@ -387,8 +385,6 @@ app.get('/unavailable/by-device/:device_id', (req, res) => {
         res.json(row);
     });
 });
-
-
 
 // Delete requests from my equipment page (owner page)
 app.delete('/requests/:id', async (req, res) => {
@@ -567,6 +563,91 @@ app.delete('/inventory/:device_id', (req, res) => {
     });
 });
 
+
+app.get('/inventory/details', async (req, res) => {
+    const { device_id } = req.query;
+
+    if (!device_id) {
+        return res.status(400).json({ error: 'Device ID is required.' });
+    }
+
+    const query = `SELECT * FROM lab_devices WHERE device_id = ?`;
+    db.get(query, [device_id], (err, row) => {
+        if (err) {
+            console.error('Error fetching device data:', err.message);
+            return res.status(500).json({ error: 'Failed to fetch device data.' });
+        }
+
+        if (!row) {
+            return res.status(404).json({ error: 'Device not found.' });
+        }
+
+        res.json(row);
+    });
+});
+
+app.put("/inventory/:device_id", (req, res) => {
+    const { device_id } = req.params;
+    const {
+        campus,
+        department,
+        building,
+        room_number,
+        person_in_charge,
+        device_name,
+        description,
+        application,
+        manual_link,
+        category,
+        model,
+        brand,
+        keywords,
+        available,
+        image_path,
+        owner_id,
+    } = req.body;
+
+    const query = `
+        UPDATE lab_devices
+        SET campus = ?, department = ?, building = ?, room_number = ?, person_in_charge = ?,
+            device_name = ?, description = ?, application = ?, manual_link = ?, category = ?,
+            model = ?, brand = ?, keywords = ?, available = ?, image_path = ?, owner_id = ?
+        WHERE device_id = ?
+    `;
+
+    db.run(
+        query,
+        [
+            campus,
+            department,
+            building,
+            room_number,
+            person_in_charge,
+            device_name,
+            description,
+            application,
+            manual_link,
+            category,
+            model,
+            brand,
+            keywords,
+            available,
+            image_path,
+            owner_id,
+            device_id,
+        ],
+        function (err) {
+            if (err) {
+                console.error("Error updating device:", err.message);
+                res.status(500).json({ error: "Failed to update device." });
+            } else {
+                res.json({ message: "Device updated successfully!" });
+            }
+        }
+    );
+});
+
+
 // Nodemailer setup
 const transporter = nodemailer.createTransport({
     service: 'gmail',
@@ -732,23 +813,64 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
-// File upload endpoint
+// Updated File upload endpoint
 app.post("/upload", upload.single("image"), (req, res) => {
-    // Check if the file was uploaded
+    const { device_id } = req.body;
+
     if (!req.file) {
         return res.status(400).json({ error: "No file uploaded." });
     }
 
-    // Extract the file path
-    const filePath = `/${req.file.filename}`;
+    const newFilePath = req.file.filename;
 
+    // Check for an existing image for the device
+    const query = `SELECT image_path FROM lab_devices WHERE device_id = ?`;
+    db.get(query, [device_id], (err, row) => {
+        if (err) {
+            console.error("Error fetching device image:", err.message);
+            return res.status(500).json({ error: "Failed to fetch device image." });
+        }
 
-        // Respond with success
-        res.status(200).json({
-            message: "File uploaded and path saved successfully!",
-            path: filePath,
+        if (row && row.image_path) {
+            // Construct the full path to the old image
+            const oldImagePath = path.join(__dirname, "static/equipment_photos", row.image_path);
+            console.log("Attempting to delete old image:", oldImagePath);
+
+            // Check if the file exists before attempting to delete it
+            fs.access(oldImagePath, fs.constants.F_OK, (accessErr) => {
+                if (accessErr) {
+                    console.warn(`Old image not found: ${oldImagePath}`);
+                } else {
+                    fs.unlink(oldImagePath, (unlinkErr) => {
+                        if (unlinkErr) {
+                            console.error("Error deleting old image:", unlinkErr.message);
+                        } else {
+                            console.log("Old image deleted successfully:", oldImagePath);
+                        }
+                    });
+                }
+            });
+        } else {
+            console.warn("No existing image path found for this device.");
+        }
+
+        // Update the database with the new image path
+        const updateQuery = `UPDATE lab_devices SET image_path = ? WHERE device_id = ?`;
+        db.run(updateQuery, [newFilePath, device_id], (updateErr) => {
+            if (updateErr) {
+                console.error("Error updating image path:", updateErr.message);
+                return res.status(500).json({ error: "Failed to update image path." });
+            }
+
+            console.log("Image path updated successfully in the database.");
+            res.status(200).json({
+                message: "Image uploaded and path updated successfully.",
+                path: newFilePath,
+            });
         });
     });
+});
+
 
 // Endpoint to add a new user in signup page
 app.post('/add-user', (req, res) => {
@@ -924,7 +1046,6 @@ app.post('/save-and-send-message', (req, res) => {
         });
     });
 });
-
 
 
 // Function to get all lab devices

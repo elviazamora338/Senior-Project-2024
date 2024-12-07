@@ -13,6 +13,7 @@ import ReportsPage from './Components/MyEquip_Page/Reports_Page.jsx';
 import AddPage from './Components/Add_Page/Add_Screen.jsx';
 import HistoryPage from './Components/Home_Page/History.jsx';
 import BookmarksPage from './Components/Home_Page/Bookmarks.jsx';
+import InventoryUpdate from './Components/MyEquip_Page/Inventory_Update.jsx';
 import { UserProvider } from './UserContext.js';
 import './App.css';
 
@@ -42,6 +43,7 @@ const AppContent = () => {
               <Route path="/inventory" element={<InventoryPage />} />
               <Route path="/history" element={<HistoryPage />} />
               <Route path="/bookmarks" element={<BookmarksPage />} />
+              <Route path="/inventory/update/:device_id" element={<InventoryUpdate />} />
               <Route path="*" element={<h1>Not Found</h1>} />
             </Routes>
           </div>

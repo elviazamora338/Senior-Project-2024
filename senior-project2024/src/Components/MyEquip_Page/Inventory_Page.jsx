@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './Inventory_Page.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -12,6 +12,8 @@ const InventoryPage = () => {
     const [inventory, setInventory] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 8; 
+    const navigate = useNavigate();
+
 
     useEffect(() => {
         if (user && user.user_name) {
@@ -106,7 +108,6 @@ const InventoryPage = () => {
                                             <td>
                                                 <div className="description-content">
                                                     <div className="description-item">
-                                                        <span className="description-label">Description:</span>
                                                         <span className="description-value">{item.description}</span>
                                                     </div>
                                                 </div>
@@ -116,8 +117,8 @@ const InventoryPage = () => {
                                                 <button
                                                     type="button"
                                                     className="btn btn-secondary"
-                                                    onClick={() => console.log(`Viewing device ${item.device_id}`)}
-                                                >
+                                                    onClick={() => navigate(`/inventory/update/${item.device_id}`)}
+                                                    >
                                                     View
                                                 </button>
                                                 <i
