@@ -465,7 +465,7 @@ const Book_Equipment = ( {device, ownerId} ) => {
                         />
                         </tbody>
                     </table>
-                    <h5>Reason for booking</h5>
+                    <h5>Project Description</h5>
                     <textarea
                         id="booking"
                         name="booking"
