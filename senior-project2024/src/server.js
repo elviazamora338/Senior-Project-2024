@@ -4,12 +4,16 @@ const cors = require('cors');
 const path = require('path');
 const crypto = require('crypto');
 const nodemailer = require('nodemailer');
+const bodyParser = require('body-parser');
+const multer = require('multer');  
+const { timeEnd } = require('console');
 require('dotenv').config();
 const app = express();
 const PORT = process.env.PORT || 5001;
 app.use(cors());
 app.use(express.json());
 app.use('/static', express.static(path.join(__dirname, 'static')));
+app.use(bodyParser.json()); 
 
 // Verify environment variables
 if (!process.env.EMAIL_USER || !process.env.EMAIL_PASSWORD) {
@@ -98,33 +102,183 @@ app.patch('/requests/:id', (req, res) => {
     const { id } = req.params;
     const { status } = req.body;
 
-    const query = `UPDATE booking_requests SET status = ? WHERE schedule_id = ?`;
+    const updateQuery = `UPDATE booking_requests SET status = ? WHERE schedule_id = ?`;
 
-    db.run(query, [status, id], function (err) {
+    db.run(updateQuery, [status, id], function (err) {
         if (err) {
             console.error('Error updating request status:', err.message);
             return res.status(500).json({ error: 'Failed to update request status' });
         }
-        res.json({ message: 'Request status updated successfully' });
+
+        if (status === 'approved') {
+            const fetchQuery = `
+                SELECT 
+                    br.schedule_id,
+                    br.student_id,
+                    br.device_id,
+                    br.owner_id,
+                    br.request_time,
+                    br.request_date,
+                    br.reason,
+                    ld.image_path
+                FROM booking_requests br
+                JOIN lab_devices ld ON br.device_id = ld.device_id
+                WHERE br.schedule_id = ?
+            `;
+
+            db.get(fetchQuery, [id], (fetchErr, booking) => {
+                if (fetchErr) {
+                    console.error('Error fetching booking details:', fetchErr.message);
+                    return res.status(500).json({ error: 'Failed to fetch booking details' });
+                }
+
+                // for history 
+                if (booking) {
+                    repeatedHistory(booking, (historyErr, action) => {
+                        if (historyErr) {
+                            return res.status(500).json({ error: 'Failed to process history' });
+                        }
+                        const message =
+                            action === 'updated'
+                                ? 'Request approved and history updated successfully'
+                                : 'Request approved and added to history successfully';
+                        res.json({ message });
+                    });
+                } else {
+                    res.status(404).json({ error: 'Booking request not found' });
+                }
+            });
+        } else {
+            res.json({ message: 'Request status updated successfully' });
+        }
     });
 });
 
+
+// Function to handle repeated history and FIFO
+function repeatedHistory(booking, callback) {
+    const checkQuery = `
+        SELECT history_id 
+        FROM history 
+        WHERE student_id = ? AND device_id = ?
+    `;
+
+    db.get(checkQuery, [booking.student_id, booking.device_id], (err, row) => {
+        if (err) {
+            console.error('Error checking history:', err.message);
+            return callback(err);
+        }
+
+        if (row) {
+            // If record exists, update the booking_time and booking_date
+            const updateQuery = `
+                UPDATE history 
+                SET booking_time = ?, booking_date = ? 
+                WHERE history_id = ?
+            `;
+            db.run(updateQuery, [booking.request_time, booking.request_date, row.history_id], (updateErr) => {
+                if (updateErr) {
+                    console.error('Error updating history:', updateErr.message);
+                    return callback(updateErr);
+                }
+                console.log('History updated successfully');
+                return callback(null, 'updated');
+            });
+        } else {
+            // If record doesn't exist, insert a new entry
+            const insertQuery = `
+                INSERT INTO history (schedule_id, student_id, device_id, owner_id, booking_time, booking_date, reason, image_path)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            `;
+            db.run(
+                insertQuery,
+                [
+                    booking.schedule_id,
+                    booking.student_id,
+                    booking.device_id,
+                    booking.owner_id,
+                    booking.request_time,
+                    booking.request_date,
+                    booking.reason,
+                    booking.image_path || null,
+                ],
+                function (insertErr) {
+                    if (insertErr) {
+                        console.error('Error adding to history:', insertErr.message);
+                        return callback(insertErr);
+                    }
+                    console.log('Booking added to history with History ID:', this.lastID);
+                  // Enforce FIFO limit (delete oldest entry if count exceeds 10)
+                    const countQuery = `SELECT COUNT(*) AS count FROM history`;
+                    db.get(countQuery, (countErr, result) => {
+                        if (countErr) {
+                            console.error('Error counting history entries:', countErr.message);
+                            return callback(countErr);
+                        }
+
+                        if (result.count > 10) {
+                            const deleteQuery = `
+                                DELETE FROM history 
+                                WHERE history_id = (SELECT history_id FROM history ORDER BY history_id ASC LIMIT 1)
+                            `;
+                            db.run(deleteQuery, (deleteErr) => {
+                                if (deleteErr) {
+                                    console.error('Error deleting oldest history:', deleteErr.message);
+                                    return callback(deleteErr);
+                                }
+                                console.log('Oldest history record deleted to maintain FIFO limit');
+                                return callback(null, 'inserted');
+                            });
+                        } else {
+                            return callback(null, 'inserted');
+                        }
+                  });
+                }
+            );
+        }
+    });
+}
+
 // Insert into unavailable table in the database to update the calendar
 app.post('/unavailable', async (req, res) => {
-    const { time_range, student_id, device_id, owner_id, date } = req.body;
+    let unavailableItems = req.body;
+
+    if (!Array.isArray(unavailableItems)) {
+        if (typeof unavailableItems === 'object' && unavailableItems !== null) {
+            unavailableItems = [unavailableItems]; 
+        } else {
+            return res.status(400).send({ error: 'Invalid data format. Expected an array of objects or a single object.' });
+        }
+    }
 
     try {
         const query = `
-            INSERT INTO unavailable (time_range, student_id, device_id, owner_id, date)
+            INSERT INTO unavailable (time_range, owner_id, date, device_id, student_id)
             VALUES (?, ?, ?, ?, ?)
         `;
-        await db.run(query, [time_range, student_id, device_id, owner_id, date]);
+
+        for (const item of unavailableItems) {
+            const { time_range, owner_id, date, device_id, student_id} = item;
+
+            if (!time_range || !owner_id || !date || !device_id) {
+                console.error('Missing fields in item:', item);
+                continue; // Skip if required fields are missing
+            }
+
+            console.log("Values being inserted into database:", [time_range, owner_id, date, device_id, student_id || null]);
+
+            await db.run(query, [time_range, owner_id, date, device_id,student_id]);
+        }
+
         res.status(201).send({ message: 'Unavailability recorded successfully' });
     } catch (error) {
         console.error('Error inserting into unavailable table:', error.message);
         res.status(500).send({ error: 'Failed to add unavailability' });
     }
 });
+
+
+
 
 // Handle scheduled devices for student (or user) that booked the equipment 
 app.get('/scheduled', async (req, res) => {
@@ -149,7 +303,7 @@ app.get('/scheduled', async (req, res) => {
         
         db.all(query, [student_id], (err, rows) => {
         if (err) {
-            console.error('Error fetching scheduled data:', error.message);
+            console.error('Error fetching scheduled data:', err.message);
             res.status(500).send({ error: 'Failed to fetch scheduled data' });
         }
         res.json(rows);
@@ -353,7 +507,6 @@ app.delete('/reports/:id', (req, res) => {
 // Gets and displays person in charge inventory under Inventory page
 app.get('/inventory', (req, res) => {
     const { person_in_charge } = req.query;
-
     if (!person_in_charge) {
         return res.status(400).json({ error: 'Person in charge is required.' });
     }
@@ -372,7 +525,6 @@ app.get('/inventory', (req, res) => {
         res.json(rows);
     });
 });
-
 
 // Delete device from lab_devices by device_id
 app.delete('/inventory/:device_id', (req, res) => {
@@ -397,8 +549,6 @@ app.delete('/inventory/:device_id', (req, res) => {
         res.json({ message: 'Device deleted successfully.' });
     });
 });
-
-
 
 // Nodemailer setup
 const transporter = nodemailer.createTransport({
@@ -432,8 +582,36 @@ app.post('/send-otp', async (req, res) => {
                 to: email,
                 subject: 'Your OTP Code',
                 text: `Your OTP code is: ${otp}`, 
-                html: `<p>Your OTP code is: <strong>${otp}</strong></p>`, 
-                replyTo: process.env.EMAIL_USER
+                html:
+                    `
+    <div style="font-family: Arial, sans-serif; color: #333; line-height: 1.6; padding: 20px; border: 1px solid #ddd; border-radius: 8px; max-width: 600px; margin: 0 auto; background-color: #f9f9f9;">
+        <div style="text-align: center; margin-bottom: 20px;">
+            <img src="cid:websiteLogo" alt="Website Logo" style="width: 150px; height: auto; display: inline-block;"/>
+        </div>
+        <h2 style="color: #4CAF50; text-align: center; margin-top: 0;">Your OTP Code</h2>
+        <p style="font-size: 16px; text-align: center;">
+            Please use the following OTP code to complete your verification:
+        </p>
+        <p style="font-size: 24px; font-weight: bold; text-align: center; color: #333; margin: 10px 0;">
+            ${otp}
+        </p>
+        <p style="font-size: 14px; text-align: center; color: #666;">
+            This code is valid for 10 minutes. If you didn’t request this code, please ignore this email.
+        </p>
+        <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
+        <p style="font-size: 14px; text-align: center; color: #999;">
+            Thank you for using <strong>BOOK'EM</strong>! If you have any questions, feel free to contact us.
+        </p>
+    </div>
+`, 
+                replyTo: process.env.EMAIL_USER,
+                attachments: [
+                    {
+                        filename: 'logo.png', 
+                        path: 'static/logo/bookem-high-resolution-logo-transparent.png', 
+                        cid: 'websiteLogo'
+                    }
+                ]
             };
 
             transporter.sendMail(mailOptions, (error, info) => {
@@ -482,7 +660,7 @@ app.post('/verify-otp', async (req, res) => {
 // app.get('/test-email', (req, res) => {
 //     const mailOptions = {
 //         from: process.env.EMAIL_USER,
-//         to: 'amadozuniga3@yahoo.com',
+//         to: '********@yahoo.com',
 //         subject: 'Test Email',
 //         text: 'This is a test email.'
 //     };
@@ -497,6 +675,63 @@ app.post('/verify-otp', async (req, res) => {
 //     });
 // });
 
+// Endpoint to add a new lab device
+app.post('/add-device', (req, res) => {
+    const {
+        campus, department, building, room_number, person_in_charge,
+        device_name, description, application, manual_link,
+        category, model, brand, keywords, available, image_path,owner_id
+    } = req.body;
+
+    const query = `INSERT INTO lab_devices (
+    campus, department, building, room_number, person_in_charge, device_name, 
+    description, application, manual_link, category, model, brand, keywords, available, image_path, owner_id)
+    VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`;
+
+    db.run(query, [
+        campus, department, building, room_number, person_in_charge, device_name, description, application,
+        manual_link, category, model, brand, keywords, available, image_path,owner_id
+    ], function (err) {
+        if (err) {
+            console.error(err.message);
+            res.status(500).json({ error: "Failed to add the lab device." });
+        } else {
+            res.status(200).json({ message: "Lab device was added successfully!", id: this.lastID })
+        }
+    });
+});
+
+// Configure Multer
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, path.join(__dirname, "static/equipment_photos")); // Save in static folder
+    },
+    filename: (req, file, cb) => {
+        const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+        const fileExtension = path.extname(file.originalname);
+        cb(null, file.fieldname + "-" + uniqueSuffix + fileExtension); // Custom filename
+    },
+});
+
+const upload = multer({ storage });
+
+// File upload endpoint
+app.post("/upload", upload.single("image"), (req, res) => {
+    // Check if the file was uploaded
+    if (!req.file) {
+        return res.status(400).json({ error: "No file uploaded." });
+    }
+
+    // Extract the file path
+    const filePath = `/${req.file.filename}`;
+
+
+        // Respond with success
+        res.status(200).json({
+            message: "File uploaded and path saved successfully!",
+            path: filePath,
+        });
+    });
 
 // Endpoint to add a new user in signup page
 app.post('/add-user', (req, res) => {
@@ -843,6 +1078,54 @@ app.post('/submitRequest', (req, res) => {
         console.error("Error bookmarking:", error);
         console.log("Failed to bookmark. Please try again.");
    } 
+});
+
+function getAllHistory(id){
+    return new Promise((resolve, reject)  => {
+        const query = `
+            SELECT 
+                h.history_id, 
+                h.schedule_id, 
+                h.booking_date, 
+                h.booking_time, 
+                h.reason, 
+                h.device_id,  -- Ensure this column is selected from the history table
+                ld.device_id AS lab_device_id, -- Include device_id explicitly from lab_devices
+                ld.device_name, 
+                ld.description, 
+                ld.person_in_charge, 
+                ld.building, 
+                ld.image_path 
+            FROM history h
+            JOIN lab_devices ld ON h.device_id = ld.device_id
+            WHERE h.student_id = ?
+        `;
+        db.all(query,[id], [], (err, rows) => {
+            if (err) {
+                reject(err);
+            } else {
+                resolve(rows);
+            }
+        });
+    });
+}
+
+// getting the history
+app.get('/myhistory', async(req, res) =>  {
+    const userId = req.query.userId; // Use query parameters for GET request
+    if (!userId) {
+        return res.status(400).json({ error: 'User ID is required' });
+    }
+    try {
+        const rows = await getAllHistory(userId);
+        if (rows.length === 0) {
+            return res.json({ message: 'No history found' });
+        }
+        res.json(rows);
+    } catch (error) {
+        console.error('Error fetching history:', error.message);
+        res.status(500).send("Error fetching data");
+    }
 });
 
 // Close database connection on server close

@@ -82,5 +82,20 @@ h5, .page-header {
     overflow-x: auto; /* Ensures that content is scrollable if it overflows */
 }
 
+.is-invalid{
+    border: 2px solid red;
+    background-color: #ffe6ef; 
+}
 
-
+.invalid-feedback{
+    color: red; 
+    font-size: 1em; 
+}
+.img-preview {
+    max-width: 100%;
+    /* Ensure it doesn't exceed container width */
+    max-height: 200px;
+    /* Set a max height */
+    object-fit: contain;
+    /* Ensures the image scales while maintaining its aspect ratio */
+}

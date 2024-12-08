@@ -63,16 +63,16 @@ const ReportEquipment = ({ device_id, onHide }) => {
             );
             const unavailabilityId = unavailabilityResponse.data.unavailability_id;
     
-            if (unavailabilityId) {
-                // Delete the unavailability record
-                await axios.delete(`http://localhost:5001/unavailable/${unavailabilityId}`);
-                alert('Scheduled booking removed successfully.');
+            // if (unavailabilityId) {
+            //     // Delete the unavailability record
+            //     await axios.delete(`http://localhost:5001/unavailable/${unavailabilityId}`);
+            //     alert('Scheduled booking removed successfully.');
 
-                // Refresh the page
-                window.location.reload();
-            } else {
-                alert('No scheduled booking found to remove.');
-            }
+            //     // Refresh the page
+            //     window.location.reload();
+            // } else {
+            //     alert('No scheduled booking found to remove.');
+            // }
     
             setShowReportProblemModal(false); // Close the modal on success
             setIssueDescription(''); // Reset the issue description field
