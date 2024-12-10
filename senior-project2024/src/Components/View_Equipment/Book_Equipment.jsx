@@ -12,19 +12,6 @@ let months = [
     "July", "August", "September", "October", "November", "December"
   ];
   const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-
-  // Helper functions
-// const getMonthRangeDates = (startMonth, endMonth, year) => {
-//     const dates = [];
-//     for (let month = startMonth; month <= endMonth; month++) {
-//         const daysInMonth = new Date(year, month + 1, 0).getDate();
-//         for (let day = 1; day <= daysInMonth; day++) {
-//             const date = new Date(year, month, day);
-//             dates.push(date.toISOString().split('T')[0]);
-//         }
-//     }
-//     return dates;
-// };
   
   
 const Availability = ({ index, onDateChange, unavailableDates }) => {
@@ -74,7 +61,7 @@ const Availability = ({ index, onDateChange, unavailableDates }) => {
     const selectedTimes = (times = timeSelection) => Object.keys(times).filter(time => times[time]);
 
     // Time selection handler (select only one time slot)
-     const handleTimeSelection = (timeSlot) => {
+    const handleTimeSelection = (timeSlot) => {
         const updatedTimes = {
             "8am-10am": false,
             "10am-12pm": false,
@@ -85,26 +72,36 @@ const Availability = ({ index, onDateChange, unavailableDates }) => {
     
         setTimeSelection(updatedTimes);
     
-        // Propagate changes
+        // Propagate changes to parent component
         onDateChange(index, {
             dates: [selectedDay],
             allSelected: false, // Only one slot is selected
-            times: Object.keys(updatedTimes).filter(time => updatedTimes[time]),
+            times: selectedTimes(updatedTimes),
         });
     };
 
     const handleDayChange = (e) => {
-        const newSelectedDay = e.target.value;
+        const newSelectedDay = e.target.value;    
+        console.log('Selected day:', newSelectedDay);  // Log to see the value
         setSelectedDay(newSelectedDay);
         onDateChange(index, {
             dates: [newSelectedDay],
             allSelected: Object.values(timeSelection).every(selected => selected),
-            times: Object.keys(timeSelection).filter(time => timeSelection[time]),
+            times: selectedTimes()
         });
     };
     
+    useEffect(() => {
+        // Log the unavailable dates in the console
+        console.log('Unavailable dates:', unavailableDates);
+      }, [unavailableDates]);
+    
     const dateInfo = unavailableDates[selectedDay]; 
 
+    const dateStyle = {
+        textDecoration: dateInfo ? 'line-through' : 'none',  // Strike-through if date is unavailable
+        color: dateInfo ? 'red' : 'black',  // Change color if unavailable
+      };
 
   return (
     <tr>
@@ -192,6 +189,7 @@ function GenerateCalender({ unavailableDates }) {
                 } else {
                     const formattedDate = `${year}-${String(month + 1).padStart(2, '0')}-${String(date).padStart(2, '0')}`;
                     const dateInfo = unavailableDates[formattedDate];
+                    console.log('Date INFO', dateInfo);  // Check if this is properly fetched
 
                     // Determine the background color based on time slots
                     const backgroundColor = dateInfo
@@ -329,7 +327,15 @@ const Book_Equipment = ( {device, ownerId} ) => {
     const [unavailableDates, setUnavailableDates] = useState({});
     const [showConfirmationModal, setShowConfirmationModal] = useState(false);
     const [bookingDetails, setBookingDetails] = useState({});
-    const handleShowConfirmationModal = () => setShowConfirmationModal(true);
+
+    const handleShowConfirmationModal = () => {
+        if (bookingDetails.dates && bookingDetails.times) {
+            setShowConfirmationModal(true);
+        } else {
+            setErrorMessage('Please select dates and times before confirming.');
+        }
+    };
+    
 
     // Fetch unavailable dates
     useEffect(() => {
@@ -366,8 +372,8 @@ const Book_Equipment = ( {device, ownerId} ) => {
         }
     };
     
-    // Call this after confirmation
-    refreshUnavailableDates();
+    // // Call this after confirmation
+    // refreshUnavailableDates();
     
     const handleSubmitBookingRequest = async () => {
         try {
@@ -385,12 +391,15 @@ const Book_Equipment = ( {device, ownerId} ) => {
                 reason: reason, // State `reason` should already have a value
                 owner_id: ownerId, 
             };
+            console.log('Booking Details:', bookingDetails);
     
             const response = await axios.post('http://localhost:5001/submitBookingRequest', payload);
-    
+
+            
             if (response.data.message) {
                 console.log("Booking request submitted successfully:", response.data);
                 alert('Booking request submitted successfully!');
+                await refreshUnavailableDates(); // Refresh unavailable dates
                 handleCloseConfirmationModal();
             } else {
                 console.error('Error from server:', response.data);
@@ -467,10 +476,24 @@ const Book_Equipment = ( {device, ownerId} ) => {
     
 
     // Help ensure the calendar knows which dates are unavailable
-    const flattenedUnavailableDates = Object.keys(unavailableDates).reduce((acc, date) => {
-        acc[date] = unavailableDates[date];
+    // const flattenedUnavailableDates = Object.keys(unavailableDates).reduce((acc, date) => {
+    //     acc[date] = unavailableDates[date];
+    //     return acc;
+    // }, {});
+
+    const flattenedUnavailableDates = Object.values(unavailableDates).reduce((acc, { dates = [], allSelected, times }) => {
+        if (Array.isArray(dates)) {
+            dates.forEach(date => {
+                acc[date] = { allSelected, times };
+            });
+        }
         return acc;
     }, {});
+
+
+    console.log('Unavailable Dates:', unavailableDates);
+    console.log('Flattened Dates:', flattenedUnavailableDates);
+
     
 
     return (
@@ -497,8 +520,8 @@ const Book_Equipment = ( {device, ownerId} ) => {
                         <Availability
                             key={0}
                             index={0}
-                            onDateChange={updateUnavailableDates}
-                            unavailableDates={unavailableDates}
+                            onDateChange={updateUnavailableDates} 
+                            unavailableDates={unavailableDates} 
                         />
                         </tbody>
                     </table>
@@ -513,7 +536,7 @@ const Book_Equipment = ( {device, ownerId} ) => {
                     />
                 </div>
                 <div className="col-md-5">
-                    <GenerateCalender unavailableDates={flattenedUnavailableDates} />
+                    <GenerateCalender unavailableDates={unavailableDates} />
                 </div>
                 <div className="text-end">
                 {errorMessage && <p className="error-message">{errorMessage}</p>}
