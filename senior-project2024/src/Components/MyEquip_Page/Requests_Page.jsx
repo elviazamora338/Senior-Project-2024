@@ -23,8 +23,8 @@ const RequestsPage = () => {
     
                 // Sort the requests in descending order based on request_date (most recent first)
                 const sortedRequests = response.data.sort((a, b) => {
-                    const dateA = new Date(a.request_date);
-                    const dateB = new Date(b.request_date);
+                    const dateA = new Date(a.schedule_id);
+                    const dateB = new Date(b.schedule_id);
                     return dateB - dateA; // Sort descending
                 });
     

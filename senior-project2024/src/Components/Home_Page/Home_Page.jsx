@@ -26,8 +26,8 @@ const HomePage = () => {
 
                 // Sort items by date and time in descending order
                 const sortedItems = response.data.sort((a, b) => {
-                    const dateA = new Date(a.date + ' ' + a.time_range);
-                    const dateB = new Date(b.date + ' ' + b.time_range);
+                    const dateA = new Date(a.date + ' ' + a.date);
+                    const dateB = new Date(b.date + ' ' + b.date);
                     return dateB - dateA;
                 });
 
