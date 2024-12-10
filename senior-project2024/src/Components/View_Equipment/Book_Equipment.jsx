@@ -31,7 +31,7 @@ const Availability = ({ index, onDateChange, unavailableDates }) => {
     const [period, setPeriod] = useState('Day'); // Default to Day
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
-    const [selectedDay, setSelectedDay] = useState('');
+    const [selectedDay, setSelectedDay] = useState(new Date().toISOString().split('T')[0]); // Default to today's date
     const [startMonth, setStartMonth] = useState('');
     const [endMonth, setEndMonth] = useState('');
     const [timeSelection, setTimeSelection] = useState({
@@ -40,6 +40,33 @@ const Availability = ({ index, onDateChange, unavailableDates }) => {
         "12pm-2pm": false,
         "2pm-4pm": false
     });
+
+     // Get the current date and time
+     const currentDate = new Date();
+     const currentDateStr = currentDate.toISOString().split('T')[0];  // Current date in YYYY-MM-DD format
+     const currentTime = currentDate.getHours() * 60 + currentDate.getMinutes(); // Convert current time to minutes
+ 
+     // Function to check if the selected day is today and if the time slot is in the future
+     const isPastDate = (date) => {
+         return new Date(date) < currentDate;
+     };
+ 
+     const isPastTimeSlot = (timeSlot) => {
+         const [startTime, endTime] = timeSlot.split('-');
+         const startHour = parseInt(startTime);
+         const endHour = parseInt(endTime);
+         
+         // Convert to minutes for comparison
+         const startMinutes = startHour === 12 ? 12 * 60 : startHour * 60;
+         const endMinutes = endHour === 12 ? 12 * 60 : endHour * 60;
+ 
+         // Disable past time slots for today
+         if (selectedDay === currentDateStr) {
+             return currentTime >= endMinutes;  // Disable time slots that have already ended
+         }
+         return false;
+     };
+ 
     
     const isUnavailable = (timeSlot) => unavailableDates[selectedDay]?.times?.includes(timeSlot) || false;    
 
@@ -62,7 +89,7 @@ const Availability = ({ index, onDateChange, unavailableDates }) => {
         onDateChange(index, {
             dates: [selectedDay],
             allSelected: false, // Only one slot is selected
-            times: selectedTimes(updatedTimes),
+            times: Object.keys(updatedTimes).filter(time => updatedTimes[time]),
         });
     };
 
@@ -72,7 +99,7 @@ const Availability = ({ index, onDateChange, unavailableDates }) => {
         onDateChange(index, {
             dates: [newSelectedDay],
             allSelected: Object.values(timeSelection).every(selected => selected),
-            times: selectedTimes()
+            times: Object.keys(timeSelection).filter(time => timeSelection[time]),
         });
     };
     
@@ -98,7 +125,8 @@ const Availability = ({ index, onDateChange, unavailableDates }) => {
                     id="selectedDay"
                     className="form-control mb-3"
                     value={selectedDay}
-                    onChange={handleDayChange} />
+                    onChange={handleDayChange}
+                    min={currentDateStr}/>
                 
             </div>
         </td>
@@ -196,7 +224,12 @@ function GenerateCalender({ unavailableDates }) {
         }
     };
 
+    // Function to go to the previous month
     const previousMonth = () => {
+        if (currentMonth === 0 && currentYear === new Date().getFullYear()) {
+            return; 
+        }
+
         if (currentMonth === 0) {
             setCurrentMonth(11);
             setCurrentYear(currentYear - 1);
@@ -204,7 +237,6 @@ function GenerateCalender({ unavailableDates }) {
             setCurrentMonth(currentMonth - 1);
         }
     };
-
     const handleMonthChange = (e) => {
         const monthIndex = months.indexOf(e.target.value);
         setSelectedMonth(monthIndex);
@@ -221,6 +253,10 @@ function GenerateCalender({ unavailableDates }) {
         yearOptions.push(year);
     }
 
+    // Disable the previous month button if currentMonth is the first month (January) of the current year
+    const isPreviousMonthDisabled = currentMonth === new Date().getMonth() && currentYear === new Date().getFullYear();
+
+
     return (
         <div>
             <div className="row justify-content-between align-items-center">
@@ -230,6 +266,7 @@ function GenerateCalender({ unavailableDates }) {
                         className="btn btn-warning bi bi-chevron-left me-2"
                         onClick={previousMonth}
                         aria-label="Previous Month"
+                        disabled={isPreviousMonthDisabled}
                     ></button>
                     <button
                         className="btn btn-warning bi bi-chevron-right"
@@ -465,7 +502,7 @@ const Book_Equipment = ( {device, ownerId} ) => {
                         />
                         </tbody>
                     </table>
-                    <h5>Project Description</h5>
+                    <h5>Reason for booking</h5>
                     <textarea
                         id="booking"
                         name="booking"
