@@ -2,24 +2,36 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Modal, Button } from 'react-bootstrap';
 import axios from 'axios';
-import ReportEquipment from './Report_Equipment.jsx'; // Corrected import
+import ReportEquipment from './Report_Equipment.jsx';
 import './Home_Page.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import "bootstrap-icons/font/bootstrap-icons.css";
+import Pagination from '../Pagination.jsx'; 
 import { useUser } from '../../UserContext';
 
 const HomePage = () => {
     const { user } = useUser(); 
     const [scheduledItems, setScheduledItems] = useState([]);
-    const [showDeviceModal, setShowDeviceModal] = useState(false); // Modal control state
-    const [selectedDevice, setSelectedDevice] = useState(null);   // Selected device state
+    const [showDeviceModal, setShowDeviceModal] = useState(false);
+    const [selectedDevice, setSelectedDevice] = useState(null); 
+
+    const [currentPage, setCurrentPage] = useState(1);
+    const [itemsPerPage] = useState(5);
 
     useEffect(() => {
         const fetchScheduledData = async () => {
             try {
                 const response = await axios.get(`http://localhost:5001/scheduled?student_id=${user.user_id}`);
-                console.log('Scheduled Items:', response.data); // Log the API response
-                setScheduledItems(response.data);
+                console.log('Scheduled Items:', response.data);
+
+                // Sort items by date and time in descending order
+                const sortedItems = response.data.sort((a, b) => {
+                    const dateA = new Date(a.date + ' ' + a.time_range);
+                    const dateB = new Date(b.date + ' ' + b.time_range);
+                    return dateB - dateA;
+                });
+
+                setScheduledItems(sortedItems);
             } catch (error) {
                 console.error('Error fetching scheduled data:', error.message);
             }
@@ -31,7 +43,7 @@ const HomePage = () => {
     const handleCancel = async (unavailabilityId) => {
         const confirmCancel = window.confirm('Are you sure you want to cancel this item?');
         if (!confirmCancel) return;
-    
+
         try {
             await axios.delete(`http://localhost:5001/unavailable/${unavailabilityId}`);
             setScheduledItems((prevItems) =>
@@ -43,14 +55,22 @@ const HomePage = () => {
     };
 
     const handleDeviceClick = (device_id) => {
-        setSelectedDevice(device_id); // Pass device_id to the modal
+        setSelectedDevice(device_id); 
         setShowDeviceModal(true);
     };
-    
 
     const handleCloseDeviceModal = () => {
-        setSelectedDevice(null); // Clear selected device
-        setShowDeviceModal(false); // Close modal
+        setSelectedDevice(null);
+        setShowDeviceModal(false);
+    };
+
+    const indexOfLastItem = currentPage * itemsPerPage;
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+    const currentItems = scheduledItems.slice(indexOfFirstItem, indexOfLastItem);
+    
+    // Pagination handler
+    const handlePagination = (pageNumber) => {
+        setCurrentPage(pageNumber);
     };
 
     return (
@@ -83,8 +103,8 @@ const HomePage = () => {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {scheduledItems.length > 0 ? (
-                                        scheduledItems.map((item) => (
+                                    {currentItems.length > 0 ? (
+                                        currentItems.map((item) => (
                                             <tr key={item.unavailability_id} onClick={() => handleDeviceClick(item.device_id)}>
                                                 <td>
                                                     <img src={`http://localhost:5001/static/equipment_photos/${item.image_path}`} className="item-image" alt={item.device_name} />
@@ -95,7 +115,7 @@ const HomePage = () => {
                                                     <button
                                                         className="cancel-button"
                                                         onClick={(e) => {
-                                                            e.stopPropagation(); // Prevent modal opening
+                                                            e.stopPropagation();
                                                             handleCancel(item.unavailability_id);
                                                         }}
                                                     >
@@ -110,8 +130,17 @@ const HomePage = () => {
                                         </tr>
                                     )}
                                 </tbody>
-
                             </table>
+                        </div>
+
+                        {/* Pagination */}
+                        <div className="d-flex justify-content-end mr-4 mb-4">
+                            <Pagination
+                                postsPerPage={itemsPerPage}
+                                length={scheduledItems.length} // Corrected: Use scheduledItems.length here
+                                handlePagination={handlePagination}
+                                currentPage={currentPage}
+                            />
                         </div>
                     </div>
                 </div>
@@ -136,11 +165,9 @@ const HomePage = () => {
                     />
                 </Modal.Header>   
                 <Modal.Body>
-                    {selectedDevice && <ReportEquipment device_id={selectedDevice} />} {/* Pass device_id */}
+                    {selectedDevice && <ReportEquipment device_id={selectedDevice} />} 
                 </Modal.Body>
-                
             </Modal>
-
         </>
     );
 };

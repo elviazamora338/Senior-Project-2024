@@ -20,13 +20,22 @@ const RequestsPage = () => {
             try {
                 const response = await axios.get(`http://localhost:5001/requests?owner_id=${user.user_id}`);
                 console.log('Requests Data:', response.data); // Log the data from the API
-                setRequests(response.data);
+    
+                // Sort the requests in descending order based on request_date (most recent first)
+                const sortedRequests = response.data.sort((a, b) => {
+                    const dateA = new Date(a.request_date);
+                    const dateB = new Date(b.request_date);
+                    return dateB - dateA; // Sort descending
+                });
+    
+                setRequests(sortedRequests);
             } catch (error) {
                 console.error('Error fetching requests:', error.message);
             }
         };
         fetchRequests();
     }, [user.user_id]);
+    
     
 
     // Handle booking confirmation by the owner
