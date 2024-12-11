@@ -1,17 +1,23 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
+import { useState, useEffect } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css'; 
-import 'bootstrap-icons/font/bootstrap-icons.css';
+import 'bootstrap-icons/font/bootstrap-icons.css'
 import axios from 'axios';
 import { useUser } from '../../UserContext';
 
-const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
-// Helper function to get dates in a custom range
+let months = [
+    "January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December"
+  ];
+  const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+  // Helper functions
 const getDatesInRange = (startDate, endDate) => {
     const dates = [];
     let currentDate = new Date(startDate);
     const finalDate = new Date(endDate);
-
+    
     while (currentDate <= finalDate) {
         dates.push(currentDate.toISOString().split('T')[0]);
         currentDate.setDate(currentDate.getDate() + 1);
@@ -19,38 +25,34 @@ const getDatesInRange = (startDate, endDate) => {
     return dates;
 };
 
-function Availability({ index, removeSection, onDateChange, existingEntry }) {
-    const [period, setPeriod] = useState('Custom'); // Default to Custom
-    const [startDate, setStartDate] = useState('');
-    const [endDate, setEndDate] = useState('');
-    const [selectedDay, setSelectedDay] = useState('');
-    const [timeSelection, setTimeSelection] = useState({
-        "8am-10am": false,
-        "10am-12pm": false,
-        "12pm-2pm": false,
-        "2pm-4pm": false
-    });
-
-    useEffect(() => {
-        // Populate the time selection and date when editing an existing entry
-        if (existingEntry) {
-            const { date, time_range, period } = existingEntry;
-            setPeriod(period);
-            if (period === 'Day') {
-                setSelectedDay(date);
-            } else if (period === 'Custom') {
-                const [start, end] = date.split(' to ');
-                setStartDate(start);
-                setEndDate(end);
-            }
-
-            const times = time_range.split(', ').reduce((acc, time) => {
-                acc[time] = true;
-                return acc;
-            }, {});
-            setTimeSelection({ ...timeSelection, ...times });
+const getMonthRangeDates = (startMonth, endMonth, year) => {
+    const dates = [];
+    for (let month = startMonth; month <= endMonth; month++) {
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+        for (let day = 1; day <= daysInMonth; day++) {
+            const date = new Date(year, month, day);
+            dates.push(date.toISOString().split('T')[0]);
         }
-    }, [existingEntry]);
+    }
+    return dates;
+};
+
+
+
+function Availability({ index, removeSection, onDateChange, initialData }) {
+    const [period, setPeriod] = useState(initialData?.period || 'Custom'); // Use initialData or default to 'Custom'
+    const [startDate, setStartDate] = useState(initialData?.date?.split(' to ')[0] || '');
+    const [endDate, setEndDate] = useState(initialData?.date?.split(' to ')[1] || '');
+    const [selectedDay, setSelectedDay] = useState(initialData?.date || '');
+    const [timeSelection, setTimeSelection] = useState(() => {
+        const times = initialData?.time_range?.split(', ') || [];
+        return {
+            "8am-10am": times.includes("8am-10am"),
+            "10am-12pm": times.includes("10am-12pm"),
+            "12pm-2pm": times.includes("12pm-2pm"),
+            "2pm-4pm": times.includes("2pm-4pm")
+        };
+    });
 
     const handlePeriodChange = (e) => {
         setPeriod(e.target.value);
@@ -64,142 +66,164 @@ function Availability({ index, removeSection, onDateChange, existingEntry }) {
             "12pm-2pm": false,
             "2pm-4pm": false
         });
-        onDateChange(index, []);
+        onDateChange(index, null); // Reset the parent data as well
     };
 
-    const isAllSelected = (times = timeSelection) => Object.values(times).every(selected => selected);
-    const selectedTimes = (times = timeSelection) => Object.keys(times).filter(time => times[time]);
+    const selectedTimes = () => Object.keys(timeSelection).filter(time => timeSelection[time]).join(', ');
+
 
     const handleTimeSelection = (timeSlot) => {
         const updatedTimes = { ...timeSelection, [timeSlot]: !timeSelection[timeSlot] };
         setTimeSelection(updatedTimes);
-
-        // Update unavailable dates for each selected/unselected slot immediately
-        onDateChange(index, {
-            dates: period === 'Day' ? [selectedDay] : getDatesInRange(startDate, endDate),
+    
+        const times = Object.keys(updatedTimes).filter(slot => updatedTimes[slot]);
+        const data = {
             period,
-            allSelected: isAllSelected(updatedTimes),
-            times: selectedTimes(updatedTimes)
-        });
+            date: period === 'Custom' && startDate && endDate ? `${startDate} to ${endDate}` : selectedDay,
+            time_range: times.join(', ') || '', // Ensure time_range is always a string
+        };
+        onDateChange(index, data);
     };
+
 
     const handleStartDateChange = (e) => {
-        const newStartDate = e.target.value;
-        setStartDate(newStartDate);
+        setStartDate(e.target.value);
         if (period === 'Custom' && endDate) {
-            const newDates = getDatesInRange(newStartDate, endDate);
-            onDateChange(index, {
-                dates: newDates,
+            const data = {
                 period,
-                allSelected: isAllSelected(),
-                times: selectedTimes(),
-            });
+                date: `${e.target.value} to ${endDate}`,
+                time_range: selectedTimes()
+            };
+            onDateChange(index, data);
         }
     };
-    
+
     const handleEndDateChange = (e) => {
-        const newEndDate = e.target.value;
-        setEndDate(newEndDate);
+        setEndDate(e.target.value);
         if (period === 'Custom' && startDate) {
-            const newDates = getDatesInRange(startDate, newEndDate);
-            onDateChange(index, {
-                dates: newDates,
+            const data = {
                 period,
-                allSelected: isAllSelected(),
-                times: selectedTimes(),
-            });
+                date: `${startDate} to ${e.target.value}`,
+                time_range: selectedTimes()
+            };
+            onDateChange(index, data);
         }
     };
-    
-
-    // const handleStartDateChange = (e) => {
-    //     setStartDate(e.target.value);
-    //     if (period === 'Custom' && endDate) {
-    //         onDateChange(index, { dates: getDatesInRange(e.target.value, endDate), period, allSelected: isAllSelected(), times: selectedTimes() });
-    //     }
-    // };
-
-    // const handleEndDateChange = (e) => {
-    //     setEndDate(e.target.value);
-    //     if (period === 'Custom' && startDate) {
-    //         onDateChange(index, { dates: getDatesInRange(startDate, e.target.value), period, allSelected: isAllSelected(), times: selectedTimes() });
-    //     }
-    // };
 
     const handleDayChange = (e) => {
         setSelectedDay(e.target.value);
-        onDateChange(index, { dates: [e.target.value], period, allSelected: isAllSelected(), times: selectedTimes() });
+        if (period === 'Day' && e.target.value) {
+            const data = {
+                period,
+                date: e.target.value,
+                time_range: selectedTimes()
+            };
+            onDateChange(index, data);
+        } else {
+            onDateChange(index, null); // Clear the parent data if no date is selected
+        }
     };
 
     return (
         <tr>
             <td>
                 <select
+                    id="period"
                     className="form-select"
+                    style={{ width: 'fit-content' }}
                     value={period}
                     onChange={handlePeriodChange}
                 >
-                    <option value="Day">Day</option>
-                    <option value="Custom">Custom Range</option>
+                    <option>Day</option>
+                    <option>Custom</option>
                 </select>
             </td>
             <td>
-                {period === 'Day' && (
-                    <input
-                        type="date"
-                        className="form-control"
-                        value={selectedDay}
-                        onChange={handleDayChange}
-                    />
-                )}
-                {period === 'Custom' && (
-                    <>
+                {period === 'Day' ? (
+                    <div className="col-12" style={{ width: 'fit-content' }}>
                         <input
                             type="date"
-                            className="form-control mb-2"
-                            value={startDate}
-                            onChange={handleStartDateChange}
+                            id="selectedDay"
+                            className="form-control mb-3"
+                            value={selectedDay}
+                            onChange={handleDayChange}
                         />
-                        <input
-                            type="date"
-                            className="form-control"
-                            value={endDate}
-                            onChange={handleEndDateChange}
-                        />
-                    </>
-                )}
-            </td>
-            <td>
-                {Object.keys(timeSelection).map((time) => (
-                    <div key={time} className="form-check form-check-inline">
-                        <input
-                            className="form-check-input"
-                            type="checkbox"
-                            checked={timeSelection[time]}
-                            onChange={() => handleTimeSelection(time)}
-                        />
-                        <label className="form-check-label">{time}</label>
                     </div>
-                ))}
+                ) : (
+                    <div className="col-12">
+                        <div className="mb-3">
+                            <input
+                                type="date"
+                                id="startDate"
+                                className="form-control mb-2"
+                                value={startDate}
+                                onChange={handleStartDateChange}
+                            />
+                            <label htmlFor="endDate" className="form-label">To</label>
+                            <input
+                                type="date"
+                                id="endDate"
+                                className="form-control"
+                                value={endDate}
+                                onChange={handleEndDateChange}
+                            />
+                        </div>
+                    </div>
+                )}
             </td>
             <td>
-                <button
-                    className="btn btn-danger"
-                    onClick={() => removeSection(index)}
-                >
-                    -
-                </button>
+                <div className="row justify-content-center p-8 mt-4">
+                    {Object.keys(timeSelection).map((time) => (
+                        <div className="col-6 p-2" style={{ width: 'fit-content' }} key={time}>
+                            <div className="form-check form-check-inline">
+                                <input
+                                    className="form-check-input"
+                                    type="checkbox"
+                                    checked={timeSelection[time]}
+                                    onChange={() => handleTimeSelection(time)}
+                                />
+                                <label className="form-check-label" style={{ fontSize: '12.5px' }}>
+                                    {time}
+                                </label>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            </td>
+            <td>
+                <div className="d-flex justify-content-end">
+                    <button
+                        className="btn bg-danger"
+                        style={{ width: '40px' }}
+                        onClick={() => removeSection(index)}
+                    >
+                        -
+                    </button>
+                </div>
             </td>
         </tr>
     );
 }
 
 
+
+
 function GenerateCalender({ unavailableDates }) {
     const [currentMonth, setCurrentMonth] = useState(new Date().getMonth());
     const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
+    const [selectedMonth, setSelectedMonth] = useState(currentMonth);
+    const [selectedYear, setSelectedYear] = useState(currentYear);
 
     const daysInMonth = (month, year) => new Date(year, month + 1, 0).getDate();
+
+    // Helper function to check if a date is within a range
+    const isDateInRange = (date, range) => {
+        const [start, end] = range.split(" to ");
+        const startDate = new Date(start);
+        const endDate = new Date(end);
+        const checkDate = new Date(date);
+        return checkDate >= startDate && checkDate <= endDate;
+    };
 
     const showCalendar = (month, year) => {
         const firstDay = new Date(year, month, 1).getDay();
@@ -208,38 +232,53 @@ function GenerateCalender({ unavailableDates }) {
         let date = 1;
     
         for (let i = 0; i < 6; i++) {
-            const row = [];
+            const week = [];
             for (let j = 0; j < 7; j++) {
                 if (i === 0 && j < firstDay) {
-                    row.push(<td key={j} />);
+                    week.push(<td key={`${i}-${j}`} />);
                 } else if (date > daysCount) {
                     break;
                 } else {
                     const formattedDate = `${year}-${String(month + 1).padStart(2, '0')}-${String(date).padStart(2, '0')}`;
-    
-                    // Check if this date is part of any unavailable entry
-                    const dateInfo = unavailableDates.find((entry) => entry.dates.includes(formattedDate));
-    
-                    let backgroundColor = 'white'; // Default is available
-                    if (dateInfo) {
-                        const timesSelected = dateInfo.times.length;
-                        const allTimesSelected = timesSelected === 4; // Adjust if there are more time slots
-                        const someTimesSelected = timesSelected > 0 && timesSelected < 4;
-    
-                        if (allTimesSelected) {
-                            backgroundColor = 'red'; // Fully unavailable
-                        } else if (someTimesSelected) {
-                            backgroundColor = 'orange'; // Partially unavailable
+                    
+                    let dateInfo = unavailableDates[formattedDate];
+                    let backgroundColor = 'white'; // Default color
+                    
+                    // Check for Custom Range entries
+                    if (!dateInfo) {
+                        for (const [key, value] of Object.entries(unavailableDates)) {
+                            if (key.includes(" to ") && isDateInRange(formattedDate, key)) {
+                                dateInfo = value; // Use the matching range's info
+                                break;
+                            }
                         }
                     }
     
-                    row.push(
+                    // Safeguard and normalize `times` property
+                    const times = Array.isArray(dateInfo?.times)
+                        ? dateInfo.times
+                        : typeof dateInfo?.times === 'string'
+                            ? dateInfo.times.split(', ')
+                            : [];
+    
+                    // Determine if all time slots are selected
+                    const allTimeSlots = ["8am-10am", "10am-12pm", "12pm-2pm", "2pm-4pm"];
+                    const allSelected = allTimeSlots.every(slot => times.includes(slot));
+    
+                    // Determine background color
+                    if (dateInfo) {
+                        backgroundColor = allSelected
+                            ? 'red' // Fully unavailable
+                            : times.length > 0
+                                ? 'orange' // Partially available
+                                : 'white';
+                    }
+    
+                    week.push(
                         <td
-                            key={j}
-                            style={{
-                                backgroundColor,
-                                color: backgroundColor === 'white' ? 'black' : 'white',
-                            }}
+                            key={`${i}-${j}`}
+                            style={{ backgroundColor, cursor: 'pointer' }}
+                            title={times.join(', ') || 'Available'}
                         >
                             {date}
                         </td>
@@ -247,12 +286,12 @@ function GenerateCalender({ unavailableDates }) {
                     date++;
                 }
             }
-            calendar.push(<tr key={i}>{row}</tr>);
+            calendar.push(<tr key={i}>{week}</tr>);
         }
         return calendar;
     };
     
-    
+
     const nextMonth = () => {
         if (currentMonth === 11) {
             setCurrentMonth(0);
@@ -271,10 +310,26 @@ function GenerateCalender({ unavailableDates }) {
         }
     };
 
+    const handleMonthChange = (e) => {
+        const monthIndex = months.indexOf(e.target.value);
+        setSelectedMonth(monthIndex);
+        setCurrentMonth(monthIndex);
+    };
+
+    const handleYearChange = (e) => {
+        setSelectedYear(Number(e.target.value));
+        setCurrentYear(Number(e.target.value));
+    };
+
+    const yearOptions = [];
+    for (let year = currentYear - 5; year <= currentYear + 5; year++) {
+        yearOptions.push(year);
+    }
+
     return (
         <div>
             <div className="row justify-content-between align-items-center">
-                <h3 className="mb-0">{new Date(currentYear, currentMonth).toLocaleString('default', { month: 'long' })} {currentYear}</h3>
+                <h3 className="mb-0">{months[currentMonth]} {currentYear}</h3>
                 <div className="d-flex justify-content-end">
                     <button
                         className="btn btn-warning bi bi-chevron-left me-2"
@@ -292,20 +347,48 @@ function GenerateCalender({ unavailableDates }) {
             <table className="table table-bordered text-center mt-3">
                 <thead>
                     <tr>
-                        {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => (
+                        {days.map(day => (
                             <th key={day}>{day}</th>
                         ))}
                     </tr>
                 </thead>
-                <tbody>{showCalendar(currentMonth, currentYear)}</tbody>
+                <tbody>
+                    {showCalendar(currentMonth, currentYear)}
+                </tbody>
             </table>
+            <div className="d-flex justify-content-center mb-3">
+                <select
+                    value={months[selectedMonth]}
+                    onChange={handleMonthChange}
+                    className="form-select me-2"
+                    style={{ width: '150px' }}
+                >
+                    {months.map((month, index) => (
+                        <option key={index} value={month}>
+                            {month}
+                        </option>
+                    ))}
+                </select>
+                <select
+                    value={selectedYear}
+                    onChange={handleYearChange}
+                    className="form-select"
+                    style={{ width: '100px' }}
+                >
+                    {yearOptions.map((year, index) => (
+                        <option key={index} value={year}>
+                            {year}
+                        </option>
+                    ))}
+                </select>
+            </div>
             <div className="my-legend">
                 <div className="legend-title">Availability Legend</div>
                 <div className="legend-scale">
                     <ul className="legend-labels text-start">
                         <li><span style={{ backgroundColor: 'red' }}></span>Unavailable</li>
                         <li><span style={{ backgroundColor: 'orange' }}></span>Partially available</li>
-                        <li><span style={{ backgroundColor: 'white', border: '1px solid black' }}></span>Available</li>
+                        <li><span style={{ backgroundColor: 'white' }}></span>Available</li>
                     </ul>
                 </div>
             </div>
@@ -315,156 +398,172 @@ function GenerateCalender({ unavailableDates }) {
 
 
 function Update_Calendar({ device_id }) {
-    const { user } = useUser();
+    const { user } = useUser(); // Access user from context
     const [availabilityList, setAvailabilityList] = useState([]);
     const [unavailableDates, setUnavailableDates] = useState({});
-    const [isLoading, setIsLoading] = useState(true);
-    const [error, setError] = useState(null);
+    const [fetchedData, setFetchedData] = useState([]);
 
+    // Fetch unavailable dates for the given device_id
     useEffect(() => {
-        const fetchUnavailableTimes = async () => {
+        const fetchUnavailableDates = async () => {
             try {
-                const response = await axios.get(`http://localhost:5001/unavailable/by-device/${device_id}`);
-                console.log('API response:', response.data);
-        
-                const unavailableData = response.data;
-        
-                if (!Array.isArray(unavailableData)) {
-                    throw new Error('Invalid response format. Expected an array.');
+                const response = await axios.get(`http://localhost:5001/unavailable/${device_id}`);
+                if (response.status === 200) {
+                    setFetchedData(response.data);
+                    const formattedData = response.data.map((item, index) => ({
+                        key: `fetched-${index}`,
+                        period: item.period,
+                        date: item.date,
+                        time_range: item.time_range,
+                        status: 'unchanged', // Mark as unchanged
+                    }));
+                    setAvailabilityList(formattedData);
+                } else {
+                    console.error('Failed to fetch unavailable dates:', response.statusText);
                 }
-        
-                const initialList = unavailableData.map((entry, index) => {
-                    const { period, date, time_range } = entry;
-        
-                    // Parse the date for Custom periods
-                    const dates =
-                        period === 'Custom'
-                            ? getDatesInRange(...date.split(' to ')) // Calculate all dates in the range
-                            : [date]; // Single date for Day
-        
-                    return {
-                        key: entry.unavailability_id || index,
-                        period: period || 'Day',
-                        dates,
-                        times: time_range ? time_range.split(', ') : [],
-                    };
-                });
-        
-                setAvailabilityList(initialList);
-        
-                const initialDates = unavailableData.reduce((acc, entry) => {
-                    const { period, date, time_range } = entry;
-        
-                    // Parse the date for Custom periods and calculate full range
-                    const dates =
-                        period === 'Custom'
-                            ? getDatesInRange(...date.split(' to '))
-                            : [date]; // Single date for Day
-        
-                    dates.forEach((d) => {
-                        acc[d] = {
-                            dates,
-                            times: time_range ? time_range.split(', ') : [],
-                            period,
-                            allSelected: true,
-                        };
-                    });
-                    return acc;
-                }, {});
-        
-                setUnavailableDates(initialDates);
             } catch (error) {
-                console.error('Error fetching unavailable times:', error.message);
-                setError('Failed to load unavailable times.');
-            } finally {
-                setIsLoading(false);
+                console.error('Error fetching unavailable dates:', error);
             }
         };
 
-            fetchUnavailableTimes();
-        }, [device_id]);
-
+        if (device_id) {
+            fetchUnavailableDates();
+        }
+    }, [device_id]);
 
     const handleAddSection = () => {
         setAvailabilityList([
             ...availabilityList,
-            { key: Date.now(), period: 'Day', dates: [''], times: [], existingEntry: null },
+            { key: `new-${availabilityList.length}`, status: 'new' } // Mark new entry
         ]);
     };
 
     const removeSection = (index) => {
-        setAvailabilityList(availabilityList.filter((_, i) => i !== index));
+        const updatedList = availabilityList.filter((_, i) => i !== index);
+        setAvailabilityList(updatedList);
     };
-    
 
-    const updateUnavailableDates = (index, field, value) => {
-        setAvailabilityList((prev) =>
-            prev.map((item, i) =>
-                i === index ? { ...item, [field]: value } : item
-            )
-        );
+    const updateUnavailableDates = (index, dates) => {
+        setAvailabilityList(prev => {
+            const updatedList = [...prev];
+            const updatedEntry = { ...updatedList[index], ...dates };
+
+            // Mark as modified only if originally unchanged
+            if (updatedEntry.status === 'unchanged') {
+                updatedEntry.status = 'modified';
+            }
+            updatedList[index] = updatedEntry;
+            return updatedList;
+        });
     };
+
+    const flattenedUnavailableDates = availabilityList.reduce((acc, entry) => {
+        if (!entry || !entry.date) return acc; // Skip invalid or null entries
+    
+        // Handle 'Custom Range' as a single entry
+        if (entry.date.includes(" to ")) {
+            acc[entry.date] = {
+                period: entry.period || 'Custom',
+                times: Array.isArray(entry.time_range)
+                    ? entry.time_range
+                    : typeof entry.time_range === 'string'
+                    ? entry.time_range.split(', ')
+                    : [], // Default to empty array if invalid
+            };
+        } else {
+            // Handle 'Day' or other entries as individual dates
+            const dates = Array.isArray(entry.dates) ? entry.dates : [entry.date];
+            dates.forEach(date => {
+                acc[date] = {
+                    period: entry.period || 'Custom',
+                    times: Array.isArray(entry.time_range)
+                        ? entry.time_range
+                        : typeof entry.time_range === 'string'
+                        ? entry.time_range.split(', ')
+                        : [], // Default to empty array if invalid
+                };
+            });
+        }
+    
+        return acc;
+    }, {});
+    
 
     const saveUnavailableDates = async () => {
         if (availabilityList.length === 0) {
-            alert('Please add at least one unavailable date.');
+            alert("Please select at least one unavailable date and time.");
             return;
         }
 
+        // Separate entries by status
+        const unchangedEntries = availabilityList.filter(entry => entry.status === 'unchanged');
+        const newOrModifiedEntries = availabilityList.filter(entry => entry.status !== 'unchanged');
+
+        const formattedEntries = newOrModifiedEntries.map(entry => ({
+            date: entry.date,
+            period: entry.period || 'Custom',
+            time_range: entry.time_range || '',
+            device_id,
+            owner_id: user.user_id,
+        }));
+
+        console.log('New or Modified Entries to Save:', formattedEntries);
+        console.log('Unchanged Entries:', unchangedEntries);
+
         try {
-            // Step 1: Delete existing unavailable entries for the device
-            await axios.delete(`http://localhost:5001/unavailable/device/${device_id}`);
+            // Step 1: Delete existing entries
+            await axios.delete(`http://localhost:5001/current/unavailable/${device_id}`, {
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            });
 
-            // Step 2: Prepare the data for saving
-            const entriesToSave = availabilityList.map((item) => {
-                const { period, dates, times } = item;
-
-                // Convert Custom ranges into a single string
-                const date =
-                    period === 'Custom'
-                        ? `${dates[0]} to ${dates[1]}` // Store the date range as a single string
-                        : dates[0]; // Single date for Day
-
-                return {
-                    date,
-                    time_range: times.join(', '),
-                    period,
+            // Step 2: Repost unchanged entries and new/modified entries
+            const allEntries = [
+                ...unchangedEntries.map(entry => ({
+                    date: entry.date,
+                    period: entry.period,
+                    time_range: entry.time_range,
                     device_id,
                     owner_id: user.user_id,
-                };
-            });
+                })),
+                ...formattedEntries,
+            ];
 
-            console.log('Entries to save:', entriesToSave); // Debug log for payload
+            if (allEntries.length > 0) {
+                const response = await axios.post('http://localhost:5001/update/unavailable', allEntries, {
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                });
 
-            // Step 3: Post the new unavailable entries to the backend
-            const response = await axios.post('http://localhost:5001/unavailable', entriesToSave, {
-                headers: { 'Content-Type': 'application/json' },
-            });
-
-            if (response.status === 201) {
-                alert('Unavailable dates saved successfully!');
+                if (response.status === 201) {
+                    alert("Unavailable dates saved successfully!");
+                } else {
+                    console.error("Failed to save unavailable dates:", response.statusText);
+                    alert("Error saving unavailable dates.");
+                }
             } else {
-                throw new Error('Failed to save unavailable dates.');
+                console.log("No entries to save.");
             }
         } catch (error) {
-            console.error('Error saving unavailable dates:', error.message);
+            console.error('Error:', error);
             alert('An error occurred while saving unavailable dates.');
         }
     };
 
-    if (isLoading) return <p>Loading unavailable times...</p>;
-    if (error) return <p className="text-danger">{error}</p>;
-
     return (
         <div className="container">
             <div className="row">
-                <div className="col-7">
+                <div className="col-7 text-start mt-4">
                     <h2>Set Equipment Availability</h2>
-                    <p>*By default, every day is available from 8am-8pm. Configure unavailability here.</p>
+                    <p className="text-danger" style={{ fontSize: '18px' }}>
+                        *By default, every weekday is set to 'available' from 8am-8pm. This page is to set up UNAVAILABILITY.
+                    </p>
                 </div>
             </div>
             <div className="row">
-                <div className="col-md-7">
+                <div className="card col-md-7">
                     <table className="table">
                         <thead>
                             <tr>
@@ -473,108 +572,32 @@ function Update_Calendar({ device_id }) {
                                 <th>Time(s) Unavailable</th>
                                 <th>
                                     <button onClick={handleAddSection} className="btn btn-primary">
-                                        Add
+                                        Add Unavailability
                                     </button>
                                 </th>
                             </tr>
                         </thead>
                         <tbody>
                             {availabilityList.map((item, index) => (
-                                <tr key={item.key}>
-                                    <td>
-                                        <select
-                                            value={item.period}
-                                            onChange={(e) =>
-                                                updateUnavailableDates(index, 'period', e.target.value)
-                                            }
-                                            className="form-select"
-                                        >
-                                            <option value="Day">Day</option>
-                                            <option value="Custom">Custom Range</option>
-                                        </select>
-                                    </td>
-                                    <td>
-                                        {item.period === 'Day' && (
-                                            <input
-                                                type="date"
-                                                className="form-control"
-                                                value={item.dates[0]}
-                                                onChange={(e) =>
-                                                    updateUnavailableDates(index, 'dates', [e.target.value])
-                                                }
-                                            />
-                                        )}
-                                        {item.period === 'Custom' && (
-                                            <>
-                                                <input
-                                                    type="date"
-                                                    className="form-control mb-2"
-                                                    value={item.dates[0]}
-                                                    onChange={(e) =>
-                                                        updateUnavailableDates(index, 'dates', [
-                                                            e.target.value,
-                                                            item.dates[1],
-                                                        ])
-                                                    }
-                                                />
-                                                <input
-                                                    type="date"
-                                                    className="form-control"
-                                                    value={item.dates[1]}
-                                                    onChange={(e) =>
-                                                        updateUnavailableDates(index, 'dates', [
-                                                            item.dates[0],
-                                                            e.target.value,
-                                                        ])
-                                                    }
-                                                />
-                                            </>
-                                        )}
-                                    </td>
-                                    <td>
-                                        <div>
-                                            {['8am-10am', '10am-12pm', '12pm-2pm', '2pm-4pm'].map(
-                                                (timeRange) => (
-                                                    <label key={timeRange} className="d-block">
-                                                        <input
-                                                            type="checkbox"
-                                                            checked={item.times.includes(timeRange)}
-                                                            onChange={(e) => {
-                                                                const newTimes = e.target.checked
-                                                                    ? [...item.times, timeRange]
-                                                                    : item.times.filter(
-                                                                          (time) => time !== timeRange
-                                                                      );
-                                                                updateUnavailableDates(index, 'times', newTimes);
-                                                            }}
-                                                        />{' '}
-                                                        {timeRange}
-                                                    </label>
-                                                )
-                                            )}
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <button
-                                            onClick={() => removeSection(index)}
-                                            className="btn btn-danger"
-                                        >
-                                            Remove
-                                        </button>
-                                    </td>
-                                </tr>
+                                <Availability
+                                    key={item.key || index}
+                                    index={index}
+                                    removeSection={removeSection}
+                                    onDateChange={updateUnavailableDates}
+                                    initialData={item}
+                                />
                             ))}
                         </tbody>
                     </table>
                 </div>
                 <div className="col-md-5">
-                    <GenerateCalender unavailableDates={availabilityList} />
+                    <GenerateCalender unavailableDates={flattenedUnavailableDates} />
                 </div>
             </div>
             <div className="row mt-3">
                 <div className="col-md-12 text-end">
                     <button onClick={saveUnavailableDates} className="btn btn-success">
-                        Save Changes
+                        Save Unavailable Dates
                     </button>
                 </div>
             </div>

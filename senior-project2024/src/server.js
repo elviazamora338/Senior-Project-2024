@@ -294,6 +294,7 @@ app.get('/scheduled', async (req, res) => {
                 d.device_name, 
                 u.time_range, 
                 u.date,
+                u.period,
                 u.owner_id,
                 o.user_name AS owner_name
             FROM unavailable u
@@ -409,6 +410,108 @@ app.get('/unavailable/by-device/:device_id', (req, res) => {
 
         res.json(row);
     });
+});
+
+
+// Fetch unavailable dates by device_id
+app.get('/unavailable/:device_id', async (req, res) => {
+    const { device_id } = req.params;
+
+    if (!device_id) {
+        return res.status(400).send({ error: 'device_id is required' });
+    }
+
+    try {
+        const query = `
+            SELECT period, date, time_range
+            FROM unavailable
+            WHERE device_id = ?
+        `;
+
+        db.all(query, [device_id], (err, rows) => {
+            if (err) {
+                console.error('Error fetching unavailable dates:', err.message);
+                return res.status(500).send({ error: 'Failed to fetch unavailable dates' });
+            }
+
+            // Send the rows as the response
+            res.status(200).send(rows);
+        });
+    } catch (error) {
+        console.error('Error processing request:', error.message);
+        res.status(500).send({ error: 'An error occurred while fetching unavailable dates' });
+    }
+});
+
+// delete unavailable times when updating unavailability
+app.delete('/current/unavailable/:device_id', async (req, res) => {
+    const { device_id } = req.params;
+    try {
+        await db.run(`DELETE FROM unavailable WHERE device_id = ?`, [device_id]);
+        res.status(200).send({ message: 'All unavailable times deleted successfully.' });
+    } catch (error) {
+        console.error('Error deleting unavailable times:', error);
+        res.status(500).send({ error: 'Failed to delete unavailable times.' });
+    }
+});
+
+
+
+app.post('/update/unavailable', async (req, res) => {
+    const unavailableEntries = req.body;
+
+    if (!Array.isArray(unavailableEntries)) {
+        return res.status(400).send({ error: 'Invalid data format. Expected an array of objects.' });
+    }
+
+    const dbRun = (query, params) =>
+        new Promise((resolve, reject) => {
+            db.run(query, params, function (err) {
+                if (err) reject(err);
+                else resolve(this);
+            });
+        });
+
+    try {
+        // Start transaction
+        await dbRun('BEGIN TRANSACTION');
+
+        // Delete existing unavailable entries for the given device_id
+        if (unavailableEntries.length > 0) {
+            const device_id = unavailableEntries[0].device_id; // Assuming all entries have the same device_id
+            await dbRun('DELETE FROM unavailable WHERE device_id = ?', [device_id]);
+        }
+
+        // Insert new unavailable entries
+        const query = `
+            INSERT INTO unavailable (date, period, time_range, device_id, owner_id)
+            VALUES (?, ?, ?, ?, ?)
+        `;
+
+        for (const entry of unavailableEntries) {
+            const { date, period, time_range, device_id, owner_id } = entry;
+
+            if (!date || !device_id || !owner_id || !period || !time_range) {
+                console.error('Missing fields in entry:', entry);
+                continue; // Skip invalid entries
+            }
+
+            await dbRun(query, [date, period, time_range, device_id, owner_id]);
+        }
+
+        // Commit transaction
+        await dbRun('COMMIT');
+        res.status(201).send({ message: 'Unavailable entries updated successfully.' });
+    } catch (error) {
+        console.error('Error updating unavailable entries:', error.message);
+        // Rollback transaction
+        try {
+            await dbRun('ROLLBACK');
+        } catch (rollbackError) {
+            console.error('Error rolling back transaction:', rollbackError.message);
+        }
+        res.status(500).send({ error: 'Failed to update unavailable entries.' });
+    }
 });
 
 

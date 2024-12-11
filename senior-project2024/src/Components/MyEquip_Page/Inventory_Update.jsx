@@ -1,7 +1,7 @@
 import React, {useState, useEffect} from 'react';
 import { Form, isRouteErrorResponse, Link, useParams, useNavigate } from 'react-router-dom';
 import { Modal, Button } from 'react-bootstrap';
-import Calendar from '../Calendar_Page/Calendar_Screen.jsx';
+import Calendar from './Update_Calendar.jsx';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import "bootstrap-icons/font/bootstrap-icons.css";
 import axios from 'axios';
