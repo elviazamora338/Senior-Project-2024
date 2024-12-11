@@ -5,7 +5,8 @@ const path = require('path');
 const crypto = require('crypto');
 const nodemailer = require('nodemailer');
 const bodyParser = require('body-parser');
-const multer = require('multer');  
+const multer = require('multer'); 
+const fs = require("fs"); 
 const { timeEnd } = require('console');
 require('dotenv').config();
 const app = express();
@@ -253,21 +254,21 @@ app.post('/unavailable', async (req, res) => {
 
     try {
         const query = `
-            INSERT INTO unavailable (time_range, owner_id, date, device_id, student_id)
-            VALUES (?, ?, ?, ?, ?)
+            INSERT INTO unavailable (time_range, owner_id, date, device_id, student_id, period)
+            VALUES (?, ?, ?, ?, ?, ?)
         `;
 
         for (const item of unavailableItems) {
-            const { time_range, owner_id, date, device_id, student_id} = item;
+            const { time_range, owner_id, date, device_id, student_id, period} = item;
 
-            if (!time_range || !owner_id || !date || !device_id) {
+            if (!time_range || !owner_id || !date || !device_id || !period) {
                 console.error('Missing fields in item:', item);
                 continue; // Skip if required fields are missing
             }
 
-            console.log("Values being inserted into database:", [time_range, owner_id, date, device_id, student_id || null]);
+            console.log("Values being inserted into database:", [time_range, owner_id, date, device_id, student_id || null, period]);
 
-            await db.run(query, [time_range, owner_id, date, device_id,student_id]);
+            await db.run(query, [time_range, owner_id, date, device_id, student_id, period]);
         }
 
         res.status(201).send({ message: 'Unavailability recorded successfully' });
@@ -293,6 +294,7 @@ app.get('/scheduled', async (req, res) => {
                 d.device_name, 
                 u.time_range, 
                 u.date,
+                u.period,
                 u.owner_id,
                 o.user_name AS owner_name
             FROM unavailable u
@@ -408,6 +410,108 @@ app.get('/unavailable/by-device/:device_id', (req, res) => {
 
         res.json(row);
     });
+});
+
+
+// Fetch unavailable dates by device_id
+app.get('/unavailable/:device_id', async (req, res) => {
+    const { device_id } = req.params;
+
+    if (!device_id) {
+        return res.status(400).send({ error: 'device_id is required' });
+    }
+
+    try {
+        const query = `
+            SELECT period, date, time_range
+            FROM unavailable
+            WHERE device_id = ?
+        `;
+
+        db.all(query, [device_id], (err, rows) => {
+            if (err) {
+                console.error('Error fetching unavailable dates:', err.message);
+                return res.status(500).send({ error: 'Failed to fetch unavailable dates' });
+            }
+
+            // Send the rows as the response
+            res.status(200).send(rows);
+        });
+    } catch (error) {
+        console.error('Error processing request:', error.message);
+        res.status(500).send({ error: 'An error occurred while fetching unavailable dates' });
+    }
+});
+
+// delete unavailable times when updating unavailability
+app.delete('/current/unavailable/:device_id', async (req, res) => {
+    const { device_id } = req.params;
+    try {
+        await db.run(`DELETE FROM unavailable WHERE device_id = ?`, [device_id]);
+        res.status(200).send({ message: 'All unavailable times deleted successfully.' });
+    } catch (error) {
+        console.error('Error deleting unavailable times:', error);
+        res.status(500).send({ error: 'Failed to delete unavailable times.' });
+    }
+});
+
+
+
+app.post('/update/unavailable', async (req, res) => {
+    const unavailableEntries = req.body;
+
+    if (!Array.isArray(unavailableEntries)) {
+        return res.status(400).send({ error: 'Invalid data format. Expected an array of objects.' });
+    }
+
+    const dbRun = (query, params) =>
+        new Promise((resolve, reject) => {
+            db.run(query, params, function (err) {
+                if (err) reject(err);
+                else resolve(this);
+            });
+        });
+
+    try {
+        // Start transaction
+        await dbRun('BEGIN TRANSACTION');
+
+        // Delete existing unavailable entries for the given device_id
+        if (unavailableEntries.length > 0) {
+            const device_id = unavailableEntries[0].device_id; // Assuming all entries have the same device_id
+            await dbRun('DELETE FROM unavailable WHERE device_id = ?', [device_id]);
+        }
+
+        // Insert new unavailable entries
+        const query = `
+            INSERT INTO unavailable (date, period, time_range, device_id, owner_id)
+            VALUES (?, ?, ?, ?, ?)
+        `;
+
+        for (const entry of unavailableEntries) {
+            const { date, period, time_range, device_id, owner_id } = entry;
+
+            if (!date || !device_id || !owner_id || !period || !time_range) {
+                console.error('Missing fields in entry:', entry);
+                continue; // Skip invalid entries
+            }
+
+            await dbRun(query, [date, period, time_range, device_id, owner_id]);
+        }
+
+        // Commit transaction
+        await dbRun('COMMIT');
+        res.status(201).send({ message: 'Unavailable entries updated successfully.' });
+    } catch (error) {
+        console.error('Error updating unavailable entries:', error.message);
+        // Rollback transaction
+        try {
+            await dbRun('ROLLBACK');
+        } catch (rollbackError) {
+            console.error('Error rolling back transaction:', rollbackError.message);
+        }
+        res.status(500).send({ error: 'Failed to update unavailable entries.' });
+    }
 });
 
 
@@ -590,6 +694,83 @@ app.delete('/inventory/:device_id', (req, res) => {
     });
 });
 
+
+app.get('/inventory/details', async (req, res) => {
+    const { device_id } = req.query;
+    if (!device_id) {
+        return res.status(400).json({ error: 'Device ID is required.' });
+    }
+    const query = `SELECT * FROM lab_devices WHERE device_id = ?`;
+    db.get(query, [device_id], (err, row) => {
+        if (err) {
+            console.error('Error fetching device data:', err.message);
+            return res.status(500).json({ error: 'Failed to fetch device data.' });
+        }
+        if (!row) {
+            return res.status(404).json({ error: 'Device not found.' });
+        }
+        res.json(row);
+    });
+});
+app.put("/inventory/:device_id", (req, res) => {
+    const { device_id } = req.params;
+    const {
+        campus,
+        department,
+        building,
+        room_number,
+        person_in_charge,
+        device_name,
+        description,
+        application,
+        manual_link,
+        category,
+        model,
+        brand,
+        keywords,
+        available,
+        image_path,
+        owner_id,
+    } = req.body;
+    const query = `
+        UPDATE lab_devices
+        SET campus = ?, department = ?, building = ?, room_number = ?, person_in_charge = ?,
+            device_name = ?, description = ?, application = ?, manual_link = ?, category = ?,
+            model = ?, brand = ?, keywords = ?, available = ?, image_path = ?, owner_id = ?
+        WHERE device_id = ?
+    `;
+    db.run(
+        query,
+        [
+            campus,
+            department,
+            building,
+            room_number,
+            person_in_charge,
+            device_name,
+            description,
+            application,
+            manual_link,
+            category,
+            model,
+            brand,
+            keywords,
+            available,
+            image_path,
+            owner_id,
+            device_id,
+        ],
+        function (err) {
+            if (err) {
+                console.error("Error updating device:", err.message);
+                res.status(500).json({ error: "Failed to update device." });
+            } else {
+                res.json({ message: "Device updated successfully!" });
+            }
+        }
+    );
+});
+
 // Nodemailer setup
 const transporter = nodemailer.createTransport({
     service: 'gmail',
@@ -607,63 +788,79 @@ function generateOTP() {
 // Endpoint to send OTP
 app.post('/send-otp', async (req, res) => {
     const { email } = req.body;
-    const otp = generateOTP();
-    const createdAt = new Date().toISOString();
 
-    const insertOTPQuery = `INSERT INTO verification_code (email, code, created_at) VALUES (?, ?, ?)`;
-
-    db.run(insertOTPQuery, [email, otp, createdAt], (err) => {
+    // Check if the email exists in the database
+    const checkEmailQuery = `SELECT * FROM users WHERE user_email = ?`;
+    db.get(checkEmailQuery, [email], (err, user) => {
         if (err) {
-            console.error('Error storing OTP:', err.message);
-            res.status(500).json({ error: 'Failed to generate OTP' });
-        } else {
-            const mailOptions = {
-                from: process.env.EMAIL_USER,
-                to: email,
-                subject: 'Your OTP Code',
-                text: `Your OTP code is: ${otp}`, 
-                html:
-                    `
-    <div style="font-family: Arial, sans-serif; color: #333; line-height: 1.6; padding: 20px; border: 1px solid #ddd; border-radius: 8px; max-width: 600px; margin: 0 auto; background-color: #f9f9f9;">
-        <div style="text-align: center; margin-bottom: 20px;">
-            <img src="cid:websiteLogo" alt="Website Logo" style="width: 150px; height: auto; display: inline-block;"/>
-        </div>
-        <h2 style="color: #4CAF50; text-align: center; margin-top: 0;">Your OTP Code</h2>
-        <p style="font-size: 16px; text-align: center;">
-            Please use the following OTP code to complete your verification:
-        </p>
-        <p style="font-size: 24px; font-weight: bold; text-align: center; color: #333; margin: 10px 0;">
-            ${otp}
-        </p>
-        <p style="font-size: 14px; text-align: center; color: #666;">
-            This code is valid for 10 minutes. If you didn’t request this code, please ignore this email.
-        </p>
-        <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
-        <p style="font-size: 14px; text-align: center; color: #999;">
-            Thank you for using <strong>BOOK'EM</strong>! If you have any questions, feel free to contact us.
-        </p>
-    </div>
-`, 
-                replyTo: process.env.EMAIL_USER,
-                attachments: [
-                    {
-                        filename: 'logo.png', 
-                        path: 'static/logo/bookem-high-resolution-logo-transparent.png', 
-                        cid: 'websiteLogo'
-                    }
-                ]
-            };
-
-            transporter.sendMail(mailOptions, (error, info) => {
-                if (error) {
-                    console.error('Error sending email:', error.message);
-                    res.status(500).json({ error: 'Failed to send OTP' });
-                } else {
-                    console.log(`OTP sent to ${email}: ${otp}`);
-                    res.json({ message: 'OTP sent to your email' });
-                }
-            });
+            console.error('Error checking email:', err.message);
+            res.status(500).json({ error: 'Internal server error' });
+            return;
         }
+
+        if (!user) {
+            // If email is not found in the database, return an error
+            res.status(404).json({ error: 'Email not found' });
+            return;
+        }
+
+        // Generate OTP if email exists
+        const otp = generateOTP();
+        const createdAt = new Date().toISOString();
+        const insertOTPQuery = `INSERT INTO verification_code (email, code, created_at) VALUES (?, ?, ?)`;
+
+        db.run(insertOTPQuery, [email, otp, createdAt], (err) => {
+            if (err) {
+                console.error('Error storing OTP:', err.message);
+                res.status(500).json({ error: 'Failed to generate OTP' });
+            } else {
+                const mailOptions = {
+                    from: process.env.EMAIL_USER,
+                    to: email,
+                    subject: 'Your OTP Code',
+                    text: `Your OTP code is: ${otp}`,
+                    html: `
+                        <div style="font-family: Arial, sans-serif; color: #333; line-height: 1.6; padding: 20px; border: 1px solid #ddd; border-radius: 8px; max-width: 600px; margin: 0 auto; background-color: #f9f9f9;">
+                            <div style="text-align: center; margin-bottom: 20px;">
+                                <img src="cid:websiteLogo" alt="Website Logo" style="width: 150px; height: auto; display: inline-block;"/>
+                            </div>
+                            <h2 style="color: #4CAF50; text-align: center; margin-top: 0;">Your OTP Code</h2>
+                            <p style="font-size: 16px; text-align: center;">
+                                Please use the following OTP code to complete your verification:
+                            </p>
+                            <p style="font-size: 24px; font-weight: bold; text-align: center; color: #333; margin: 10px 0;">
+                                ${otp}
+                            </p>
+                            <p style="font-size: 14px; text-align: center; color: #666;">
+                                This code is valid for 10 minutes. If you didn’t request this code, please ignore this email.
+                            </p>
+                            <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
+                            <p style="font-size: 14px; text-align: center; color: #999;">
+                                Thank you for using <strong>BOOK'EM</strong>! If you have any questions, feel free to contact us.
+                            </p>
+                        </div>
+                    `,
+                    replyTo: process.env.EMAIL_USER,
+                    attachments: [
+                        {
+                            filename: 'logo.png',
+                            path: 'static/logo/bookem-high-resolution-logo-transparent.png',
+                            cid: 'websiteLogo'
+                        }
+                    ]
+                };
+
+                transporter.sendMail(mailOptions, (error, info) => {
+                    if (error) {
+                        console.error('Error sending email:', error.message);
+                        res.status(500).json({ error: 'Failed to send OTP' });
+                    } else {
+                        console.log(`OTP sent to ${email}: ${otp}`);
+                        res.json({ message: 'OTP sent to your email' });
+                    }
+                });
+            }
+        });
     });
 });
 
@@ -758,20 +955,59 @@ const upload = multer({ storage });
 // File upload endpoint
 app.post("/upload", upload.single("image"), (req, res) => {
     // Check if the file was uploaded
+    const { device_id } = req.body;
+
     if (!req.file) {
         return res.status(400).json({ error: "No file uploaded." });
     }
 
     // Extract the file path
     const filePath = `/${req.file.filename}`;
+    const newFilePath = req.file.filename;
+    // Check for an existing image for the device
+    const query = `SELECT image_path FROM lab_devices WHERE device_id = ?`;
+    db.get(query, [device_id], (err, row) => {
+        if (err) {
+            console.error("Error fetching device image:", err.message);
+            return res.status(500).json({ error: "Failed to fetch device image." });
+        }
+        if (row && row.image_path) {
+            // Construct the full path to the old image
+            const oldImagePath = path.join(__dirname, "static/equipment_photos", row.image_path);
+            console.log("Attempting to delete old image:", oldImagePath);
 
-
-        // Respond with success
-        res.status(200).json({
-            message: "File uploaded and path saved successfully!",
-            path: filePath,
+            // Check if the file exists before attempting to delete it
+            fs.access(oldImagePath, fs.constants.F_OK, (accessErr) => {
+                if (accessErr) {
+                    console.warn(`Old image not found: ${oldImagePath}`);
+                } else {
+                    fs.unlink(oldImagePath, (unlinkErr) => {
+                        if (unlinkErr) {
+                            console.error("Error deleting old image:", unlinkErr.message);
+                        } else {
+                            console.log("Old image deleted successfully:", oldImagePath);
+                        }
+                    });
+                }
+            });
+        } else {
+            console.warn("No existing image path found for this device.");
+        }
+        // Update the database with the new image path
+        const updateQuery = `UPDATE lab_devices SET image_path = ? WHERE device_id = ?`;
+        db.run(updateQuery, [newFilePath, device_id], (updateErr) => {
+            if (updateErr) {
+                console.error("Error updating image path:", updateErr.message);
+                return res.status(500).json({ error: "Failed to update image path." });
+            }
+            console.log("Image path updated successfully in the database.");
+            res.status(200).json({
+                message: "Image uploaded and path updated successfully.",
+                path: newFilePath,
+            });
         });
     });
+});
 
 // Endpoint to add a new user in signup page
 app.post('/add-user', (req, res) => {

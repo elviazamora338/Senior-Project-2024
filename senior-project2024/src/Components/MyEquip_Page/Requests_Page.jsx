@@ -63,6 +63,7 @@ const RequestsPage = () => {
                     student_id: approvedRequest.student_id,
                     date: approvedRequest.request_date, // Ensure this exists in request data
                     time_range: approvedRequest.request_time, // Ensure this exists in request data
+                    period: 'Day',
                 }; 
 
 
