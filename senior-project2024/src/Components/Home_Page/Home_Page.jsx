@@ -24,6 +24,15 @@ const HomePage = () => {
                 const response = await axios.get(`http://localhost:5001/scheduled?student_id=${user.user_id}`);
                 console.log('Scheduled Items:', response.data);
 
+                // Get the current date
+                const currentDate = new Date();
+
+                // Filter out items where the scheduled date has passed
+                const filteredItems = response.data.filter((item) => {
+                    const scheduledDate = new Date(item.date + ' ' + item.time_range); // Combine date and time
+                    return scheduledDate > currentDate; // Only keep items where the scheduled date is in the future
+                });
+
                 // Sort items by date and time in descending order
                 const sortedItems = response.data.sort((a, b) => {
                     const dateA = new Date(a.date + ' ' + a.date);

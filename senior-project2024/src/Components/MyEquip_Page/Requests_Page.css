@@ -124,7 +124,6 @@ tr {
 
 .requests {
     max-height: 500px; 
-    overflow-y: auto;
 }
 
 .deleteButton {
