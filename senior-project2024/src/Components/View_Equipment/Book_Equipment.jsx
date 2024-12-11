@@ -287,7 +287,7 @@ function GenerateCalender({ unavailableDates }) {
                 </tbody>
             </table>
 
-            <div className="d-flex justify-content-center mb-3">
+            {/* <div className="d-flex justify-content-center mb-3">
                 <select value={months[selectedMonth]} onChange={handleMonthChange} className="form-select me-2" style={{ width: '150px' }}>
                     <option value="">Select Month</option>
                     {months.map((month, index) => (
@@ -300,7 +300,7 @@ function GenerateCalender({ unavailableDates }) {
                         <option key={index} value={year}>{year}</option>
                     ))}
                 </select>
-            </div>
+            </div> */}
 
             <div className="my-legend">
                 <div className="legend-title">Availability Legend</div>
