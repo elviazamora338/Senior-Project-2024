@@ -35,8 +35,8 @@ const HomePage = () => {
 
                 // Sort items by date and time in descending order
                 const sortedItems = response.data.sort((a, b) => {
-                    const dateA = new Date(a.date + ' ' + a.date);
-                    const dateB = new Date(b.date + ' ' + b.date);
+                    const dateA = new Date(a.date);
+                    const dateB = new Date(b.date);
                     return dateB - dateA;
                 });
 
@@ -174,7 +174,11 @@ const HomePage = () => {
                     />
                 </Modal.Header>   
                 <Modal.Body>
-                    {selectedDevice && <ReportEquipment device_id={selectedDevice} />} 
+                {selectedDevice ? (
+                    <ReportEquipment device_id={selectedDevice} />
+                ) : (
+                    <p>Loading device details...</p>
+                )}
                 </Modal.Body>
             </Modal>
         </>

@@ -525,7 +525,7 @@ const Book_Equipment = ( {device, ownerId} ) => {
                         />
                         </tbody>
                     </table>
-                    <h5>Reason for booking</h5>
+                    <h5>Project Information</h5>
                     <textarea
                         id="booking"
                         name="booking"
@@ -570,7 +570,7 @@ const Book_Equipment = ( {device, ownerId} ) => {
                         Time(s): <strong>{bookingDetails.times?.join(', ') || 'No time slots selected'}</strong>
                     </p>
                     <p>
-                        Reason: <strong>{bookingDetails.reason}</strong>
+                        Project Information: <strong>{bookingDetails.reason}</strong>
                     </p>
                 </Modal.Body>
                 <Modal.Footer>
