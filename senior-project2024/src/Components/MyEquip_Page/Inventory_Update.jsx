@@ -1,7 +1,7 @@
 import React, {useState, useEffect} from 'react';
 import { Form, isRouteErrorResponse, Link, useParams, useNavigate } from 'react-router-dom';
 import { Modal, Button } from 'react-bootstrap';
-import Calendar from './Update_Calendar.jsx';
+import Calendar from '../Calendar_Page/Calendar_Screen.jsx';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import "bootstrap-icons/font/bootstrap-icons.css";
 import axios from 'axios';
@@ -16,7 +16,7 @@ const InventoryUpdate = () => {
     const [showCalendar, setShowCalendar] = useState(false);
     const handleCalendarClose = () => setShowCalendar(false);
     const handleCalendarShow = () => setShowCalendar(true);
-    const [unavailableTimes, setUnavailableTimes] = useState([]);
+    const [unavailableDates, setUnavailableDates] = useState([]);
 
     const [formData, setFormData] = useState({
         campus: "",
@@ -99,9 +99,13 @@ const InventoryUpdate = () => {
         }
     };
 
+    const handleSaveUnavailableDates = (dates) => {
+        setUnavailableDates(dates);
+    };
+
     const handleSave = async (e) => {
         e.preventDefault();
-    
+
         const missingFields = [];
         if (!formData.campus) missingFields.push("Campus");
         if (!formData.department) missingFields.push("Department");
@@ -110,12 +114,12 @@ const InventoryUpdate = () => {
         if (!formData.building) missingFields.push("Building");
         if (!formData.application) missingFields.push("Application");
         if (!formData.description) missingFields.push("Description");
-    
+
         if (missingFields.length > 0) {
             alert(`Please fill out the following required fields: ${missingFields.join(", ")}`);
             return;
         }
-    
+
         try {
             let imagePath = formData.image_path || ""; // Retain the existing image path
     
@@ -145,25 +149,20 @@ const InventoryUpdate = () => {
         setShowCalendar(false);
         navigate("/inventory"); // Navigate back to the inventory page
     };
-    
-    // Fetch unavailable dates for the device
-    // useEffect(() => {
-    //     // Fetch unavailable times for the given device_id
-    //     const fetchUnavailableTimes = async () => {
-    //         try {
-    //             const response = await axios.get(`http://localhost:5001/unavailable/by-device/${device_id}`);
-    //             setUnavailableTimes(response.data);
-    //             setIsLoading(false);
-    //         } catch (error) {
-    //             console.error('Error fetching unavailable times:', error);
-    //             setIsLoading(false);
-    //         }
-    //     };
 
-    //     if (device_id) {
-    //         fetchUnavailableTimes();
-    //     }
-    // }, [device_id]);
+    useEffect(() => {
+        const fetchUnavailableDates = async () => {
+            try {
+                const response = await axios.get(`http://localhost:5001/unavailable/device/${device_id}`);
+                setUnavailableDates(response.data.unavailableDates || []);
+            } catch (error) {
+                console.error("Error fetching unavailable dates:", error);
+            }
+        };
+        if (device_id) {
+            fetchUnavailableDates();
+        }
+    }, [device_id]);
 
     if (isLoading) {
         return <div>Loading...</div>;
@@ -183,7 +182,7 @@ const InventoryUpdate = () => {
                         </button>
                         Update Equipment
                     </h1>
-                    
+
                     <div className="row">
                         <div className="col-md-4">
                             <div className="row">
@@ -258,7 +257,7 @@ const InventoryUpdate = () => {
                             </div>
 
                         <h5>Person in Charge</h5>
-                        
+
                             <input type="text" id="person_in_charge" name="person_in_charge" className="form-control"
                             value={user.user_name || ''}
                             disabled
@@ -335,7 +334,7 @@ const InventoryUpdate = () => {
 
 
                            {/* Calendar Modal */}
-                            <Modal
+                           <Modal
                                 show={showCalendar}
                                 onHide={() => setShowCalendar(false)}
                                 centered
@@ -346,16 +345,16 @@ const InventoryUpdate = () => {
                                     <Modal.Title>Select Dates</Modal.Title>
                                 </Modal.Header>
                                 <Modal.Body>
-                                    <Calendar device_id={device_id} />
-                                    </Modal.Body>
-                                {/* <Modal.Footer>
+                                    {device_id && <Calendar device_id={device_id} unavailableDates={unavailableDates} />}
+                                </Modal.Body>
+                                <Modal.Footer>
                                     <Button variant="secondary" onClick={() => setShowCalendar(false)}>
                                         Close
                                     </Button>
                                     <Button variant="primary" onClick={handleSaveCalendarChanges}>
                                     Save Changes
                                     </Button>
-                                </Modal.Footer> */}
+                                </Modal.Footer>
                             </Modal>
                         </div>
                     </div>
