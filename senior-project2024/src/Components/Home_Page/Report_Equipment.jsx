@@ -94,10 +94,16 @@ const ReportEquipment = ({ device_id, onHide }) => {
                             <div className="row">
                                 <div className="container-fluid">
                                     <img
-                                        src={`http://localhost:5001/static/equipment_photos/${device.image_path}`}
-                                        className="item-image me-2"
-                                        alt={device.device_name}
-                                    />
+                                    src={`http://localhost:5001/static/equipment_photos/${device.image_path}`}
+                                    className="img-preview"
+                                    alt={device.device_name || 'No image available'}
+                                    style={{
+                                        maxWidth: '100%',
+                                        height: 'auto',
+                                        objectFit: 'contain',
+                                        borderRadius: '5px',
+                                    }}
+                                />
                                 </div>
 
                                 <div className="col-md-6">
