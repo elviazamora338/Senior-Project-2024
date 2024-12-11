@@ -5,7 +5,6 @@ import axios from 'axios';
 import 'bootstrap/dist/css/bootstrap.min.css'; 
 import { useUser } from '../../UserContext'; 
 
-
 const LoginPage = () => {
     const { setUser } = useUser();
     const [email, setEmail] = useState(''); 
@@ -25,50 +24,63 @@ const LoginPage = () => {
         }
         try {
             const response = await axios.post('http://localhost:5001/send-otp', { email });
-
+        
             if (response.data.message === 'OTP sent to your email') {
                 setError('');
                 setSuccess('OTP sent successfully! Check your email.');
-
-                 // Step 2: Fetch User Data
-            const userResponse = await axios.post('http://localhost:5001/user', { email });
-
-            if (userResponse.data.user) {
-                // Map the backend user data to the context structure
-                const { user_id, user_name, user_email, role_id, campus_id, school_id, phone_number } = userResponse.data.user;
-
-                setUser({
-                    user_id: user_id,
-                    name: user_name, 
-                    email: user_email, 
-                    role_id: role_id,
-                    campus_id: campus_id,
-                    school_id: school_id,
-                    phone: phone_number, 
-                });
-
-                navigate('/loginauth', { state: { email } }); // Redirect to OTP verification page
+                
+                // Fetch User Data
+                const userResponse = await axios.post('http://localhost:5001/user', { email });
+        
+                if (userResponse.data.user) {
+                    const { user_id, user_name, user_email, role_id, campus_id, school_id, phone_number } = userResponse.data.user;
+        
+                    setUser({
+                        user_id: user_id,
+                        name: user_name, 
+                        email: user_email, 
+                        role_id: role_id,
+                        campus_id: campus_id,
+                        school_id: school_id,
+                        phone: phone_number, 
+                    });
+        
+                    navigate('/loginauth', { state: { email } });
+                } else {
+                    setError('Failed to fetch user data. Please try again.');
+                }
+            }
+        } catch (error) {
+            if (error.response && error.response.status === 404) {
+                setError('Email not found');
             } else {
-                setError('Failed to fetch user data. Please try again.');
+                console.error('Login error:', error);
+                setError('Failed to send OTP. Please try again.');
             }
         }
-        } catch (error) {
-            console.error('Login error:', error);
-            setError('Failed to send OTP. Please try again'); 
-        }
-
     }; 
 
     return (
         <div className="container-fluid h-100">
             <div className="row h-100">
+                {/* Error Banner */}
+                {error && (
+                    <div className="alert alert-danger text-center w-100" role="alert">
+                        <i className="bi bi-exclamation-circle-fill"></i> {error}
+                    </div>
+                )}
+                {success && (
+                    <div className="alert alert-success text-center w-100" role="alert">
+                        <i className="bi bi-check-circle-fill"></i> {success}
+                    </div>
+                )}
                 {/* Left side - Login Section */}
                 <div className="col-md-6 login-section">
                     <div className="login-box">
                         <h1 className="text-center">Welcome Back!</h1>
-                        <p>Enter your Credentials to access  your account</p>
+                        <p>Enter your Credentials to access your account</p>
                         <form onSubmit={handleSubmit}>
-                             <label htmlFor="email">Email address (.edu only)</label>
+                            <label htmlFor="email">Email address (.edu only)</label>
                             <div className="form-group login-button">
                                 <input
                                     type="email"
@@ -78,10 +90,8 @@ const LoginPage = () => {
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
                                     required
-                                    />
+                                />
                             </div>
-                            {error && <p className="text-danger">{error}</p>}
-                            {success && <p className="text-success">{success}</p>}
                             <br />
                             <button type="submit" className="btn btn-primary btn-block login-button">Login</button>
                             <div className="row p-2">
@@ -92,11 +102,11 @@ const LoginPage = () => {
                         </form>
                     </div>
                 </div>
-                {/* Right side - Welcome Image*/}
+                {/* Right side - Welcome Image */}
                 <div className="col-md-6 welcome-image"></div>
             </div>
         </div>
     );
 }; 
 
-export default LoginPage; 
+export default LoginPage;
