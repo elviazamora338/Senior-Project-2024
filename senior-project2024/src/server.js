@@ -209,30 +209,30 @@ function repeatedHistory(booking, callback) {
                     }
                     console.log('Booking added to history with History ID:', this.lastID);
                   // Enforce FIFO limit (delete oldest entry if count exceeds 10)
-                    const countQuery = `SELECT COUNT(*) AS count FROM history`;
-                    db.get(countQuery, (countErr, result) => {
-                        if (countErr) {
-                            console.error('Error counting history entries:', countErr.message);
-                            return callback(countErr);
-                        }
+                    // const countQuery = `SELECT COUNT(*) AS count FROM history`;
+                    // db.get(countQuery, (countErr, result) => {
+                    //     if (countErr) {
+                    //         console.error('Error counting history entries:', countErr.message);
+                    //         return callback(countErr);
+                    //     }
 
-                        if (result.count > 10) {
-                            const deleteQuery = `
-                                DELETE FROM history 
-                                WHERE history_id = (SELECT history_id FROM history ORDER BY history_id ASC LIMIT 1)
-                            `;
-                            db.run(deleteQuery, (deleteErr) => {
-                                if (deleteErr) {
-                                    console.error('Error deleting oldest history:', deleteErr.message);
-                                    return callback(deleteErr);
-                                }
-                                console.log('Oldest history record deleted to maintain FIFO limit');
-                                return callback(null, 'inserted');
-                            });
-                        } else {
-                            return callback(null, 'inserted');
-                        }
-                  });
+                    //     if (result.count > 10) {
+                    //         const deleteQuery = `
+                    //             DELETE FROM history 
+                    //             WHERE history_id = (SELECT history_id FROM history ORDER BY history_id ASC LIMIT 1)
+                    //         `;
+                    //         db.run(deleteQuery, (deleteErr) => {
+                    //             if (deleteErr) {
+                    //                 console.error('Error deleting oldest history:', deleteErr.message);
+                    //                 return callback(deleteErr);
+                    //             }
+                    //             console.log('Oldest history record deleted to maintain FIFO limit');
+                    //             return callback(null, 'inserted');
+                    //         });
+                    //     }
+                        return callback(null, 'inserted');
+                        
+                    
                 }
             );
         }
@@ -1129,7 +1129,7 @@ function getAllHistory(id){
                 h.booking_date, 
                 h.booking_time, 
                 h.reason, 
-                h.device_id,  -- Ensure this column is selected from the history table
+                h.device_id,  
                 ld.device_id AS lab_device_id, -- Include device_id explicitly from lab_devices
                 ld.device_name, 
                 ld.description, 
@@ -1139,9 +1139,11 @@ function getAllHistory(id){
             FROM history h
             JOIN lab_devices ld ON h.device_id = ld.device_id
             WHERE h.student_id = ?
+            ORDER BY h.booking_date DESC, h.booking_time DESC
         `;
         db.all(query,[id], [], (err, rows) => {
             if (err) {
+                console.error('Database error:', err.message);
                 reject(err);
             } else {
                 resolve(rows);
