@@ -325,6 +325,46 @@ app.delete('/unavailable/:id', async (req, res) => {
 });
 
 
+// Fetch device details by device_id for Report_Equipment.jsx page
+app.get('/device/:device_id', (req, res) => {
+    const { device_id } = req.params;
+
+    const query = `
+        SELECT 
+            ld.device_id,
+            ld.device_name,
+            ld.brand,
+            ld.model,
+            ld.description,
+            ld.application,
+            ld.category,
+            ld.building,
+            ld.room_number,
+            ld.person_in_charge,
+            ld.manual_link,
+            ld.image_path,
+            u.date,
+            u.time_range,
+            u.student_id,
+            u.owner_id
+        FROM lab_devices ld
+        JOIN unavailable u ON ld.device_id = u.device_id
+        WHERE ld.device_id = ?;
+    `;
+
+    db.get(query, [device_id], (err, row) => {
+        if (err) {
+            console.error('Error fetching device data:', err.message);
+            return res.status(500).json({ error: 'Failed to fetch device data' });
+        }
+        if (!row) {
+            console.log('No device found for ID:', device_id);
+            return res.status(404).json({ error: 'Device not found' });
+        }
+        res.json(row);
+    });
+});
+
 // Endpoint to fetch unavailable dates
 app.get('/api/unavailableDates/:deviceId', (req, res) => {
     const { deviceId } = req.params;
