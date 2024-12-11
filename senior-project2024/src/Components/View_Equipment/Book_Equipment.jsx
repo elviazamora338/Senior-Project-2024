@@ -12,26 +12,13 @@ let months = [
     "July", "August", "September", "October", "November", "December"
   ];
   const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-
-  // Helper functions
-const getMonthRangeDates = (startMonth, endMonth, year) => {
-    const dates = [];
-    for (let month = startMonth; month <= endMonth; month++) {
-        const daysInMonth = new Date(year, month + 1, 0).getDate();
-        for (let day = 1; day <= daysInMonth; day++) {
-            const date = new Date(year, month, day);
-            dates.push(date.toISOString().split('T')[0]);
-        }
-    }
-    return dates;
-};
   
   
-const Availability = ({ index, onDateChange }) => {
+const Availability = ({ index, onDateChange, unavailableDates }) => {
     const [period, setPeriod] = useState('Day'); // Default to Day
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
-    const [selectedDay, setSelectedDay] = useState('');
+    const [selectedDay, setSelectedDay] = useState(new Date().toISOString().split('T')[0]); // Default to today's date
     const [startMonth, setStartMonth] = useState('');
     const [endMonth, setEndMonth] = useState('');
     const [timeSelection, setTimeSelection] = useState({
@@ -40,12 +27,41 @@ const Availability = ({ index, onDateChange }) => {
         "12pm-2pm": false,
         "2pm-4pm": false
     });
+
+     // Get the current date and time
+     const currentDate = new Date();
+     const currentDateStr = currentDate.toISOString().split('T')[0];  // Current date in YYYY-MM-DD format
+     const currentTime = currentDate.getHours() * 60 + currentDate.getMinutes(); // Convert current time to minutes
+ 
+     // Function to check if the selected day is today and if the time slot is in the future
+     const isPastDate = (date) => {
+         return new Date(date) < currentDate;
+     };
+ 
+     const isPastTimeSlot = (timeSlot) => {
+         const [startTime, endTime] = timeSlot.split('-');
+         const startHour = parseInt(startTime);
+         const endHour = parseInt(endTime);
+         
+         // Convert to minutes for comparison
+         const startMinutes = startHour === 12 ? 12 * 60 : startHour * 60;
+         const endMinutes = endHour === 12 ? 12 * 60 : endHour * 60;
+ 
+         // Disable past time slots for today
+         if (selectedDay === currentDateStr) {
+             return currentTime >= endMinutes;  // Disable time slots that have already ended
+         }
+         return false;
+     };
+ 
     
+    const isUnavailable = (timeSlot) => unavailableDates[selectedDay]?.times?.includes(timeSlot) || false;    
+
     const isAllSelected = (times = timeSelection) => Object.values(times).every(selected => selected);
     const selectedTimes = (times = timeSelection) => Object.keys(times).filter(time => times[time]);
 
     // Time selection handler (select only one time slot)
-     const handleTimeSelection = (timeSlot) => {
+    const handleTimeSelection = (timeSlot) => {
         const updatedTimes = {
             "8am-10am": false,
             "10am-12pm": false,
@@ -56,30 +72,18 @@ const Availability = ({ index, onDateChange }) => {
     
         setTimeSelection(updatedTimes);
     
-        // Propagate changes
+        // Propagate changes to parent component
         onDateChange(index, {
             dates: [selectedDay],
             allSelected: false, // Only one slot is selected
             times: selectedTimes(updatedTimes),
         });
     };
-    // Time selection handler (select multiple time slots)
-    // const handleTimeSelection = (timeSlot) => {
-    //     const updatedTimes = { ...timeSelection, [timeSlot]: !timeSelection[timeSlot] };
-    //     setTimeSelection(updatedTimes);
-
-    //     onDateChange(index, {
-    //         dates: [selectedDay],
-    //         allSelected: Object.values(updatedTimes).every(selected => selected),
-    //         times: selectedTimes(updatedTimes)
-    //     });
-    // };
 
     const handleDayChange = (e) => {
-        const newSelectedDay = e.target.value;
+        const newSelectedDay = e.target.value;    
         console.log('Selected day:', newSelectedDay);  // Log to see the value
         setSelectedDay(newSelectedDay);
-
         onDateChange(index, {
             dates: [newSelectedDay],
             allSelected: Object.values(timeSelection).every(selected => selected),
@@ -87,6 +91,17 @@ const Availability = ({ index, onDateChange }) => {
         });
     };
     
+    useEffect(() => {
+        // Log the unavailable dates in the console
+        console.log('Unavailable dates:', unavailableDates);
+      }, [unavailableDates]);
+    
+    const dateInfo = unavailableDates[selectedDay]; 
+
+    const dateStyle = {
+        textDecoration: dateInfo ? 'line-through' : 'none',  // Strike-through if date is unavailable
+        color: dateInfo ? 'red' : 'black',  // Change color if unavailable
+      };
 
   return (
     <tr>
@@ -97,6 +112,7 @@ const Availability = ({ index, onDateChange }) => {
             name="model"
             className="form-control deviceDetails"
             value="Day"
+            readOnly
         />
         </td>
         <td>
@@ -106,30 +122,40 @@ const Availability = ({ index, onDateChange }) => {
                     id="selectedDay"
                     className="form-control mb-3"
                     value={selectedDay}
-                    onChange={handleDayChange} />
+                    onChange={handleDayChange}
+                    min={currentDateStr}/>
                 
             </div>
         </td>
         <td>
             {/* Can make this simpler -E need to work on this */}
-            <div class = "row justify-content-center">
-            {Object.keys(timeSelection).map((time) => (
+            <div className="row justify-content-center">
+            {Object.keys(timeSelection).map((time) => {
+                const isDisabled = isUnavailable(time);  // Check if time is unavailable
+                const labelStyle = {
+                textDecoration: isDisabled ? 'line-through' : 'none',  // Only strike through if unavailable
+                color: isDisabled ? 'red' : 'black',  // Change color if unavailable
+                fontSize: '12.5px',
+                };
+
+                return (
                 <div key={time} className="col-6 p-2" style={{ width: 'fit-content' }}>
                     <div className="form-check form-check-inline">
-                        <input
-                            className="form-check-input"
-                            type="checkbox"
-                            checked={timeSelection[time]}
-                            onChange={() => handleTimeSelection(time)}
-                        />
-                        <label className="form-check-label" style={{ fontSize: '12.5px' }}>
-                            {time}
-                        </label>
+                    <input
+                        className="form-check-input"
+                        type="checkbox"
+                        checked={timeSelection[time]}
+                        onChange={() => handleTimeSelection(time)}
+                        disabled={isDisabled}  // Disable checkbox if time is unavailable
+                    />
+                    <label className="form-check-label" style={labelStyle}>
+                        {time}
+                    </label>
                     </div>
                 </div>
-            ))}
+                );
+            })}
             </div>
-            
         </td>
         <td>
         <div className="d-flex justify-content-end">
@@ -163,6 +189,7 @@ function GenerateCalender({ unavailableDates }) {
                 } else {
                     const formattedDate = `${year}-${String(month + 1).padStart(2, '0')}-${String(date).padStart(2, '0')}`;
                     const dateInfo = unavailableDates[formattedDate];
+                    console.log('Date INFO', dateInfo);  // Check if this is properly fetched
 
                     // Determine the background color based on time slots
                     const backgroundColor = dateInfo
@@ -195,7 +222,12 @@ function GenerateCalender({ unavailableDates }) {
         }
     };
 
+    // Function to go to the previous month
     const previousMonth = () => {
+        if (currentMonth === 0 && currentYear === new Date().getFullYear()) {
+            return; 
+        }
+
         if (currentMonth === 0) {
             setCurrentMonth(11);
             setCurrentYear(currentYear - 1);
@@ -203,7 +235,6 @@ function GenerateCalender({ unavailableDates }) {
             setCurrentMonth(currentMonth - 1);
         }
     };
-
     const handleMonthChange = (e) => {
         const monthIndex = months.indexOf(e.target.value);
         setSelectedMonth(monthIndex);
@@ -220,6 +251,10 @@ function GenerateCalender({ unavailableDates }) {
         yearOptions.push(year);
     }
 
+    // Disable the previous month button if currentMonth is the first month (January) of the current year
+    const isPreviousMonthDisabled = currentMonth === new Date().getMonth() && currentYear === new Date().getFullYear();
+
+
     return (
         <div>
             <div className="row justify-content-between align-items-center">
@@ -229,6 +264,7 @@ function GenerateCalender({ unavailableDates }) {
                         className="btn btn-warning bi bi-chevron-left me-2"
                         onClick={previousMonth}
                         aria-label="Previous Month"
+                        disabled={isPreviousMonthDisabled}
                     ></button>
                     <button
                         className="btn btn-warning bi bi-chevron-right"
@@ -251,7 +287,7 @@ function GenerateCalender({ unavailableDates }) {
                 </tbody>
             </table>
 
-            <div className="d-flex justify-content-center mb-3">
+            {/* <div className="d-flex justify-content-center mb-3">
                 <select value={months[selectedMonth]} onChange={handleMonthChange} className="form-select me-2" style={{ width: '150px' }}>
                     <option value="">Select Month</option>
                     {months.map((month, index) => (
@@ -264,7 +300,7 @@ function GenerateCalender({ unavailableDates }) {
                         <option key={index} value={year}>{year}</option>
                     ))}
                 </select>
-            </div>
+            </div> */}
 
             <div className="my-legend">
                 <div className="legend-title">Availability Legend</div>
@@ -291,8 +327,54 @@ const Book_Equipment = ( {device, ownerId} ) => {
     const [unavailableDates, setUnavailableDates] = useState({});
     const [showConfirmationModal, setShowConfirmationModal] = useState(false);
     const [bookingDetails, setBookingDetails] = useState({});
-    const handleShowConfirmationModal = () => setShowConfirmationModal(true);
 
+    const handleShowConfirmationModal = () => {
+        if (bookingDetails.dates && bookingDetails.times) {
+            setShowConfirmationModal(true);
+        } else {
+            setErrorMessage('Please select dates and times before confirming.');
+        }
+    };
+    
+
+    // Fetch unavailable dates
+    useEffect(() => {
+        const fetchUnavailableDates = async () => {
+            try {
+                const response = await axios.get(`http://localhost:5001/api/unavailableDates/${device.device_id}`);
+                console.log('API Response:', response.data); // Add this line
+                const unavailableData = response.data.reduce((acc, { date, time_range }) => {
+                    if (!acc[date]) acc[date] = { times: [] };
+                    acc[date].times.push(time_range);
+                    return acc;
+                }, {});
+                setUnavailableDates(unavailableData);
+            } catch (error) {
+                console.error('Error fetching unavailable dates:', error);
+            }
+        };
+    
+        fetchUnavailableDates();
+    }, [device.device_id]);
+    
+    // Refresh calendar after booking confirmation
+    const refreshUnavailableDates = async () => {
+        try {
+            const response = await axios.get(`http://localhost:5001/api/unavailableDates/${device.device_id}`);
+            const updatedData = response.data.reduce((acc, { date, time_range }) => {
+                if (!acc[date]) acc[date] = { times: [] };
+                acc[date].times.push(time_range);
+                return acc;
+            }, {});
+            setUnavailableDates(updatedData);
+        } catch (error) {
+            console.error('Error refreshing unavailable dates:', error);
+        }
+    };
+    
+    // // Call this after confirmation
+    // refreshUnavailableDates();
+    
     const handleSubmitBookingRequest = async () => {
         try {
             const { dates, reason, times } = bookingDetails;
@@ -309,13 +391,15 @@ const Book_Equipment = ( {device, ownerId} ) => {
                 reason: reason, // State `reason` should already have a value
                 owner_id: ownerId, 
             };
-            console.log('Payload:', payload); // Debugging
+            console.log('Booking Details:', bookingDetails);
     
             const response = await axios.post('http://localhost:5001/submitBookingRequest', payload);
-    
+
+            
             if (response.data.message) {
                 console.log("Booking request submitted successfully:", response.data);
                 alert('Booking request submitted successfully!');
+                await refreshUnavailableDates(); // Refresh unavailable dates
                 handleCloseConfirmationModal();
             } else {
                 console.error('Error from server:', response.data);
@@ -392,12 +476,25 @@ const Book_Equipment = ( {device, ownerId} ) => {
     
 
     // Help ensure the calendar knows which dates are unavailable
-    const flattenedUnavailableDates = Object.values(unavailableDates).reduce((acc, { dates, allSelected, times }) => {
-        dates.forEach(date => {
-            acc[date] = { allSelected, times };
-        });
+    // const flattenedUnavailableDates = Object.keys(unavailableDates).reduce((acc, date) => {
+    //     acc[date] = unavailableDates[date];
+    //     return acc;
+    // }, {});
+
+    const flattenedUnavailableDates = Object.values(unavailableDates).reduce((acc, { dates = [], allSelected, times }) => {
+        if (Array.isArray(dates)) {
+            dates.forEach(date => {
+                acc[date] = { allSelected, times };
+            });
+        }
         return acc;
     }, {});
+
+
+    console.log('Unavailable Dates:', unavailableDates);
+    console.log('Flattened Dates:', flattenedUnavailableDates);
+
+    
 
     return (
         <div className="container">
@@ -423,11 +520,12 @@ const Book_Equipment = ( {device, ownerId} ) => {
                         <Availability
                             key={0}
                             index={0}
-                            onDateChange={updateUnavailableDates}
+                            onDateChange={updateUnavailableDates} 
+                            unavailableDates={unavailableDates} 
                         />
                         </tbody>
                     </table>
-                    <h5>Reason for booking</h5>
+                    <h5>Project Information</h5>
                     <textarea
                         id="booking"
                         name="booking"
@@ -438,7 +536,7 @@ const Book_Equipment = ( {device, ownerId} ) => {
                     />
                 </div>
                 <div className="col-md-5">
-                    <GenerateCalender unavailableDates={flattenedUnavailableDates} />
+                    <GenerateCalender unavailableDates={unavailableDates} />
                 </div>
                 <div className="text-end">
                 {errorMessage && <p className="error-message">{errorMessage}</p>}
@@ -472,7 +570,7 @@ const Book_Equipment = ( {device, ownerId} ) => {
                         Time(s): <strong>{bookingDetails.times?.join(', ') || 'No time slots selected'}</strong>
                     </p>
                     <p>
-                        Reason: <strong>{bookingDetails.reason}</strong>
+                        Project Information: <strong>{bookingDetails.reason}</strong>
                     </p>
                 </Modal.Body>
                 <Modal.Footer>

@@ -5,6 +5,7 @@ import { Modal, Button } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import "bootstrap-icons/font/bootstrap-icons.css";
 import axios from 'axios'; // For making API calls
+import Pagination from '../Pagination.jsx'; 
 import { useUser } from '../../UserContext';
 
 const RequestsPage = () => {
@@ -14,19 +15,32 @@ const RequestsPage = () => {
     const [selectedRequest, setSelectedRequest] = useState(null); // State for selected request
     const [deleteButton, setShowDeleteButton] = useState(false);
 
+     // Pagination state
+     const [currentPage, setCurrentPage] = useState(1);
+     const [itemsPerPage] = useState(5); // Number of items per page
+    
     // Fetch booking requests for the logged-in owner
     useEffect(() => {
         const fetchRequests = async () => {
             try {
                 const response = await axios.get(`http://localhost:5001/requests?owner_id=${user.user_id}`);
                 console.log('Requests Data:', response.data); // Log the data from the API
-                setRequests(response.data);
+    
+                // Sort the requests in descending order based on request_date (most recent first)
+                const sortedRequests = response.data.sort((a, b) => {
+                    const dateA = new Date(a.schedule_id);
+                    const dateB = new Date(b.schedule_id);
+                    return dateB - dateA; // Sort descending
+                });
+    
+                setRequests(sortedRequests);
             } catch (error) {
                 console.error('Error fetching requests:', error.message);
             }
         };
         fetchRequests();
     }, [user.user_id]);
+    
     
 
     // Handle booking confirmation by the owner
@@ -98,6 +112,15 @@ const RequestsPage = () => {
         }
     }
 
+    // Pagination logic
+    const indexOfLastItem = currentPage * itemsPerPage;
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+    const currentRequests = requests.slice(indexOfFirstItem, indexOfLastItem);
+
+    const handlePagination = (pageNumber) => {
+        setCurrentPage(pageNumber);
+    };
+
     return (
         <>
             {/* Requests and Inventory Buttons */}
@@ -131,8 +154,8 @@ const RequestsPage = () => {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {requests.length > 0 ? (
-                                        requests.map((request) => (
+                                    {currentRequests.length > 0 ? (
+                                        currentRequests.map((request) => (
                                             <tr key={request.schedule_id}>
                                                 <td>{request.student_name}</td>
                                                 <td>{request.student_email}</td>
@@ -183,6 +206,15 @@ const RequestsPage = () => {
                             </table>
                         </div>
                     </div>
+                        {/* Pagination */}
+                        <div className="d-flex justify-content-end mr-4 mb-4">
+                            <Pagination
+                                postsPerPage={itemsPerPage}
+                                length={requests.length}
+                                handlePagination={handlePagination}
+                                currentPage={currentPage}
+                            />
+                        </div>
                 </div>
             </div>
 

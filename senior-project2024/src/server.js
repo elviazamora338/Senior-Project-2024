@@ -324,6 +324,7 @@ app.delete('/unavailable/:id', async (req, res) => {
     }
 });
 
+
 // Fetch device details by device_id for Report_Equipment.jsx page
 app.get('/device/:device_id', (req, res) => {
     const { device_id } = req.params;
@@ -364,7 +365,28 @@ app.get('/device/:device_id', (req, res) => {
     });
 });
 
+// Endpoint to fetch unavailable dates
+app.get('/api/unavailableDates/:deviceId', (req, res) => {
+    const { deviceId } = req.params;
 
+    const query = 'SELECT date, time_range FROM unavailable WHERE device_id = ?';
+
+    db.all(query, [deviceId], (err, rows) => {
+        if (err) {
+            console.error('Error fetching unavailable dates:', err.message);
+            return res.status(500).json({ error: 'Failed to fetch unavailable dates' });
+        }
+
+        if (!rows || rows.length === 0) {
+            return res.status(404).json({ error: 'No unavailable dates found for this device' });
+        }
+
+        res.json(rows); // Send the result rows
+    });
+});
+
+
+// Endpoint to fetch unavailable device
 app.get('/unavailable/by-device/:device_id', (req, res) => {
     const { device_id } = req.params;
 
@@ -387,6 +409,7 @@ app.get('/unavailable/by-device/:device_id', (req, res) => {
         res.json(row);
     });
 });
+
 
 
 

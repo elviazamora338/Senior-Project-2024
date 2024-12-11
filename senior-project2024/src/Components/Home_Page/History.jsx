@@ -75,18 +75,15 @@ const HistoryPage = () => {
             <div className="col text-center">
                 <div className="btn-group">
                     <Link to="/home">
-                        <button type="button" className="bi bi-check-lg text-dark btn btn-outline-dark buttons-right border-secondary">
-                            Scheduled
+                        <button type="button" className="bi bi-check-lg text-dark btn btn-outline-dark buttons-right border-secondary"> Scheduled
                         </button>
                     </Link>
                     <Link to="/history">
-                        <button type="button" className="bi bi-box btn text-dark btn btn-secondary middle-button">
-                            History
+                        <button type="button" className="bi bi-box btn text-dark btn btn-secondary middle-button"> History
                         </button>
                     </Link>
                     <Link to="/bookmarks">
-                        <button type="button" className="bi bi-bookmark-fill btn btn-outline-dark text-dark border-secondary buttons-left">
-                            Bookmarks
+                        <button type="button" className="bi bi-bookmark-fill btn btn-outline-dark text-dark border-secondary buttons-left"> Bookmarks
                         </button>
                     </Link>
                 </div>
