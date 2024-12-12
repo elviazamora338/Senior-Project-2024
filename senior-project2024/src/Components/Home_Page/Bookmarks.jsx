@@ -176,7 +176,7 @@ const BookmarksPage = () => {
                                             </td>
                                             <td className="bookmark-cell">
                                                 <div
-                                                    className="bookmark click"
+                                                    className="bookmark click d-flex justify-content-end mr-4 mb-4"
                                                     onClick={(e) => handleBookmarkClick(e, device.device_id)}
                                                 >
                                                     {bookmarkedItems[device.device_id] ? (
