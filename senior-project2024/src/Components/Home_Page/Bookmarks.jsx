@@ -6,6 +6,7 @@ import { Modal, Button } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import "bootstrap-icons/font/bootstrap-icons.css";
 import { useUser} from '../../UserContext';
+import Pagination from '../Pagination.jsx';
 import axios from 'axios';
 import ViewPage from '../View_Equipment/View_Equipment.jsx';
 
@@ -19,6 +20,7 @@ const BookmarksPage = () => {
     const [selectedDevice, setSelectedDevice] = useState(null); // Add state for the selected device
     const [currentPage, setCurrentPage] = useState(1); // Pagination state
     const postsPerPage = 8; // Items per page
+
 
     
     const handleShowDevice = (device) => {
@@ -96,13 +98,19 @@ const BookmarksPage = () => {
     }, [user.user_id]);
 
 
-    // tried adding page thing here from All page :(
+  
     const handlePagination = (pageNumber) => {
         setCurrentPage(pageNumber);
     };
+
     
     if (loading) return <p>Loading...</p>;
     if (error) return <p>{error}</p>;
+
+    // Paginate devices
+    const indexOfLastPost = currentPage * postsPerPage;
+    const indexOfFirstPost = indexOfLastPost - postsPerPage;
+    const currentDevices = labDevices.slice(indexOfFirstPost, indexOfLastPost);
 
     return (
         <>
@@ -136,7 +144,7 @@ const BookmarksPage = () => {
                                         </tr>
                                     </thead>
                                     <tbody>
-                                    {labDevices.map((device) => (
+                                    {currentDevices.map((device) => (
                                          <tr key={device.device_id} onClick={() => handleShowDevice(device)}>
                                             <td className="image-height">
                                                 {device.image_path ? (
@@ -168,7 +176,7 @@ const BookmarksPage = () => {
                                             </td>
                                             <td className="bookmark-cell">
                                                 <div
-                                                    className="bookmark click"
+                                                    className="bookmark click d-flex justify-content-end mr-4 mb-4"
                                                     onClick={(e) => handleBookmarkClick(e, device.device_id)}
                                                 >
                                                     {bookmarkedItems[device.device_id] ? (
@@ -181,12 +189,20 @@ const BookmarksPage = () => {
                                         </tr>
                                     ))}
                                 </tbody>
-                            </table>
+                            </table>  
+                        </div>
+                            {/* Pagination */}
+                            <div className="d-flex justify-content-end mr-4 mb-4">
+                                <Pagination
+                                    postsPerPage={postsPerPage}
+                                    length={labDevices.length}
+                                    handlePagination={handlePagination}
+                                    currentPage={currentPage}
+                                />
                             </div>
                     </div>
                 </div>
             </div>
-
             {/* Modal for Viewing Device Details */}
             <Modal
                 show={showDevice}

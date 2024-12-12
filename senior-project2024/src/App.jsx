@@ -16,6 +16,7 @@ import BookmarksPage from './Components/Home_Page/Bookmarks.jsx';
 import InventoryUpdate from './Components/MyEquip_Page/Inventory_Update.jsx';
 import { UserProvider } from './UserContext.js';
 import './App.css';
+import { useEffect } from 'react'; // Import useEffect
 
 import { Navigate } from 'react-router-dom'; // Import Navigate for redirection
 
@@ -24,6 +25,49 @@ const AppContent = () => {
 
   // Determine if routes require Sidebar and Header
   const showSidebar = !["/calendar", "/loginauth", "/login", "/signup"].includes(location.pathname);
+  // Update tab name based on the current route
+  useEffect(() => {
+    switch (location.pathname) {
+      case "/home":
+        document.title = "Home - Book'em";
+        break;
+      case "/all":
+        document.title = "All Equipment - Book'em";
+        break;
+      case "/add":
+        document.title = "Add Equipment - Book'em";
+        break;
+      case "/requests":
+        document.title = "Requests - Book'em";
+        break;
+      case "/reports":
+        document.title = "Reports - Book'em";
+        break;
+      case "/inventory":
+        document.title = "Inventory - Book'em";
+        break;
+      case "/history":
+        document.title = "History - Book'em";
+        break;
+      case "/bookmarks":
+        document.title = "Bookmarks - Book'em";
+        break;
+      case "/inventory/update/:device_id":
+        document.title = "Update Inventory - Book'em";
+        break;
+      case "/signup":
+        document.title = "Sign Up - Book'em";
+        break;
+      case "/loginauth":
+        document.title = "Authentication - Book'em";
+        break;
+      case "/login":
+        document.title = "Login - Book'em";
+        break;
+      default:
+        document.title = "Book'em";
+    }
+  }, [location.pathname]); 
 
   return (
     <>
