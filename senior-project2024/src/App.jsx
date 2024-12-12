@@ -29,43 +29,43 @@ const AppContent = () => {
   useEffect(() => {
     switch (location.pathname) {
       case "/home":
-        document.title = "Home - Equipment Scheduler";
+        document.title = "Home - Book'em";
         break;
       case "/all":
-        document.title = "All Equipment - Equipment Scheduler";
+        document.title = "All Equipment - Book'em";
         break;
       case "/add":
-        document.title = "Add Equipment - Equipment Scheduler";
+        document.title = "Add Equipment - Book'em";
         break;
       case "/requests":
-        document.title = "Requests - Equipment Scheduler";
+        document.title = "Requests - Book'em";
         break;
       case "/reports":
-        document.title = "Reports - Equipment Scheduler";
+        document.title = "Reports - Book'em";
         break;
       case "/inventory":
-        document.title = "Inventory - Equipment Scheduler";
+        document.title = "Inventory - Book'em";
         break;
       case "/history":
-        document.title = "History - Equipment Scheduler";
+        document.title = "History - Book'em";
         break;
       case "/bookmarks":
-        document.title = "Bookmarks - Equipment Scheduler";
+        document.title = "Bookmarks - Book'em";
         break;
       case "/inventory/update/:device_id":
-        document.title = "Update Inventory - Equipment Scheduler";
+        document.title = "Update Inventory - Book'em";
         break;
       case "/signup":
-        document.title = "Sign Up - Equipment Scheduler";
+        document.title = "Sign Up - Book'em";
         break;
       case "/loginauth":
-        document.title = "Authentication - Equipment Scheduler";
+        document.title = "Authentication - Book'em";
         break;
       case "/login":
-        document.title = "Login - Equipment Scheduler";
+        document.title = "Login - Book'em";
         break;
       default:
-        document.title = "Equipment Scheduler";
+        document.title = "Book'em";
     }
   }, [location.pathname]); // Run this effect whenever the pathname changes
 
