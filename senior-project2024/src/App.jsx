@@ -67,7 +67,7 @@ const AppContent = () => {
       default:
         document.title = "Book'em";
     }
-  }, [location.pathname]); // Run this effect whenever the pathname changes
+  }, [location.pathname]); 
 
   return (
     <>
