@@ -16,6 +16,7 @@ import BookmarksPage from './Components/Home_Page/Bookmarks.jsx';
 import InventoryUpdate from './Components/MyEquip_Page/Inventory_Update.jsx';
 import { UserProvider } from './UserContext.js';
 import './App.css';
+import { useEffect } from 'react'; // Import useEffect
 
 import { Navigate } from 'react-router-dom'; // Import Navigate for redirection
 
@@ -24,6 +25,49 @@ const AppContent = () => {
 
   // Determine if routes require Sidebar and Header
   const showSidebar = !["/calendar", "/loginauth", "/login", "/signup"].includes(location.pathname);
+  // Update tab name based on the current route
+  useEffect(() => {
+    switch (location.pathname) {
+      case "/home":
+        document.title = "Home - Equipment Scheduler";
+        break;
+      case "/all":
+        document.title = "All Equipment - Equipment Scheduler";
+        break;
+      case "/add":
+        document.title = "Add Equipment - Equipment Scheduler";
+        break;
+      case "/requests":
+        document.title = "Requests - Equipment Scheduler";
+        break;
+      case "/reports":
+        document.title = "Reports - Equipment Scheduler";
+        break;
+      case "/inventory":
+        document.title = "Inventory - Equipment Scheduler";
+        break;
+      case "/history":
+        document.title = "History - Equipment Scheduler";
+        break;
+      case "/bookmarks":
+        document.title = "Bookmarks - Equipment Scheduler";
+        break;
+      case "/inventory/update/:device_id":
+        document.title = "Update Inventory - Equipment Scheduler";
+        break;
+      case "/signup":
+        document.title = "Sign Up - Equipment Scheduler";
+        break;
+      case "/loginauth":
+        document.title = "Authentication - Equipment Scheduler";
+        break;
+      case "/login":
+        document.title = "Login - Equipment Scheduler";
+        break;
+      default:
+        document.title = "Equipment Scheduler";
+    }
+  }, [location.pathname]); // Run this effect whenever the pathname changes
 
   return (
     <>
