@@ -189,14 +189,17 @@ const BookmarksPage = () => {
                                         </tr>
                                     ))}
                                 </tbody>
-                            </table>
-                            <Pagination
-                                postsPerPage={postsPerPage}
-                                length={labDevices.length}
-                                handlePagination={handlePagination}
-                                currentPage={currentPage}
-                            />
+                            </table>  
                         </div>
+                            {/* Pagination */}
+                            <div className="d-flex justify-content-end mr-4 mb-4">
+                                <Pagination
+                                    postsPerPage={postsPerPage}
+                                    length={labDevices.length}
+                                    handlePagination={handlePagination}
+                                    currentPage={currentPage}
+                                />
+                            </div>
                     </div>
                 </div>
             </div>
